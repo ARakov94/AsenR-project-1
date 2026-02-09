@@ -1,0 +1,12 @@
+{
+  "servers": {
+    "n8n-workflow-builder": {
+      "command": "npx",
+      "args": ["@kernel.salacoste/n8n-workflow-builder"],
+      "env": {
+        "N8N_HOST": "https://n8n.simeontsvetanovn8nworkflows.site",
+        "N8N_API_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxZjU5ZWUwNS0wYzYwLTQwOTUtYWFlNC1lZGVjNWNjMmRkMzIiLCJpc3MiOiJuOG4iLCJhdWQiOiJwdWJsaWMtYXBpIiwiaWF0IjoxNzcwNjQ3MjE3fQ.KbQ5FGc_5GIg2Zhqrnh7hLkWq-HPWhPHZlzorHzWsC8"
+      }
+    }
+  }
+}
