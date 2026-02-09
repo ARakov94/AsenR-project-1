@@ -443,16 +443,64 @@ body {
     gap: 1.2rem;
 }
 
+/* ===== Optional Label ===== */
+.optional-label {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    font-weight: 400;
+    font-family: var(--font-body);
+}
+
 /* ===== Item Cards ===== */
 .item-card {
     background: var(--bg-card);
     border: 1px solid var(--border-color);
     border-radius: var(--radius);
-    padding: 1.5rem;
+    padding: 0;
     transition: all var(--transition);
     animation: itemAppear 0.5s ease backwards;
     position: relative;
     overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Item Image */
+.item-image-container {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    overflow: hidden;
+    background: var(--bg-dark);
+    position: relative;
+}
+
+.item-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.4s ease;
+}
+
+.item-card:hover .item-image {
+    transform: scale(1.05);
+}
+
+.item-card .item-header,
+.item-card .item-type,
+.item-card .item-rarity,
+.item-card .item-description,
+.item-card .item-properties {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+}
+
+.item-card .item-header {
+    padding-top: 1rem;
+}
+
+.item-card .item-properties {
+    padding-bottom: 1.5rem;
 }
 
 .item-card::before {

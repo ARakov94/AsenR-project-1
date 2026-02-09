@@ -10,6 +10,7 @@ const DOM = {
     charClass: document.getElementById('charClass'),
     charRace: document.getElementById('charRace'),
     charLevel: document.getElementById('charLevel'),
+    itemType: document.getElementById('itemType'),
     spicySlider: document.getElementById('spicySlider'),
     spicyValue: document.getElementById('spicyValue'),
     spicyEmoji: document.getElementById('spicyEmoji'),
@@ -207,6 +208,9 @@ function renderItems(items) {
         const properties = item.properties || [];
         
         card.innerHTML = `
+            <div class="item-image-container">
+                <img class="item-image" src="https://image.pollinations.ai/prompt/${encodeURIComponent('fantasy D&D item illustration, ' + (item.imagePrompt || item.name + ', ' + (item.type || 'magical item')) + ', dark fantasy style, detailed, game icon, no text')}?width=512&height=512&nologo=true&seed=${Math.floor(Math.random() * 99999)}" alt="${escapeHtml(item.name)}" loading="lazy" onerror="this.style.display='none'">
+            </div>
             <div class="item-header">
                 <span class="item-emoji">${emoji}</span>
                 <span class="item-name">${escapeHtml(item.name)}</span>
@@ -262,12 +266,13 @@ async function generateItems() {
     showLoading();
 
     const payload = {
-        characterName: DOM.charName.value.trim() || 'Unnamed Hero',
+        characterName: DOM.charName.value.trim() || '',
         characterClass: charClass,
         characterRace: charRace,
         characterLevel: parseInt(DOM.charLevel.value),
         spiciness: parseInt(DOM.spicySlider.value),
-        itemCount: state.itemCount
+        itemCount: state.itemCount,
+        itemType: DOM.itemType.value
     };
 
     try {

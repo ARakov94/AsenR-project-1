@@ -28,8 +28,8 @@
             
             <div class="form-grid">
                 <div class="form-group">
-                    <label for="charName">Име на героя</label>
-                    <input type="text" id="charName" placeholder="Например: Тордек Огнебрадия">
+                    <label for="charName">Име на героя <span class="optional-label">(по избор)</span></label>
+                    <input type="text" id="charName" placeholder="напр. Тордек Огнебрадия">
                 </div>
 
                 <div class="form-group">
@@ -77,6 +77,22 @@
                         <option value="3">Ниво 3</option>
                         <option value="4">Ниво 4</option>
                         <option value="5">Ниво 5</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="itemType">Вид предмети</label>
+                    <select id="itemType">
+                        <option value="mixed" selected>🎲 Смесени (всички видове)</option>
+                        <option value="weapons">⚔️ Оръжия</option>
+                        <option value="armor">🛡️ Броня и щитове</option>
+                        <option value="potions">🧪 Отвари</option>
+                        <option value="scrolls">📜 Свитъци и книги</option>
+                        <option value="jewelry">💍 Бижута (пръстени, амулети)</option>
+                        <option value="trinkets">🔮 Дреболии и талисмани</option>
+                        <option value="clothing">👘 Дрехи и обувки</option>
+                        <option value="tools">🔧 Инструменти</option>
+                        <option value="consumables">🍖 Консумативи (храна, напитки)</option>
                     </select>
                 </div>
             </div>
