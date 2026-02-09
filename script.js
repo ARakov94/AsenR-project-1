@@ -278,10 +278,21 @@ async function generateItems() {
         });
 
         if (!response.ok) {
-            throw new Error(`Сървърът отговори с код ${response.status}`);
+            const errorText = await response.text();
+            throw new Error(`Сървърът отговори с код ${response.status}: ${errorText || 'Няма допълнителна информация'}`);
         }
 
-        const data = await response.json();
+        const responseText = await response.text();
+        if (!responseText || responseText.trim() === '') {
+            throw new Error('Сървърът върна празен отговор. Провери дали n8n workflow-ът е активен и работи правилно.');
+        }
+
+        let data;
+        try {
+            data = JSON.parse(responseText);
+        } catch (parseErr) {
+            throw new Error(`Невалиден JSON отговор от сървъра: ${responseText.substring(0, 200)}`);
+        }
         
         // Handle different response formats from n8n
         let items;
