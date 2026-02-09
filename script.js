@@ -10,7 +10,10 @@ const DOM = {
     charClass: document.getElementById('charClass'),
     charRace: document.getElementById('charRace'),
     charLevel: document.getElementById('charLevel'),
-    itemType: document.getElementById('itemType'),
+    itemTypeSelect: document.getElementById('itemTypeSelect'),
+    itemTypeToggle: document.getElementById('itemTypeToggle'),
+    itemTypeDropdown: document.getElementById('itemTypeDropdown'),
+    itemTypeText: document.querySelector('#itemTypeToggle .multi-select-text'),
     spicySlider: document.getElementById('spicySlider'),
     spicyValue: document.getElementById('spicyValue'),
     spicyEmoji: document.getElementById('spicyEmoji'),
@@ -50,6 +53,57 @@ const flavorTexts = [
     "Багажът на приключенеца се пълни...",
     "Артифайсърът смесва съставките..."
 ];
+
+// ===== Multi-Select Item Types =====
+const itemTypeLabels = {
+    weapons: '⚔️ Оръжия',
+    armor: '🛡️ Броня',
+    potions: '🧪 Отвари',
+    scrolls: '📜 Свитъци',
+    jewelry: '💍 Бижута',
+    trinkets: '🔮 Дреболии',
+    clothing: '👘 Дрехи',
+    tools: '🔧 Инструменти',
+    consumables: '🍖 Консумативи'
+};
+
+function getSelectedItemTypes() {
+    const checkboxes = DOM.itemTypeDropdown.querySelectorAll('input[type="checkbox"]:checked');
+    return Array.from(checkboxes).map(cb => cb.value);
+}
+
+function updateItemTypeText() {
+    const selected = getSelectedItemTypes();
+    if (selected.length === 0) {
+        DOM.itemTypeText.textContent = '🎲 Смесени (всички видове)';
+    } else if (selected.length === 1) {
+        DOM.itemTypeText.textContent = itemTypeLabels[selected[0]] || selected[0];
+    } else if (selected.length <= 3) {
+        DOM.itemTypeText.textContent = selected.map(s => itemTypeLabels[s].split(' ')[0]).join('') + ' ' + selected.length + ' вида';
+    } else {
+        DOM.itemTypeText.textContent = '🎯 ' + selected.length + ' вида избрани';
+    }
+}
+
+function toggleItemTypeDropdown(e) {
+    e.stopPropagation();
+    DOM.itemTypeSelect.classList.toggle('open');
+}
+
+function setupItemTypeMultiSelect() {
+    DOM.itemTypeToggle.addEventListener('click', toggleItemTypeDropdown);
+    
+    DOM.itemTypeDropdown.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+        cb.addEventListener('change', updateItemTypeText);
+    });
+    
+    // Close dropdown when clicking outside
+    document.addEventListener('click', (e) => {
+        if (!DOM.itemTypeSelect.contains(e.target)) {
+            DOM.itemTypeSelect.classList.remove('open');
+        }
+    });
+}
 
 // ===== Particles =====
 function createParticles() {
@@ -272,7 +326,7 @@ async function generateItems() {
         characterLevel: parseInt(DOM.charLevel.value),
         spiciness: parseInt(DOM.spicySlider.value),
         itemCount: state.itemCount,
-        itemType: DOM.itemType.value
+        itemTypes: getSelectedItemTypes()
     };
 
     try {
@@ -352,6 +406,7 @@ function init() {
     createParticles();
     updateSpiciness();
     setupCountButtons();
+    setupItemTypeMultiSelect();
     
     // Prompt for webhook if not set
     if (!CONFIG.webhookUrl) {

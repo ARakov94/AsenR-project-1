@@ -81,19 +81,42 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="itemType">Вид предмети</label>
-                    <select id="itemType">
-                        <option value="mixed" selected>🎲 Смесени (всички видове)</option>
-                        <option value="weapons">⚔️ Оръжия</option>
-                        <option value="armor">🛡️ Броня и щитове</option>
-                        <option value="potions">🧪 Отвари</option>
-                        <option value="scrolls">📜 Свитъци и книги</option>
-                        <option value="jewelry">💍 Бижута (пръстени, амулети)</option>
-                        <option value="trinkets">🔮 Дреболии и талисмани</option>
-                        <option value="clothing">👘 Дрехи и обувки</option>
-                        <option value="tools">🔧 Инструменти</option>
-                        <option value="consumables">🍖 Консумативи (храна, напитки)</option>
-                    </select>
+                    <label>Вид предмети</label>
+                    <div class="multi-select" id="itemTypeSelect">
+                        <button type="button" class="multi-select-toggle" id="itemTypeToggle">
+                            <span class="multi-select-text">🎲 Смесени (всички видове)</span>
+                            <span class="multi-select-arrow">▾</span>
+                        </button>
+                        <div class="multi-select-dropdown" id="itemTypeDropdown">
+                            <label class="multi-select-option">
+                                <input type="checkbox" value="weapons"> <span>⚔️ Оръжия</span>
+                            </label>
+                            <label class="multi-select-option">
+                                <input type="checkbox" value="armor"> <span>🛡️ Броня и щитове</span>
+                            </label>
+                            <label class="multi-select-option">
+                                <input type="checkbox" value="potions"> <span>🧪 Отвари</span>
+                            </label>
+                            <label class="multi-select-option">
+                                <input type="checkbox" value="scrolls"> <span>📜 Свитъци и книги</span>
+                            </label>
+                            <label class="multi-select-option">
+                                <input type="checkbox" value="jewelry"> <span>💍 Бижута (пръстени, амулети)</span>
+                            </label>
+                            <label class="multi-select-option">
+                                <input type="checkbox" value="trinkets"> <span>🔮 Дреболии и талисмани</span>
+                            </label>
+                            <label class="multi-select-option">
+                                <input type="checkbox" value="clothing"> <span>👘 Дрехи и обувки</span>
+                            </label>
+                            <label class="multi-select-option">
+                                <input type="checkbox" value="tools"> <span>🔧 Инструменти</span>
+                            </label>
+                            <label class="multi-select-option">
+                                <input type="checkbox" value="consumables"> <span>🍖 Консумативи (храна, напитки)</span>
+                            </label>
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>
