@@ -1,6 +1,6 @@
 // ===== Configuration =====
 const CONFIG = {
-    webhookUrl: localStorage.getItem('n8n_webhook_url') || '',
+    webhookUrl: localStorage.getItem('n8n_webhook_url') || 'https://n8n.simeontsvetanovn8nworkflows.site/webhook/dnd-items',
     storageKey: 'n8n_webhook_url'
 };
 
