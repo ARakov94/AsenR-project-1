@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>D&D 5e 2024 - Item Generator</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚔️</text></svg>">
+</head>
+<body>
+    <div class="background-overlay"></div>
+    
+    <!-- Floating particles -->
+    <div class="particles" id="particles"></div>
+
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="dragon-icon">🐉</div>
+            <h1 class="title">D&D 5e Item Forge</h1>
+            <p class="subtitle">Генератор на предмети за нови герои — 2024 Edition</p>
+        </header>
+
+        <!-- Character Setup -->
+        <section class="card character-setup">
+            <h2 class="card-title">⚔️ Настройки на героя</h2>
+            
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="charName">Име на героя</label>
+                    <input type="text" id="charName" placeholder="Например: Тордек Огнебрадия">
+                </div>
+
+                <div class="form-group">
+                    <label for="charClass">Клас</label>
+                    <select id="charClass">
+                        <option value="">— Избери клас —</option>
+                        <option value="Barbarian">Barbarian (Варварин)</option>
+                        <option value="Bard">Bard (Бард)</option>
+                        <option value="Cleric">Cleric (Жрец)</option>
+                        <option value="Druid">Druid (Друид)</option>
+                        <option value="Fighter">Fighter (Боец)</option>
+                        <option value="Monk">Monk (Монах)</option>
+                        <option value="Paladin">Paladin (Паладин)</option>
+                        <option value="Ranger">Ranger (Рейнджър)</option>
+                        <option value="Rogue">Rogue (Мошеник)</option>
+                        <option value="Sorcerer">Sorcerer (Магьосник)</option>
+                        <option value="Warlock">Warlock (Чернокнижник)</option>
+                        <option value="Wizard">Wizard (Вълшебник)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="charRace">Раса</label>
+                    <select id="charRace">
+                        <option value="">— Избери раса —</option>
+                        <option value="Human">Human (Човек)</option>
+                        <option value="Elf">Elf (Елф)</option>
+                        <option value="Dwarf">Dwarf (Джудже)</option>
+                        <option value="Halfling">Halfling (Хафлинг)</option>
+                        <option value="Gnome">Gnome (Гном)</option>
+                        <option value="Half-Orc">Half-Orc (Полуорк)</option>
+                        <option value="Tiefling">Tiefling (Тийфлинг)</option>
+                        <option value="Dragonborn">Dragonborn (Драконороден)</option>
+                        <option value="Goliath">Goliath (Голиат)</option>
+                        <option value="Aasimar">Aasimar (Аасимар)</option>
+                        <option value="Orc">Orc (Орк)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="charLevel">Ниво</label>
+                    <select id="charLevel">
+                        <option value="1" selected>Ниво 1</option>
+                        <option value="2">Ниво 2</option>
+                        <option value="3">Ниво 3</option>
+                        <option value="4">Ниво 4</option>
+                        <option value="5">Ниво 5</option>
+                    </select>
+                </div>
+            </div>
+        </section>
+
+        <!-- Spiciness Slider -->
+        <section class="card spiciness-section">
+            <h2 class="card-title">🌶️ Нивo на пикантност</h2>
+            <p class="spiciness-desc">Колко... <em>дръзки</em> да бъдат предметите?</p>
+            
+            <div class="slider-container">
+                <div class="slider-labels">
+                    <span class="label-safe">🛡️ Безопасно</span>
+                    <span class="label-mild">😏 Леко</span>
+                    <span class="label-spicy">🔥 Пикантно</span>
+                    <span class="label-hot">😈 Дяволско</span>
+                </div>
+                <input type="range" id="spicySlider" min="0" max="100" value="0" class="spicy-slider">
+                <div class="slider-value-display">
+                    <span id="spicyValue">0</span>%
+                    <span id="spicyEmoji">🛡️</span>
+                </div>
+                <p class="age-warning" id="ageWarning" style="display: none;">
+                    ⚠️ Внимание: Съдържанието може да е неподходящо за лица под 18 години
+                </p>
+            </div>
+        </section>
+
+        <!-- Item Count -->
+        <section class="card">
+            <h2 class="card-title">📦 Брой предмети</h2>
+            <div class="item-count-selector">
+                <button class="count-btn" data-count="3">3</button>
+                <button class="count-btn active" data-count="5">5</button>
+                <button class="count-btn" data-count="8">8</button>
+                <button class="count-btn" data-count="10">10</button>
+            </div>
+        </section>
+
+        <!-- Generate Button -->
+        <div class="generate-section">
+            <button id="generateBtn" class="generate-btn">
+                <span class="btn-icon">⚒️</span>
+                <span class="btn-text">Изкуй предмети!</span>
+            </button>
+        </div>
+
+        <!-- Loading -->
+        <div class="loading" id="loading" style="display: none;">
+            <div class="loading-spinner"></div>
+            <p class="loading-text">Ковачницата работи...</p>
+            <p class="loading-flavor" id="loadingFlavor"></p>
+        </div>
+
+        <!-- Error -->
+        <div class="error-message" id="errorMessage" style="display: none;">
+            <p>⚠️ <span id="errorText"></span></p>
+        </div>
+
+        <!-- Results -->
+        <section class="results" id="results" style="display: none;">
+            <h2 class="results-title">🎒 Генерирани предмети</h2>
+            <div class="items-grid" id="itemsGrid"></div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>Powered by n8n & AI ⚡ | D&D 5e 2024 Edition</p>
+            <p class="footer-small">Не е официален продукт на Wizards of the Coast</p>
+        </footer>
+    </div>
+
+    <!-- n8n Config Modal -->
+    <div class="modal-overlay" id="configModal" style="display: none;">
+        <div class="modal">
+            <h3>⚙️ n8n Configuration</h3>
+            <div class="form-group">
+                <label for="webhookUrl">n8n Webhook URL</label>
+                <input type="url" id="webhookUrl" placeholder="https://your-n8n.example.com/webhook/dnd-items">
+            </div>
+            <div class="modal-buttons">
+                <button id="saveConfig" class="btn-save">Запази</button>
+                <button id="cancelConfig" class="btn-cancel">Отказ</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings gear -->
+    <button class="settings-btn" id="settingsBtn" title="n8n настройки">⚙️</button>
+
+    <script src="script.js"></script>
+</body>
+</html>

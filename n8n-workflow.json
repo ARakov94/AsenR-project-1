@@ -1,0 +1,124 @@
+{
+  "name": "DnD 5e Item Generator",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "dnd-items",
+        "responseMode": "responseNode",
+        "options": {
+          "allowedOrigins": "*"
+        }
+      },
+      "id": "webhook-node",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [250, 300],
+      "webhookId": "dnd-items"
+    },
+    {
+      "parameters": {
+        "jsCode": "const input = $input.first().json.body;\n\nconst characterName = input.characterName || 'Unnamed Hero';\nconst characterClass = input.characterClass || 'Fighter';\nconst characterRace = input.characterRace || 'Human';\nconst characterLevel = input.characterLevel || 1;\nconst spiciness = input.spiciness || 0;\nconst itemCount = input.itemCount || 5;\n\nlet spicyInstruction = '';\nif (spiciness < 25) {\n  spicyInstruction = 'Keep all items completely family-friendly and suitable for all ages. Standard D&D fantasy items.';\n} else if (spiciness < 50) {\n  spicyInstruction = 'Items can have mildly suggestive or cheeky names and descriptions. Think tavern humor - innuendos and playful double meanings, but nothing explicit.';\n} else if (spiciness < 75) {\n  spicyInstruction = 'Items should have clearly suggestive, flirty, or risqué themes. Adult humor is encouraged - think burlesque D&D. Names and descriptions can be provocative but not vulgar.';\n} else {\n  spicyInstruction = 'Items should be boldly adult-themed with explicit humor, provocative descriptions, and unapologetically 18+ content. Be creative and daring with innuendo and adult themes, but maintain a sense of humor and D&D fantasy flavor.';\n}\n\nconst prompt = `You are a creative D&D 5e (2024 rules) item designer. Generate exactly ${itemCount} unique starting items for a new character with these details:\n\n- Character Name: ${characterName}\n- Class: ${characterClass}\n- Race: ${characterRace}\n- Level: ${characterLevel}\n\nSpiciness Level: ${spiciness}/100\n${spicyInstruction}\n\nFor each item, provide:\n1. \"name\" - A creative item name\n2. \"type\" - Item category (weapon, armor, potion, trinket, tool, clothing, misc, scroll, ring, amulet, etc.)\n3. \"rarity\" - One of: common, uncommon, rare, very-rare, legendary\n4. \"description\" - A flavorful 1-3 sentence description\n5. \"properties\" - Array of 1-3 mechanical properties or fun effects\n\nMix of item types appropriate for the class. For level 1 characters, most items should be common/uncommon.\nAt least one item should be a trinket or personal item with backstory flavor.\nItems should feel thematic to the character's class and race.\n\nRespond ONLY with a valid JSON array of item objects. No markdown, no code fences, no explanation.`;\n\nreturn [{ json: { prompt, characterName, characterClass, spiciness } }];"
+      },
+      "id": "build-prompt",
+      "name": "Build Prompt",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [480, 300]
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4O-MINI"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "={{ $json.prompt }}"
+            }
+          ]
+        },
+        "options": {
+          "temperature": 0.9,
+          "maxTokens": 4000
+        }
+      },
+      "id": "openai-node",
+      "name": "OpenAI Chat",
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1.8,
+      "position": [710, 300],
+      "credentials": {
+        "openAiApi": {
+          "id": "YOUR_OPENAI_CREDENTIAL_ID",
+          "name": "OpenAI API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const aiResponse = $input.first().json.message.content;\n\ntry {\n  // Clean up potential markdown fences\n  let cleaned = aiResponse.trim();\n  if (cleaned.startsWith('```json')) cleaned = cleaned.slice(7);\n  if (cleaned.startsWith('```')) cleaned = cleaned.slice(3);\n  if (cleaned.endsWith('```')) cleaned = cleaned.slice(0, -3);\n  cleaned = cleaned.trim();\n  \n  const items = JSON.parse(cleaned);\n  \n  if (!Array.isArray(items)) {\n    return [{ json: { items: [items] } }];\n  }\n  \n  return [{ json: { items } }];\n  \n} catch (error) {\n  // Fallback: try to extract JSON array from response\n  const match = aiResponse.match(/\\[\\s*\\{[\\s\\S]*\\}\\s*\\]/);\n  if (match) {\n    try {\n      const items = JSON.parse(match[0]);\n      return [{ json: { items } }];\n    } catch (e) {\n      // give up\n    }\n  }\n  \n  return [{ json: { items: [{\n    name: 'Mysterious Error Scroll',\n    type: 'scroll',\n    rarity: 'common',\n    description: 'Something went wrong in the magical forge. The AI returned an unexpected response.',\n    properties: ['Try generating again']\n  }] } }];\n}"
+      },
+      "id": "parse-response",
+      "name": "Parse AI Response",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [940, 300]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify($json.items) }}",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              }
+            ]
+          }
+        }
+      },
+      "id": "respond-node",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [1170, 300]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [{ "node": "Build Prompt", "type": "main", "index": 0 }]
+      ]
+    },
+    "Build Prompt": {
+      "main": [
+        [{ "node": "OpenAI Chat", "type": "main", "index": 0 }]
+      ]
+    },
+    "OpenAI Chat": {
+      "main": [
+        [{ "node": "Parse AI Response", "type": "main", "index": 0 }]
+      ]
+    },
+    "Parse AI Response": {
+      "main": [
+        [{ "node": "Respond to Webhook", "type": "main", "index": 0 }]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [
+    { "name": "DnD", "id": "1" },
+    { "name": "AI", "id": "2" }
+  ]
+}
