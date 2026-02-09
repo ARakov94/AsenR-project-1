@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>D&D 5e 2024 - Item Generator</title>
+    <title>D&D 5e 2024 — Генератор на предмети</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚔️</text></svg>">
@@ -18,8 +18,8 @@
         <!-- Header -->
         <header class="header">
             <div class="dragon-icon">🐉</div>
-            <h1 class="title">D&D 5e Item Forge</h1>
-            <p class="subtitle">Генератор на предмети за нови герои — 2024 Edition</p>
+            <h1 class="title">D&D 5e Ковачница</h1>
+            <p class="subtitle">Създай уникална екипировка за своя герой — Издание 2024</p>
         </header>
 
         <!-- Character Setup -->
@@ -84,7 +84,7 @@
 
         <!-- Spiciness Slider -->
         <section class="card spiciness-section">
-            <h2 class="card-title">🌶️ Нивo на пикантност</h2>
+            <h2 class="card-title">🌶️ Ниво на пикантност</h2>
             <p class="spiciness-desc">Колко... <em>дръзки</em> да бъдат предметите?</p>
             
             <div class="slider-container">
@@ -120,14 +120,14 @@
         <div class="generate-section">
             <button id="generateBtn" class="generate-btn">
                 <span class="btn-icon">⚒️</span>
-                <span class="btn-text">Изкуй предмети!</span>
+                <span class="btn-text">Генерирай предмети!</span>
             </button>
         </div>
 
         <!-- Loading -->
         <div class="loading" id="loading" style="display: none;">
             <div class="loading-spinner"></div>
-            <p class="loading-text">Ковачницата работи...</p>
+            <p class="loading-text">Ковачницата работи... ⚒️</p>
             <p class="loading-flavor" id="loadingFlavor"></p>
         </div>
 
@@ -138,21 +138,21 @@
 
         <!-- Results -->
         <section class="results" id="results" style="display: none;">
-            <h2 class="results-title">🎒 Генерирани предмети</h2>
+            <h2 class="results-title">🎒 Твоите предмети</h2>
             <div class="items-grid" id="itemsGrid"></div>
         </section>
 
         <!-- Footer -->
         <footer class="footer">
             <p>Powered by n8n & AI ⚡ | D&D 5e 2024 Edition</p>
-            <p class="footer-small">Не е официален продукт на Wizards of the Coast</p>
+            <p class="footer-small">Неофициален проект — няма връзка с Wizards of the Coast</p>
         </footer>
     </div>
 
     <!-- n8n Config Modal -->
     <div class="modal-overlay" id="configModal" style="display: none;">
         <div class="modal">
-            <h3>⚙️ n8n Configuration</h3>
+            <h3>⚙️ Настройки на връзката</h3>
             <div class="form-group">
                 <label for="webhookUrl">n8n Webhook URL</label>
                 <input type="url" id="webhookUrl" placeholder="https://your-n8n.example.com/webhook/dnd-items">

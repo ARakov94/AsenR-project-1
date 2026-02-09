@@ -39,15 +39,15 @@ let state = {
 // ===== Loading Flavor Texts =====
 const flavorTexts = [
     "Джуджетата нагряват ковачницата...",
-    "Гоблини сортират инвентара...",
-    "Маг зачарова предметите...",
-    "Дракон одобрява качеството...",
+    "Гоблините сортират инвентара...",
+    "Магът зачарова предметите...",
+    "Драконът одобрява качеството...",
     "Търговецът пресмята цените...",
-    "Елфи полират оръжията...",
-    "Таверненият бармен шепне слухове...",
+    "Елфите полират оръжията...",
+    "Кръчмарят шепне слухове...",
     "Мимикът проверява сандъците...",
-    "Багаж приключенец се товари...",
-    "Артифайсърът комбинира съставките..."
+    "Багажът на приключенеца се пълни...",
+    "Артифайсърът смесва съставките..."
 ];
 
 // ===== Particles =====
@@ -241,7 +241,7 @@ async function generateItems() {
     // Validation
     if (!CONFIG.webhookUrl) {
         openSettings();
-        showError('Моля, конфигурирай n8n webhook URL в настройките (⚙️).');
+        showError('Моля, задай адреса на n8n сървъра в настройките (⚙️).');
         return;
     }
     
@@ -249,12 +249,12 @@ async function generateItems() {
     const charRace = DOM.charRace.value;
     
     if (!charClass) {
-        showError('Моля, избери клас на героя.');
+        showError('Моля, избери клас за своя герой.');
         return;
     }
     
     if (!charRace) {
-        showError('Моля, избери раса на героя.');
+        showError('Моля, избери раса за своя герой.');
         return;
     }
 
@@ -318,9 +318,9 @@ async function generateItems() {
     } catch (error) {
         console.error('Generation error:', error);
         if (error.name === 'TypeError' && error.message.includes('fetch')) {
-            showError('Неуспешна връзка с n8n. Провери webhook URL и дали n8n работи.');
+            showError('Няма връзка със сървъра. Провери дали n8n работи и дали адресът е правилен.');
         } else {
-            showError(error.message || 'Възникна грешка при генерирането.');
+            showError(error.message || 'Възникна грешка при създаването на предметите.');
         }
     } finally {
         state.isGenerating = false;
