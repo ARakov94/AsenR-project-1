@@ -19,7 +19,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// Extract input from the webhook body\nconst input = $input.first().json.body;\n\nconst characterName = input.characterName || '';\nconst characterClass = input.characterClass || 'Fighter';\nconst characterRace = input.characterRace || 'Human';\nconst characterLevel = input.characterLevel || 1;\nconst spiciness = input.spiciness || 0;\nconst itemCount = input.itemCount || 5;\nconst itemTypes = input.itemTypes || [];\n\n// Determine spiciness instruction\nlet spicyInstruction = '';\nif (spiciness < 25) {\n  spicyInstruction = 'Keep all items completely family-friendly and suitable for all ages. Standard D&D fantasy items.';\n} else if (spiciness < 50) {\n  spicyInstruction = 'Items can have mildly suggestive or cheeky names and descriptions. Think tavern humor - innuendos and playful double meanings, but nothing explicit.';\n} else if (spiciness < 75) {\n  spicyInstruction = 'Items should have clearly suggestive, flirty, or risqué themes. Adult humor is encouraged - think burlesque D&D. Names and descriptions can be provocative but not vulgar.';\n} else {\n  spicyInstruction = 'Items should be boldly adult-themed with explicit humor, provocative descriptions, and unapologetically 18+ content. Be creative and daring with innuendo and adult themes, but maintain a sense of humor and D&D fantasy flavor.';\n}\n\n// Item type filter instruction\nconst typeMap = {\n  weapons: 'weapons (swords, axes, bows, daggers, staves, etc.)',\n  armor: 'armor and shields (plate, chain, leather, shields, helmets, etc.)',\n  potions: 'potions and elixirs',\n  scrolls: 'scrolls, spellbooks, and magical tomes',\n  jewelry: 'jewelry (rings, amulets, necklaces, bracelets, etc.)',\n  trinkets: 'trinkets, curiosities, and talismans',\n  clothing: 'clothing, cloaks, boots, and wearable items',\n  tools: 'tools and utility items',\n  consumables: 'consumable items (food, drinks, throwables, etc.)'\n};\n\nlet itemTypeInstruction = '';\nif (itemTypes.length === 1) {\n  itemTypeInstruction = `\\nIMPORTANT: ALL ${itemCount} items MUST be ${typeMap[itemTypes[0]] || itemTypes[0]}. Do not include other item types.`;\n} else if (itemTypes.length > 1) {\n  const typeNames = itemTypes.map(t => typeMap[t] || t).join(', ');\n  itemTypeInstruction = `\\nIMPORTANT: Items MUST be from these categories ONLY: ${typeNames}. Distribute items roughly evenly across the selected types. Do not include items from other categories.`;\n}\n\n// Character name line\nconst nameLine = characterName ? `- Character Name: ${characterName}\\n` : '';\n\nconst userPrompt = `Generate exactly ${itemCount} unique starting items for a new character:\\n\\n${nameLine}- Class: ${characterClass}\\n- Race: ${characterRace}\\n- Level: ${characterLevel}\\n${itemTypeInstruction}\\n\\nSpiciness Level: ${spiciness}/100\\n${spicyInstruction}\\n\\nFor each item provide these JSON fields:\\n- \\\"name\\\": A creative item name\\n- \\\"type\\\": Item category (weapon, armor, potion, trinket, tool, clothing, misc, scroll, ring, amulet, etc.)\\n- \\\"rarity\\\": One of: common, uncommon, rare, very-rare, legendary\\n- \\\"description\\\": A flavorful 1-3 sentence description\\n- \\\"properties\\\": Array of 1-3 mechanical properties or fun effects\\n- \\\"imagePrompt\\\": A short (10-20 words) English visual description of the item for image generation. Describe its appearance, material, color, and style. Example: \\\"ornate golden amulet with glowing blue sapphire, intricate elven engravings, dark background\\\"\\n\\nRules:\\n- Mix item types appropriate for the class (unless a specific type filter is set)\\n- For level 1 characters, most items should be common/uncommon\\n- At least one trinket or personal item with backstory flavor\\n- Items should feel thematic to the class and race\\n- Every item MUST have an imagePrompt field\\n\\nRespond with a JSON array of ${itemCount} item objects.`;\n\nreturn [{\n  json: {\n    userPrompt,\n    characterName,\n    characterClass,\n    spiciness\n  }\n}];"
+        "jsCode": "// Extract input from the webhook body\nconst input = $input.first().json.body;\n\nconst characterName = input.characterName || '';\nconst characterClass = input.characterClass || 'Fighter';\nconst characterRace = input.characterRace || 'Human';\nconst characterLevel = input.characterLevel || 1;\nconst spiciness = input.spiciness || 0;\nconst itemCount = input.itemCount || 5;\nconst itemTypes = input.itemTypes || [];\n\n// Determine spiciness instruction\nlet spicyInstruction = '';\nif (spiciness < 25) {\n  spicyInstruction = 'Keep all items completely family-friendly and suitable for all ages. Standard D&D fantasy items.';\n} else if (spiciness < 50) {\n  spicyInstruction = 'Items can have mildly suggestive or cheeky names and descriptions. Think tavern humor - innuendos and playful double meanings, but nothing explicit.';\n} else if (spiciness < 75) {\n  spicyInstruction = 'Items should have clearly suggestive, flirty, or risqué themes. Adult humor is encouraged - think burlesque D&D. Names and descriptions can be provocative but not vulgar.';\n} else {\n  spicyInstruction = 'Items should be boldly adult-themed with explicit humor, provocative descriptions, and unapologetically 18+ content. Be creative and daring with innuendo and adult themes, but maintain a sense of humor and D&D fantasy flavor.';\n}\n\n// Item type filter instruction\nconst typeMap = {\n  weapons: 'weapons (swords, axes, bows, daggers, staves, etc.)',\n  armor: 'armor and shields (plate, chain, leather, shields, helmets, etc.)',\n  potions: 'potions and elixirs',\n  scrolls: 'scrolls, spellbooks, and magical tomes',\n  jewelry: 'jewelry (rings, amulets, necklaces, bracelets, etc.)',\n  trinkets: 'trinkets, curiosities, and talismans',\n  clothing: 'clothing, cloaks, boots, and wearable items',\n  tools: 'tools and utility items',\n  consumables: 'consumable items (food, drinks, throwables, etc.)'\n};\n\nlet itemTypeInstruction = '';\nif (itemTypes.length === 1) {\n  itemTypeInstruction = `\\nIMPORTANT: ALL ${itemCount} items MUST be ${typeMap[itemTypes[0]] || itemTypes[0]}. Do not include other item types.`;\n} else if (itemTypes.length > 1) {\n  const typeNames = itemTypes.map(t => typeMap[t] || t).join(', ');\n  itemTypeInstruction = `\\nIMPORTANT: Items MUST be from these categories ONLY: ${typeNames}. Distribute items roughly evenly across the selected types. Do not include items from other categories.`;\n}\n\nconst nameLine = characterName ? `- Character Name: ${characterName}\\n` : '';\n\nconst userPrompt = `Generate exactly ${itemCount} unique starting items for a new character:\\n\\n${nameLine}- Class: ${characterClass}\\n- Race: ${characterRace}\\n- Level: ${characterLevel}\\n${itemTypeInstruction}\\n\\nSpiciness Level: ${spiciness}/100\\n${spicyInstruction}\\n\\nFor each item provide these JSON fields:\\n- \\\"name\\\": A creative item name\\n- \\\"type\\\": Item category (weapon, armor, potion, trinket, tool, clothing, misc, scroll, ring, amulet, etc.)\\n- \\\"rarity\\\": One of: common, uncommon, rare, very-rare, legendary\\n- \\\"description\\\": A flavorful 1-3 sentence description\\n- \\\"properties\\\": Array of 1-3 mechanical properties or fun effects\\n\\nRules:\\n- Mix item types appropriate for the class (unless a specific type filter is set)\\n- For level 1 characters, most items should be common/uncommon\\n- At least one trinket or personal item with backstory flavor\\n- Items should feel thematic to the class and race\\n\\nRespond with a JSON array of ${itemCount} item objects. No markdown, no code fences.`;\n\nreturn [{\n  json: {\n    userPrompt,\n    characterName,\n    characterClass,\n    spiciness\n  }\n}];"
       },
       "id": "d1a2b3c4-0001-4000-a000-000000000002",
       "name": "Build Prompt",
@@ -36,7 +36,7 @@
         }
       },
       "id": "d1a2b3c4-0001-4000-a000-000000000003",
-      "name": "AI Agent",
+      "name": "AI Agent - Items",
       "type": "@n8n/n8n-nodes-langchain.agent",
       "typeVersion": 1.7,
       "position": [710, 300]
@@ -50,7 +50,7 @@
         }
       },
       "id": "d1a2b3c4-0001-4000-a000-000000000004",
-      "name": "OpenRouter Chat Model",
+      "name": "OpenRouter Model - Items",
       "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
       "typeVersion": 1,
       "position": [710, 500],
@@ -63,13 +63,67 @@
     },
     {
       "parameters": {
-        "jsCode": "// Extract the AI Agent response\nconst aiResponse = $input.first().json.output;\n\nif (!aiResponse) {\n  throw new Error('No response from AI Agent');\n}\n\ntry {\n  // Clean up potential markdown code fences\n  let cleaned = aiResponse.trim();\n  if (cleaned.startsWith('```json')) cleaned = cleaned.slice(7);\n  if (cleaned.startsWith('```')) cleaned = cleaned.slice(3);\n  if (cleaned.endsWith('```')) cleaned = cleaned.slice(0, -3);\n  cleaned = cleaned.trim();\n\n  const items = JSON.parse(cleaned);\n\n  if (!Array.isArray(items)) {\n    return [{ json: { items: [items] } }];\n  }\n\n  return [{ json: { items } }];\n\n} catch (error) {\n  // Fallback: try to extract JSON array from the response\n  const match = aiResponse.match(/\\[\\s*\\{[\\s\\S]*\\}\\s*\\]/);\n  if (match) {\n    try {\n      const items = JSON.parse(match[0]);\n      return [{ json: { items } }];\n    } catch (e) {\n      // Cannot parse\n    }\n  }\n\n  // Return a fallback error item\n  return [{ json: { items: [{\n    name: 'Mysterious Error Scroll',\n    type: 'scroll',\n    rarity: 'common',\n    description: 'Something went wrong in the magical forge. The AI returned an unexpected response.',\n    properties: ['Try generating again']\n  }] } }];\n}"
+        "jsCode": "// Parse the AI Agent response into items array\nconst aiResponse = $input.first().json.output;\n\nif (!aiResponse) {\n  throw new Error('No response from Items AI Agent');\n}\n\ntry {\n  let cleaned = aiResponse.trim();\n  if (cleaned.startsWith('```json')) cleaned = cleaned.slice(7);\n  if (cleaned.startsWith('```')) cleaned = cleaned.slice(3);\n  if (cleaned.endsWith('```')) cleaned = cleaned.slice(0, -3);\n  cleaned = cleaned.trim();\n\n  const items = JSON.parse(cleaned);\n  const itemsArray = Array.isArray(items) ? items : [items];\n\n  return [{ json: { items: itemsArray } }];\n\n} catch (error) {\n  const match = aiResponse.match(/\\[\\s*\\{[\\s\\S]*\\}\\s*\\]/);\n  if (match) {\n    try {\n      const items = JSON.parse(match[0]);\n      return [{ json: { items } }];\n    } catch (e) {}\n  }\n\n  return [{ json: { items: [{\n    name: 'Mysterious Error Scroll',\n    type: 'scroll',\n    rarity: 'common',\n    description: 'Something went wrong in the magical forge.',\n    properties: ['Try generating again']\n  }] } }];\n}"
       },
       "id": "d1a2b3c4-0001-4000-a000-000000000005",
-      "name": "Parse AI Response",
+      "name": "Parse Items",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [940, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Build a prompt for the Image AI Agent\n// Send it the list of items and ask for a unique imagePrompt for each\nconst items = $input.first().json.items;\n\nconst itemList = items.map((item, i) => {\n  return `${i + 1}. \"${item.name}\" — ${item.type}, ${item.rarity}. ${item.description}`;\n}).join('\\n');\n\nconst imagePromptRequest = `I have ${items.length} D&D fantasy items. For EACH item below, generate a unique, detailed visual description (imagePrompt) that can be used as an AI image generation prompt.\\n\\nItems:\\n${itemList}\\n\\nFor EACH item, respond with a JSON array where each element has:\\n- \\\"index\\\": the item number (starting from 0)\\n- \\\"imagePrompt\\\": a detailed 15-25 word English visual description of the item. Describe the item's physical appearance, material, color, magical effects, and art style. Each prompt MUST be unique and specific to that item. Use phrases like \\\"dark fantasy style, detailed illustration, game icon art, no text\\\".\\n\\nExample response:\\n[\\n  {\\\"index\\\": 0, \\\"imagePrompt\\\": \\\"gleaming steel longsword with blue runes etched on blade, leather-wrapped hilt, dark fantasy style, detailed illustration, game icon art, no text\\\"},\\n  {\\\"index\\\": 1, \\\"imagePrompt\\\": \\\"small glass vial filled with swirling crimson liquid, golden stopper, magical glow, dark fantasy style, detailed illustration, game icon art, no text\\\"}\\n]\\n\\nRespond ONLY with the JSON array. No markdown, no code fences.`;\n\nreturn [{\n  json: {\n    imagePromptRequest,\n    items\n  }\n}];"
+      },
+      "id": "d1a2b3c4-0001-4000-a000-000000000007",
+      "name": "Build Image Prompt",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1170, 300]
+    },
+    {
+      "parameters": {
+        "text": "={{ $json.imagePromptRequest }}",
+        "options": {
+          "systemMessage": "You are a visual description specialist for fantasy items. You create vivid, unique image generation prompts for each item. You always respond ONLY with valid JSON arrays. No markdown, no code fences, no explanation text. Each imagePrompt must be completely different and specific to its item.",
+          "maxIterations": 1
+        }
+      },
+      "id": "d1a2b3c4-0001-4000-a000-000000000008",
+      "name": "AI Agent - Images",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [1400, 300]
+    },
+    {
+      "parameters": {
+        "model": "x-ai/grok-3-mini",
+        "options": {
+          "temperature": 0.8,
+          "maxTokens": 3000
+        }
+      },
+      "id": "d1a2b3c4-0001-4000-a000-000000000009",
+      "name": "OpenRouter Model - Images",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [1400, 500],
+      "credentials": {
+        "openRouterApi": {
+          "id": "YOUR_OPENROUTER_CREDENTIAL_ID",
+          "name": "OpenRouter API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Merge image prompts back into items\nconst imageResponse = $input.first().json.output;\nconst items = $('Build Image Prompt').first().json.items;\n\nlet imagePrompts = [];\n\nif (imageResponse) {\n  try {\n    let cleaned = imageResponse.trim();\n    if (cleaned.startsWith('```json')) cleaned = cleaned.slice(7);\n    if (cleaned.startsWith('```')) cleaned = cleaned.slice(3);\n    if (cleaned.endsWith('```')) cleaned = cleaned.slice(0, -3);\n    cleaned = cleaned.trim();\n    imagePrompts = JSON.parse(cleaned);\n    if (!Array.isArray(imagePrompts)) imagePrompts = [imagePrompts];\n  } catch (e) {\n    const match = imageResponse.match(/\\[\\s*\\{[\\s\\S]*\\}\\s*\\]/);\n    if (match) {\n      try { imagePrompts = JSON.parse(match[0]); } catch (e2) {}\n    }\n  }\n}\n\n// Merge imagePrompts into the items array\nconst mergedItems = items.map((item, i) => {\n  const imgData = imagePrompts.find(p => p.index === i) || imagePrompts[i];\n  return {\n    ...item,\n    imagePrompt: imgData && imgData.imagePrompt ? imgData.imagePrompt : `${item.name}, ${item.type || 'magical item'}, dark fantasy style, detailed illustration, game icon art, no text`\n  };\n});\n\nreturn [{ json: { items: mergedItems } }];"
+      },
+      "id": "d1a2b3c4-0001-4000-a000-000000000010",
+      "name": "Merge Items & Images",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1630, 300]
     },
     {
       "parameters": {
@@ -95,7 +149,7 @@
       "name": "Respond to Webhook",
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.1,
-      "position": [1170, 300]
+      "position": [1860, 300]
     }
   ],
   "connections": {
@@ -106,20 +160,40 @@
     },
     "Build Prompt": {
       "main": [
-        [{ "node": "AI Agent", "type": "main", "index": 0 }]
+        [{ "node": "AI Agent - Items", "type": "main", "index": 0 }]
       ]
     },
-    "OpenRouter Chat Model": {
+    "OpenRouter Model - Items": {
       "ai_languageModel": [
-        [{ "node": "AI Agent", "type": "ai_languageModel", "index": 0 }]
+        [{ "node": "AI Agent - Items", "type": "ai_languageModel", "index": 0 }]
       ]
     },
-    "AI Agent": {
+    "AI Agent - Items": {
       "main": [
-        [{ "node": "Parse AI Response", "type": "main", "index": 0 }]
+        [{ "node": "Parse Items", "type": "main", "index": 0 }]
       ]
     },
-    "Parse AI Response": {
+    "Parse Items": {
+      "main": [
+        [{ "node": "Build Image Prompt", "type": "main", "index": 0 }]
+      ]
+    },
+    "Build Image Prompt": {
+      "main": [
+        [{ "node": "AI Agent - Images", "type": "main", "index": 0 }]
+      ]
+    },
+    "OpenRouter Model - Images": {
+      "ai_languageModel": [
+        [{ "node": "AI Agent - Images", "type": "ai_languageModel", "index": 0 }]
+      ]
+    },
+    "AI Agent - Images": {
+      "main": [
+        [{ "node": "Merge Items & Images", "type": "main", "index": 0 }]
+      ]
+    },
+    "Merge Items & Images": {
       "main": [
         [{ "node": "Respond to Webhook", "type": "main", "index": 0 }]
       ]
