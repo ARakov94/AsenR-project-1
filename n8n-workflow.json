@@ -30,31 +30,44 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "https://api.openai.com/v1/chat/completions",
-        "authentication": "predefinedCredentialType",
-        "nodeCredentialType": "openAiApi",
+        "url": "https://openrouter.ai/api/v1/chat/completions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "HTTP-Referer",
+              "value": "https://arakov94.github.io/AsenR-project-1/"
+            },
+            {
+              "name": "X-Title",
+              "value": "DnD 5e Item Generator"
+            }
+          ]
+        },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"model\": \"gpt-4o-mini\",\n  \"temperature\": 0.9,\n  \"max_tokens\": 4000,\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": {{ JSON.stringify($json.systemPrompt) }}\n    },\n    {\n      \"role\": \"user\",\n      \"content\": {{ JSON.stringify($json.userPrompt) }}\n    }\n  ]\n}",
+        "jsonBody": "={\n  \"model\": \"x-ai/grok-3-mini\",\n  \"temperature\": 0.9,\n  \"max_tokens\": 4000,\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": {{ JSON.stringify($json.systemPrompt) }}\n    },\n    {\n      \"role\": \"user\",\n      \"content\": {{ JSON.stringify($json.userPrompt) }}\n    }\n  ]\n}",
         "options": {
           "timeout": 30000
         }
       },
       "id": "d1a2b3c4-0001-4000-a000-000000000003",
-      "name": "OpenAI HTTP Request",
+      "name": "Grok via OpenRouter",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [710, 300],
       "credentials": {
-        "openAiApi": {
-          "id": "YOUR_OPENAI_CREDENTIAL_ID",
-          "name": "OpenAI API"
+        "httpHeaderAuth": {
+          "id": "YOUR_OPENROUTER_CREDENTIAL_ID",
+          "name": "OpenRouter API"
         }
       }
     },
     {
       "parameters": {
-        "jsCode": "// Extract the AI response content\nconst choices = $input.first().json.choices;\nif (!choices || choices.length === 0) {\n  throw new Error('No response from OpenAI');\n}\n\nconst aiResponse = choices[0].message.content;\n\ntry {\n  // Clean up potential markdown code fences\n  let cleaned = aiResponse.trim();\n  if (cleaned.startsWith('```json')) cleaned = cleaned.slice(7);\n  if (cleaned.startsWith('```')) cleaned = cleaned.slice(3);\n  if (cleaned.endsWith('```')) cleaned = cleaned.slice(0, -3);\n  cleaned = cleaned.trim();\n\n  const items = JSON.parse(cleaned);\n\n  if (!Array.isArray(items)) {\n    return [{ json: { items: [items] } }];\n  }\n\n  return [{ json: { items } }];\n\n} catch (error) {\n  // Fallback: try to extract JSON array from the response\n  const match = aiResponse.match(/\\[\\s*\\{[\\s\\S]*\\}\\s*\\]/);\n  if (match) {\n    try {\n      const items = JSON.parse(match[0]);\n      return [{ json: { items } }];\n    } catch (e) {\n      // Cannot parse\n    }\n  }\n\n  // Return a fallback error item\n  return [{ json: { items: [{\n    name: 'Mysterious Error Scroll',\n    type: 'scroll',\n    rarity: 'common',\n    description: 'Something went wrong in the magical forge. The AI returned an unexpected response.',\n    properties: ['Try generating again']\n  }] } }];\n}"
+        "jsCode": "// Extract the AI response content\nconst choices = $input.first().json.choices;\nif (!choices || choices.length === 0) {\n  throw new Error('No response from Grok');\n}\n\nconst aiResponse = choices[0].message.content;\n\ntry {\n  // Clean up potential markdown code fences\n  let cleaned = aiResponse.trim();\n  if (cleaned.startsWith('```json')) cleaned = cleaned.slice(7);\n  if (cleaned.startsWith('```')) cleaned = cleaned.slice(3);\n  if (cleaned.endsWith('```')) cleaned = cleaned.slice(0, -3);\n  cleaned = cleaned.trim();\n\n  const items = JSON.parse(cleaned);\n\n  if (!Array.isArray(items)) {\n    return [{ json: { items: [items] } }];\n  }\n\n  return [{ json: { items } }];\n\n} catch (error) {\n  // Fallback: try to extract JSON array from the response\n  const match = aiResponse.match(/\\[\\s*\\{[\\s\\S]*\\}\\s*\\]/);\n  if (match) {\n    try {\n      const items = JSON.parse(match[0]);\n      return [{ json: { items } }];\n    } catch (e) {\n      // Cannot parse\n    }\n  }\n\n  // Return a fallback error item\n  return [{ json: { items: [{\n    name: 'Mysterious Error Scroll',\n    type: 'scroll',\n    rarity: 'common',\n    description: 'Something went wrong in the magical forge. The AI returned an unexpected response.',\n    properties: ['Try generating again']\n  }] } }];\n}"
       },
       "id": "d1a2b3c4-0001-4000-a000-000000000004",
       "name": "Parse AI Response",
@@ -97,10 +110,10 @@
     },
     "Build Prompt": {
       "main": [
-        [{ "node": "OpenAI HTTP Request", "type": "main", "index": 0 }]
+        [{ "node": "Grok via OpenRouter", "type": "main", "index": 0 }]
       ]
     },
-    "OpenAI HTTP Request": {
+    "Grok via OpenRouter": {
       "main": [
         [{ "node": "Parse AI Response", "type": "main", "index": 0 }]
       ]
