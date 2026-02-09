@@ -73,19 +73,19 @@
     },
     {
       "parameters": {
-        "jsCode": "// Build a prompt for the Image AI Agent\n// Send it the list of items and ask for a unique imagePrompt for each\nconst items = $input.first().json.items;\n\nconst itemList = items.map((item, i) => {\n  return `${i + 1}. \"${item.name}\" — ${item.type}, ${item.rarity}. ${item.description}`;\n}).join('\\n');\n\nconst imagePromptRequest = `I have ${items.length} D&D fantasy items. For EACH item below, generate a unique, detailed visual description (imagePrompt) that can be used as an AI image generation prompt.\\n\\nItems:\\n${itemList}\\n\\nFor EACH item, respond with a JSON array where each element has:\\n- \\\"index\\\": the item number (starting from 0)\\n- \\\"imagePrompt\\\": a detailed 15-25 word English visual description of the item. Describe the item's physical appearance, material, color, magical effects, and art style. Each prompt MUST be unique and specific to that item. Use phrases like \\\"dark fantasy style, detailed illustration, game icon art, no text\\\".\\n\\nExample response:\\n[\\n  {\\\"index\\\": 0, \\\"imagePrompt\\\": \\\"gleaming steel longsword with blue runes etched on blade, leather-wrapped hilt, dark fantasy style, detailed illustration, game icon art, no text\\\"},\\n  {\\\"index\\\": 1, \\\"imagePrompt\\\": \\\"small glass vial filled with swirling crimson liquid, golden stopper, magical glow, dark fantasy style, detailed illustration, game icon art, no text\\\"}\\n]\\n\\nRespond ONLY with the JSON array. No markdown, no code fences.`;\n\nreturn [{\n  json: {\n    imagePromptRequest,\n    items\n  }\n}];"
+        "jsCode": "// Split items into individual outputs — one per item\n// Each output contains the item data + a dedicated image prompt request\n// n8n will automatically loop AI Agent - Images for each output\nconst items = $input.first().json.items;\n\nreturn items.map((item, index) => ({\n  json: {\n    itemIndex: index,\n    item: item,\n    totalItems: items.length,\n    imagePromptText: `Describe this single D&D fantasy item visually for an AI image generator.\\n\\nItem: \"${item.name}\"\\nType: ${item.type || 'magical item'}\\nRarity: ${item.rarity || 'common'}\\nDescription: ${item.description || ''}\\n\\nRespond with ONLY a JSON object (no array, no markdown, no code fences):\\n{\"imagePrompt\": \"your 15-25 word visual description here\"}\\n\\nThe imagePrompt must describe the item\\'s physical appearance: shape, material, color, magical glow, engravings, etc. End with \\\"dark fantasy style, detailed illustration, game icon art, no text\\\".\\n\\nExample: {\"imagePrompt\": \"ornate steel warhammer with glowing red runes, dragon-head pommel, leather grip, dark fantasy style, detailed illustration, game icon art, no text\"}`\n  }\n}));"
       },
       "id": "d1a2b3c4-0001-4000-a000-000000000007",
-      "name": "Build Image Prompt",
+      "name": "Split Items",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [1170, 300]
     },
     {
       "parameters": {
-        "text": "={{ $json.imagePromptRequest }}",
+        "text": "={{ $json.imagePromptText }}",
         "options": {
-          "systemMessage": "You are a visual description specialist for fantasy items. You create vivid, unique image generation prompts for each item. You always respond ONLY with valid JSON arrays. No markdown, no code fences, no explanation text. Each imagePrompt must be completely different and specific to its item.",
+          "systemMessage": "You are a visual description specialist for fantasy items. You respond ONLY with a single valid JSON object like {\"imagePrompt\": \"...\"}. No arrays, no markdown, no code fences, no explanation. The imagePrompt must be a unique, vivid 15-25 word English description of the specific item's appearance.",
           "maxIterations": 1
         }
       },
@@ -99,8 +99,8 @@
       "parameters": {
         "model": "x-ai/grok-3-mini",
         "options": {
-          "temperature": 0.8,
-          "maxTokens": 3000
+          "temperature": 0.7,
+          "maxTokens": 300
         }
       },
       "id": "d1a2b3c4-0001-4000-a000-000000000009",
@@ -117,7 +117,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// Merge image prompts back into items\nconst imageResponse = $input.first().json.output;\nconst items = $('Build Image Prompt').first().json.items;\n\nlet imagePrompts = [];\n\nif (imageResponse) {\n  try {\n    let cleaned = imageResponse.trim();\n    if (cleaned.startsWith('```json')) cleaned = cleaned.slice(7);\n    if (cleaned.startsWith('```')) cleaned = cleaned.slice(3);\n    if (cleaned.endsWith('```')) cleaned = cleaned.slice(0, -3);\n    cleaned = cleaned.trim();\n    imagePrompts = JSON.parse(cleaned);\n    if (!Array.isArray(imagePrompts)) imagePrompts = [imagePrompts];\n  } catch (e) {\n    const match = imageResponse.match(/\\[\\s*\\{[\\s\\S]*\\}\\s*\\]/);\n    if (match) {\n      try { imagePrompts = JSON.parse(match[0]); } catch (e2) {}\n    }\n  }\n}\n\n// Merge imagePrompts into the items array\nconst mergedItems = items.map((item, i) => {\n  const imgData = imagePrompts.find(p => p.index === i) || imagePrompts[i];\n  return {\n    ...item,\n    imagePrompt: imgData && imgData.imagePrompt ? imgData.imagePrompt : `${item.name}, ${item.type || 'magical item'}, dark fantasy style, detailed illustration, game icon art, no text`\n  };\n});\n\nreturn [{ json: { items: mergedItems } }];"
+        "jsCode": "// Collect all split items and their AI-generated image prompts\n// n8n ran AI Agent - Images once per item, now we merge them all back\nconst splitItems = $('Split Items').all();\nconst imageOutputs = $('AI Agent - Images').all();\n\nconst finalItems = splitItems.map((splitItem, index) => {\n  const item = splitItem.json.item;\n  let imagePrompt = '';\n\n  try {\n    let output = imageOutputs[index].json.output || '';\n    // Clean markdown fences\n    output = output.trim();\n    if (output.startsWith('```json')) output = output.slice(7);\n    if (output.startsWith('```')) output = output.slice(3);\n    if (output.endsWith('```')) output = output.slice(0, -3);\n    output = output.trim();\n\n    const parsed = JSON.parse(output);\n    imagePrompt = parsed.imagePrompt || '';\n  } catch (e) {\n    // Try regex extraction\n    try {\n      const raw = imageOutputs[index].json.output || '';\n      const match = raw.match(/\"imagePrompt\"\\s*:\\s*\"([^\"]+)\"/);\n      if (match) imagePrompt = match[1];\n    } catch (e2) {}\n  }\n\n  // Fallback: generate from item data\n  if (!imagePrompt) {\n    imagePrompt = `${item.name}, ${item.type || 'magical item'}, ${item.rarity || 'common'} quality, dark fantasy style, detailed illustration, game icon art, no text`;\n  }\n\n  return {\n    ...item,\n    imagePrompt\n  };\n});\n\nreturn [{ json: { items: finalItems } }];"
       },
       "id": "d1a2b3c4-0001-4000-a000-000000000010",
       "name": "Merge Items & Images",
@@ -175,10 +175,10 @@
     },
     "Parse Items": {
       "main": [
-        [{ "node": "Build Image Prompt", "type": "main", "index": 0 }]
+        [{ "node": "Split Items", "type": "main", "index": 0 }]
       ]
     },
-    "Build Image Prompt": {
+    "Split Items": {
       "main": [
         [{ "node": "AI Agent - Images", "type": "main", "index": 0 }]
       ]
