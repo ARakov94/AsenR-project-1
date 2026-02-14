@@ -1202,6 +1202,23 @@ body.elder-scrolls .background-overlay {
     box-shadow: 0 8px 30px rgba(41, 128, 185, 0.4);
 }
 
+.download-section {
+    text-align: center;
+    margin-top: 1.5rem;
+}
+
+.download-btn {
+    background: linear-gradient(135deg, #27ae60, #1e8449);
+    box-shadow: 0 4px 20px rgba(39, 174, 96, 0.3);
+    display: inline-flex;
+    font-size: 0.95rem;
+    padding: 0.8rem 2rem;
+}
+
+.download-btn:hover {
+    box-shadow: 0 8px 30px rgba(39, 174, 96, 0.4);
+}
+
 .charsheet-results {
     margin-top: 2rem;
 }

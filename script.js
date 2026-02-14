@@ -174,6 +174,7 @@ const DOM = {
     backstoryResults: document.getElementById('backstoryResults'),
     backstoryCard: document.getElementById('backstoryCard'),
     backstoryCheckboxes: document.querySelectorAll('.backstory-checkboxes input[type="checkbox"]'),
+    downloadPdfBtn: document.getElementById('downloadPdfBtn'),
     charSheetSection: document.getElementById('charSheetSection'),
     generateCharSheetBtn: document.getElementById('generateCharSheetBtn'),
     charSheetLoading: document.getElementById('charSheetLoading'),
@@ -883,6 +884,138 @@ function renderCharSheet(data) {
     DOM.charSheetResults.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
+// ===== Download Character Sheet as PDF =====
+function downloadCharSheetPdf() {
+    const card = DOM.charSheetCard;
+    if (!card || card.innerHTML === '') return;
+    
+    // Get character name for filename
+    const nameEl = card.querySelector('.cs-name');
+    const infoEl = card.querySelector('.cs-info');
+    const charName = nameEl ? nameEl.textContent.trim().replace(/[^a-zA-Z0-9 ]/g, '').replace(/\s+/g, '_') : 'Character';
+    const filename = `${charName}_Sheet.pdf`;
+    
+    // Temporarily apply print-friendly styles
+    const clone = card.cloneNode(true);
+    const wrapper = document.createElement('div');
+    wrapper.style.cssText = 'background: #1a1a2e; color: #e8e6e3; padding: 24px; font-family: Crimson Text, serif; width: 210mm;';
+    
+    // Add title header to PDF
+    const title = document.createElement('div');
+    title.style.cssText = 'text-align:center; margin-bottom:16px; padding-bottom:12px; border-bottom:2px solid #d4a017;';
+    title.innerHTML = `<div style="font-family:Cinzel,serif; font-size:22px; color:#d4a017; margin-bottom:4px;">📋 Character Sheet</div>`;
+    if (infoEl) {
+        title.innerHTML += `<div style="font-family:Crimson Text,serif; font-size:13px; color:#a09b8c;">The Magic Forge • D&D 5e</div>`;
+    }
+    wrapper.appendChild(title);
+    
+    // Preserve computed styles on clone's key elements
+    const applyInline = (el, styles) => {
+        Object.entries(styles).forEach(([k, v]) => el.style[k] = v);
+    };
+    
+    // Style ability boxes
+    clone.querySelectorAll('.cs-ability').forEach(el => {
+        applyInline(el, { background: 'rgba(0,0,0,0.3)', border: '1px solid #4a3f2f', borderRadius: '8px', padding: '6px 4px', textAlign: 'center' });
+    });
+    clone.querySelectorAll('.cs-ability-name').forEach(el => {
+        applyInline(el, { fontFamily: 'Cinzel,serif', fontSize: '9px', color: '#a09b8c', letterSpacing: '0.05em' });
+    });
+    clone.querySelectorAll('.cs-ability-mod').forEach(el => {
+        applyInline(el, { fontFamily: 'Cinzel,serif', fontSize: '18px', fontWeight: '700', color: '#d4a017' });
+    });
+    clone.querySelectorAll('.cs-ability-score').forEach(el => {
+        applyInline(el, { fontSize: '10px', color: '#a09b8c' });
+    });
+    clone.querySelectorAll('.cs-combat-stat, .cs-combat-mini').forEach(el => {
+        applyInline(el, { background: 'rgba(0,0,0,0.3)', border: '1px solid #4a3f2f', borderRadius: '8px', padding: '6px', textAlign: 'center' });
+    });
+    clone.querySelectorAll('.cs-stat-label, .cs-mini-label').forEach(el => {
+        applyInline(el, { fontFamily: 'Cinzel,serif', fontSize: '9px', color: '#a09b8c', textTransform: 'uppercase' });
+    });
+    clone.querySelectorAll('.cs-stat-value').forEach(el => {
+        applyInline(el, { fontFamily: 'Cinzel,serif', fontSize: '22px', fontWeight: '900', color: '#d4a017' });
+    });
+    clone.querySelectorAll('.cs-mini-value').forEach(el => {
+        applyInline(el, { fontFamily: 'Cinzel,serif', fontSize: '13px', fontWeight: '700', color: '#e8e6e3' });
+    });
+    clone.querySelectorAll('.cs-hp .cs-stat-value').forEach(el => el.style.color = '#e74c3c');
+    clone.querySelectorAll('.cs-ac .cs-stat-value').forEach(el => el.style.color = '#3498db');
+    clone.querySelectorAll('.cs-section-title').forEach(el => {
+        applyInline(el, { fontFamily: 'Cinzel,serif', fontSize: '13px', color: '#d4a017', borderBottom: '1px solid rgba(212,160,23,0.3)', paddingBottom: '4px', marginBottom: '6px' });
+    });
+    clone.querySelectorAll('.cs-save, .cs-skill').forEach(el => {
+        applyInline(el, { fontFamily: 'Crimson Text,serif', fontSize: '11px', color: '#a09b8c', display: 'flex', alignItems: 'center', gap: '4px', padding: '1px 0' });
+    });
+    clone.querySelectorAll('.cs-save.proficient, .cs-skill.proficient').forEach(el => el.style.color = '#e8e6e3');
+    clone.querySelectorAll('.cs-save.proficient .cs-save-dot, .cs-skill.proficient .cs-skill-dot').forEach(el => el.style.color = '#d4a017');
+    clone.querySelectorAll('.cs-save-mod, .cs-skill-mod').forEach(el => {
+        applyInline(el, { fontFamily: 'Cinzel,serif', fontSize: '10px', fontWeight: '600', minWidth: '22px' });
+    });
+    clone.querySelectorAll('.cs-feature').forEach(el => {
+        applyInline(el, { padding: '6px', background: 'rgba(0,0,0,0.2)', borderRadius: '6px', borderLeft: '3px solid #8b7535', marginBottom: '6px' });
+    });
+    clone.querySelectorAll('.cs-feature strong').forEach(el => {
+        applyInline(el, { fontFamily: 'Cinzel,serif', fontSize: '11px', color: '#e6c65a' });
+    });
+    clone.querySelectorAll('.cs-feature p').forEach(el => {
+        applyInline(el, { fontFamily: 'Crimson Text,serif', fontSize: '10px', color: '#a09b8c', margin: '2px 0 0', lineHeight: '1.4' });
+    });
+    clone.querySelectorAll('.cs-spell-tag').forEach(el => {
+        applyInline(el, { display: 'inline-block', background: 'rgba(155,89,182,0.2)', border: '1px solid rgba(155,89,182,0.4)', borderRadius: '12px', padding: '2px 8px', fontFamily: 'Crimson Text,serif', fontSize: '10px', color: '#bb8fce', margin: '2px' });
+    });
+    clone.querySelectorAll('.cs-equipment-list li').forEach(el => {
+        applyInline(el, { fontFamily: 'Crimson Text,serif', fontSize: '11px', color: '#e8e6e3' });
+    });
+    
+    // Layout grids
+    clone.querySelectorAll('.cs-header').forEach(el => {
+        applyInline(el, { textAlign: 'center', marginBottom: '14px', paddingBottom: '10px', borderBottom: '2px solid #4a3f2f' });
+    });
+    clone.querySelectorAll('.cs-name').forEach(el => {
+        applyInline(el, { fontFamily: 'Cinzel,serif', fontSize: '20px', color: '#d4a017', margin: '0 0 4px' });
+    });
+    clone.querySelectorAll('.cs-info').forEach(el => {
+        applyInline(el, { fontFamily: 'Crimson Text,serif', color: '#a09b8c', fontSize: '12px', margin: '0' });
+    });
+    clone.querySelectorAll('.cs-top-row').forEach(el => {
+        applyInline(el, { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px', marginBottom: '14px' });
+    });
+    clone.querySelectorAll('.cs-abilities-grid').forEach(el => {
+        applyInline(el, { display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '6px' });
+    });
+    clone.querySelectorAll('.cs-combat-stats').forEach(el => {
+        applyInline(el, { display: 'flex', flexDirection: 'column', gap: '6px' });
+    });
+    clone.querySelectorAll('.cs-combat-row').forEach(el => {
+        applyInline(el, { display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '5px' });
+    });
+    clone.querySelectorAll('.cs-two-columns').forEach(el => {
+        applyInline(el, { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px', marginBottom: '14px' });
+    });
+    clone.querySelectorAll('.cs-equipment-list').forEach(el => {
+        applyInline(el, { listStyle: 'none', padding: '0', margin: '0', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '3px' });
+    });
+    
+    wrapper.appendChild(clone);
+    document.body.appendChild(wrapper);
+    
+    const opt = {
+        margin: [8, 8, 8, 8],
+        filename: filename,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2, useCORS: true, backgroundColor: '#1a1a2e' },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+        pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+    };
+    
+    html2pdf().set(opt).from(wrapper).save().then(() => {
+        document.body.removeChild(wrapper);
+    }).catch(() => {
+        document.body.removeChild(wrapper);
+    });
+}
+
 // ===== Generate Character Sheet =====
 async function generateCharSheet() {
     if (state.isGeneratingCharSheet) return;
@@ -1057,6 +1190,7 @@ DOM.spicySlider.addEventListener('input', updateSpiciness);
 DOM.generateBtn.addEventListener('click', generateItems);
 DOM.generateBackstoryBtn.addEventListener('click', generateBackstory);
 DOM.generateCharSheetBtn.addEventListener('click', generateCharSheet);
+DOM.downloadPdfBtn.addEventListener('click', downloadCharSheetPdf);
 DOM.settingsBtn.addEventListener('click', openSettings);
 DOM.saveConfig.addEventListener('click', saveSettings);
 DOM.cancelConfig.addEventListener('click', closeSettings);

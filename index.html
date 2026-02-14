@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔨</text></svg>">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.2/html2pdf.bundle.min.js" defer></script>
 </head>
 <body>
     <!-- Background image -->
@@ -268,6 +269,12 @@
             <section class="charsheet-results" id="charSheetResults" style="display: none;">
                 <h2 class="results-title">📋 Character Sheet</h2>
                 <div class="charsheet-card" id="charSheetCard"></div>
+                <div class="download-section">
+                    <button id="downloadPdfBtn" class="generate-btn download-btn">
+                        <span class="btn-icon">📄</span>
+                        <span class="btn-text">Download PDF</span>
+                    </button>
+                </div>
             </section>
         </div>
 
