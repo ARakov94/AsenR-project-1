@@ -1203,10 +1203,10 @@ function downloadCharSheetPdf() {
     const charName = nameEl ? nameEl.textContent.trim().replace(/[^a-zA-Z0-9 ]/g, '').replace(/\s+/g, '_') : 'Character';
     const filename = `${charName}_Sheet.pdf`;
     
-    // Clone and prepare for PDF
+    // Clone and prepare for PDF — use flexbox instead of CSS Grid for html2canvas compatibility
     const clone = card.cloneNode(true);
     const wrapper = document.createElement('div');
-    wrapper.style.cssText = 'background: #1a1a2e; color: #e8e6e3; padding: 20px; font-family: Crimson Text, serif; width: 210mm;';
+    wrapper.style.cssText = 'background:#1a1a2e; color:#e8e6e3; padding:20px; font-family:Crimson Text,serif; width:794px; position:absolute; left:0; top:0; z-index:-1;';
     
     // Title header
     const title = document.createElement('div');
@@ -1229,7 +1229,7 @@ function downloadCharSheetPdf() {
         applyInline(el, { display: 'flex', justifyContent: 'center', gap: '8px', flexWrap: 'wrap' });
     });
     clone.querySelectorAll('.cs-info-item').forEach(el => {
-        applyInline(el, { display: 'flex', flexDirection: 'column', alignItems: 'center', minWidth: '80px', padding: '2px 6px', border: '1px solid rgba(74,63,47,0.5)', borderRadius: '4px', background: 'rgba(0,0,0,0.15)' });
+        applyInline(el, { display: 'inline-flex', flexDirection: 'column', alignItems: 'center', minWidth: '80px', padding: '2px 6px', border: '1px solid rgba(74,63,47,0.5)', borderRadius: '4px', background: 'rgba(0,0,0,0.15)' });
     });
     clone.querySelectorAll('.cs-info-value').forEach(el => {
         applyInline(el, { fontFamily: 'Crimson Text,serif', fontSize: '10px', color: '#e8e6e3', fontWeight: '600' });
@@ -1238,14 +1238,23 @@ function downloadCharSheetPdf() {
         applyInline(el, { fontFamily: 'Cinzel,serif', fontSize: '6px', color: '#a09b8c', textTransform: 'uppercase', letterSpacing: '0.1em' });
     });
     
-    // 3-column body
+    // 3-column body — use FLEXBOX, not grid, for html2canvas compatibility
     clone.querySelectorAll('.cs-body').forEach(el => {
-        applyInline(el, { display: 'grid', gridTemplateColumns: '140px 1fr 1fr', gap: '8px', marginBottom: '8px' });
+        applyInline(el, { display: 'flex', gap: '8px', marginBottom: '8px' });
+    });
+    clone.querySelectorAll('.cs-col-left').forEach(el => {
+        applyInline(el, { width: '140px', minWidth: '140px', maxWidth: '140px', display: 'flex', flexDirection: 'column', gap: '4px' });
+    });
+    clone.querySelectorAll('.cs-col-center').forEach(el => {
+        applyInline(el, { flex: '1', display: 'flex', flexDirection: 'column', gap: '4px' });
+    });
+    clone.querySelectorAll('.cs-col-right').forEach(el => {
+        applyInline(el, { flex: '1', display: 'flex', flexDirection: 'column', gap: '4px' });
     });
     
     // Ability scores
     clone.querySelectorAll('.cs-abilities-col').forEach(el => {
-        applyInline(el, { display: 'flex', flexDirection: 'column', gap: '4px' });
+        applyInline(el, { display: 'flex', flexDirection: 'column', gap: '3px' });
     });
     clone.querySelectorAll('.cs-ability').forEach(el => {
         applyInline(el, { background: 'rgba(0,0,0,0.35)', border: '2px solid #4a3f2f', borderRadius: '8px', padding: '3px', textAlign: 'center' });
@@ -1303,6 +1312,9 @@ function downloadCharSheetPdf() {
     clone.querySelectorAll('.cs-skill-ability').forEach(el => {
         applyInline(el, { fontSize: '6px', color: '#a09b8c', opacity: '0.5', marginLeft: 'auto' });
     });
+    clone.querySelectorAll('.cs-skill-name, .cs-save-name').forEach(el => {
+        applyInline(el, { fontSize: '8px' });
+    });
     
     // Passive Perception
     clone.querySelectorAll('.cs-passive-box').forEach(el => {
@@ -1315,17 +1327,20 @@ function downloadCharSheetPdf() {
         applyInline(el, { fontFamily: 'Cinzel,serif', fontSize: '6px', color: '#a09b8c', textTransform: 'uppercase' });
     });
     
-    // Combat trio
+    // Combat trio — use flexbox instead of grid
     clone.querySelectorAll('.cs-combat-trio').forEach(el => {
-        applyInline(el, { display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '4px' });
+        applyInline(el, { display: 'flex', gap: '4px' });
     });
     clone.querySelectorAll('.cs-combat-box').forEach(el => {
-        applyInline(el, { background: 'rgba(0,0,0,0.3)', border: '2px solid #4a3f2f', borderRadius: '8px', padding: '4px', textAlign: 'center' });
+        applyInline(el, { flex: '1', background: 'rgba(0,0,0,0.3)', border: '2px solid #4a3f2f', borderRadius: '8px', padding: '4px', textAlign: 'center' });
     });
     clone.querySelectorAll('.cs-combat-box-value').forEach(el => {
         applyInline(el, { fontFamily: 'Cinzel,serif', fontSize: '16px', fontWeight: '900', color: '#d4a017', lineHeight: '1.2' });
     });
     clone.querySelectorAll('.cs-ac-box .cs-combat-box-value').forEach(el => el.style.color = '#3498db');
+    clone.querySelectorAll('.cs-speed-unit').forEach(el => {
+        applyInline(el, { fontSize: '7px', fontWeight: '400', color: '#a09b8c' });
+    });
     clone.querySelectorAll('.cs-combat-box-label').forEach(el => {
         applyInline(el, { fontFamily: 'Cinzel,serif', fontSize: '6px', color: '#a09b8c', textTransform: 'uppercase', letterSpacing: '0.08em', marginTop: '2px' });
     });
@@ -1353,12 +1368,12 @@ function downloadCharSheetPdf() {
         applyInline(el, { fontFamily: 'Cinzel,serif', fontSize: '6px', color: '#a09b8c', textTransform: 'uppercase', marginTop: '2px' });
     });
     
-    // Hit Dice & Death Saves
+    // Hit Dice & Death Saves — use flexbox
     clone.querySelectorAll('.cs-hitdice-death').forEach(el => {
-        applyInline(el, { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4px' });
+        applyInline(el, { display: 'flex', gap: '4px' });
     });
     clone.querySelectorAll('.cs-hitdice-box, .cs-death-box').forEach(el => {
-        applyInline(el, { background: 'rgba(0,0,0,0.3)', border: '2px solid #4a3f2f', borderRadius: '8px', padding: '3px', textAlign: 'center' });
+        applyInline(el, { flex: '1', background: 'rgba(0,0,0,0.3)', border: '2px solid #4a3f2f', borderRadius: '8px', padding: '3px', textAlign: 'center' });
     });
     clone.querySelectorAll('.cs-hd-label, .cs-hd-sublabel, .cs-death-label').forEach(el => {
         applyInline(el, { fontFamily: 'Cinzel,serif', fontSize: '6px', color: '#a09b8c', textTransform: 'uppercase' });
@@ -1384,7 +1399,7 @@ function downloadCharSheetPdf() {
         applyInline(el, { fontFamily: 'Cinzel,serif', fontSize: '6px', color: '#a09b8c', textTransform: 'uppercase', padding: '2px 3px', borderBottom: '1px solid #4a3f2f', textAlign: 'left' });
     });
     clone.querySelectorAll('.cs-attacks-table td').forEach(el => {
-        applyInline(el, { padding: '2px 3px', borderBottom: '1px solid rgba(74,63,47,0.3)' });
+        applyInline(el, { padding: '2px 3px', borderBottom: '1px solid rgba(74,63,47,0.3)', color: '#e8e6e3' });
     });
     clone.querySelectorAll('.cs-attack-name').forEach(el => {
         applyInline(el, { color: '#e8e6e3', fontWeight: '600' });
@@ -1438,6 +1453,9 @@ function downloadCharSheetPdf() {
     });
     
     // Spells
+    clone.querySelectorAll('.cs-spells-section').forEach(el => {
+        applyInline(el, { marginTop: '6px' });
+    });
     clone.querySelectorAll('.cs-section-title').forEach(el => {
         applyInline(el, { fontFamily: 'Cinzel,serif', fontSize: '10px', color: '#d4a017', borderBottom: '1px solid rgba(212,160,23,0.3)', paddingBottom: '3px', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.05em' });
     });
@@ -1445,7 +1463,7 @@ function downloadCharSheetPdf() {
         applyInline(el, { display: 'flex', gap: '6px', marginBottom: '4px', flexWrap: 'wrap' });
     });
     clone.querySelectorAll('.cs-spell-stat').forEach(el => {
-        applyInline(el, { display: 'flex', flexDirection: 'column', alignItems: 'center', background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(155,89,182,0.3)', borderRadius: '6px', padding: '2px 6px' });
+        applyInline(el, { display: 'inline-flex', flexDirection: 'column', alignItems: 'center', background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(155,89,182,0.3)', borderRadius: '6px', padding: '2px 6px' });
     });
     clone.querySelectorAll('.cs-spell-stat-label').forEach(el => {
         applyInline(el, { fontFamily: 'Cinzel,serif', fontSize: '6px', color: '#a09b8c', textTransform: 'uppercase' });
@@ -1465,10 +1483,10 @@ function downloadCharSheetPdf() {
     
     // Magic items section for PDF
     clone.querySelectorAll('.cs-items-grid').forEach(el => {
-        applyInline(el, { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px' });
+        applyInline(el, { display: 'flex', flexWrap: 'wrap', gap: '6px' });
     });
     clone.querySelectorAll('.cs-item-card').forEach(el => {
-        applyInline(el, { background: 'rgba(0,0,0,0.3)', border: '1px solid #4a3f2f', borderRadius: '8px', padding: '6px', pageBreakInside: 'avoid' });
+        applyInline(el, { width: 'calc(50% - 3px)', background: 'rgba(0,0,0,0.3)', border: '1px solid #4a3f2f', borderRadius: '8px', padding: '6px', boxSizing: 'border-box' });
     });
     clone.querySelectorAll('.cs-item-header').forEach(el => {
         applyInline(el, { display: 'flex', alignItems: 'center', gap: '4px', flexWrap: 'wrap', marginBottom: '3px' });
@@ -1509,7 +1527,7 @@ function downloadCharSheetPdf() {
         margin: [6, 6, 6, 6],
         filename: filename,
         image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2, useCORS: true, backgroundColor: '#1a1a2e' },
+        html2canvas: { scale: 2, useCORS: true, backgroundColor: '#1a1a2e', scrollY: 0, windowWidth: 794 },
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
         pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
     };
