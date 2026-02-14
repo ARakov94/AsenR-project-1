@@ -21,70 +21,134 @@
         <!-- Header -->
         <header class="header">
             <div class="forge-logo" id="headerIcon">
-                <svg viewBox="0 0 200 180" xmlns="http://www.w3.org/2000/svg" class="logo-svg">
-                    <!-- Anvil -->
-                    <path d="M50 130 L60 100 L140 100 L150 130 L160 130 L165 145 L35 145 L40 130 Z" fill="#5a5a6e" stroke="#3a3a4e" stroke-width="2"/>
-                    <path d="M60 100 L70 90 L130 90 L140 100 Z" fill="#6e6e82" stroke="#3a3a4e" stroke-width="1.5"/>
-                    <rect x="85" y="145" width="30" height="20" rx="2" fill="#4a4a5e" stroke="#3a3a4e" stroke-width="1.5"/>
-                    <path d="M60 100 L140 100" stroke="#7e7e92" stroke-width="1" opacity="0.5"/>
-                    <!-- Hammer -->
-                    <g class="hammer-swing">
-                        <rect x="112" y="20" width="8" height="55" rx="3" fill="#8B6914" stroke="#5a4510" stroke-width="1" transform="rotate(-20, 116, 47)"/>
-                        <rect x="95" y="12" width="40" height="22" rx="4" fill="#6e6e82" stroke="#3a3a4e" stroke-width="1.5" transform="rotate(-20, 115, 23)"/>
-                        <rect x="95" y="14" width="40" height="8" rx="2" fill="#7e7e92" opacity="0.4" transform="rotate(-20, 115, 18)"/>
-                    </g>
-                    <!-- Impact glow -->
-                    <ellipse cx="100" cy="88" rx="20" ry="6" fill="url(#impactGlow)" class="impact-flash"/>
-                    <!-- Characters popping out -->
-                    <g class="char-pop char-1">
-                        <!-- Warrior with sword -->
-                        <circle cx="60" cy="55" r="5" fill="#d4a017"/>
-                        <line x1="60" y1="60" x2="60" y2="78" stroke="#d4a017" stroke-width="2.5" stroke-linecap="round"/>
-                        <line x1="60" y1="65" x2="52" y2="70" stroke="#d4a017" stroke-width="2" stroke-linecap="round"/>
-                        <line x1="60" y1="65" x2="70" y2="58" stroke="#d4a017" stroke-width="2" stroke-linecap="round"/>
-                        <line x1="70" y1="58" x2="74" y2="48" stroke="#c0c0c0" stroke-width="2" stroke-linecap="round"/>
-                    </g>
-                    <g class="char-pop char-2">
-                        <!-- Mage with staff -->
-                        <circle cx="140" cy="50" r="5" fill="#9b59b6"/>
-                        <line x1="140" y1="55" x2="140" y2="75" stroke="#9b59b6" stroke-width="2.5" stroke-linecap="round"/>
-                        <line x1="140" y1="62" x2="132" y2="67" stroke="#9b59b6" stroke-width="2" stroke-linecap="round"/>
-                        <line x1="140" y1="62" x2="148" y2="55" stroke="#9b59b6" stroke-width="2" stroke-linecap="round"/>
-                        <line x1="148" y1="55" x2="148" y2="42" stroke="#8B6914" stroke-width="2" stroke-linecap="round"/>
-                        <circle cx="148" cy="39" r="4" fill="none" stroke="#3498db" stroke-width="1.5"/>
-                        <circle cx="148" cy="39" r="2" fill="#3498db" opacity="0.7"/>
-                    </g>
-                    <g class="char-pop char-3">
-                        <!-- Archer -->
-                        <circle cx="85" cy="40" r="4.5" fill="#2ecc71"/>
-                        <line x1="85" y1="44" x2="85" y2="62" stroke="#2ecc71" stroke-width="2.5" stroke-linecap="round"/>
-                        <line x1="85" y1="50" x2="78" y2="55" stroke="#2ecc71" stroke-width="2" stroke-linecap="round"/>
-                        <line x1="85" y1="50" x2="92" y2="44" stroke="#2ecc71" stroke-width="2" stroke-linecap="round"/>
-                        <path d="M93 38 Q97 46 93 54" fill="none" stroke="#8B6914" stroke-width="1.5"/>
-                    </g>
-                    <g class="char-pop char-4">
-                        <!-- Rogue -->
-                        <circle cx="115" cy="42" r="4.5" fill="#e74c3c"/>
-                        <line x1="115" y1="46" x2="115" y2="64" stroke="#e74c3c" stroke-width="2.5" stroke-linecap="round"/>
-                        <line x1="115" y1="53" x2="108" y2="48" stroke="#e74c3c" stroke-width="2" stroke-linecap="round"/>
-                        <line x1="115" y1="53" x2="122" y2="48" stroke="#e74c3c" stroke-width="2" stroke-linecap="round"/>
-                        <line x1="108" y1="48" x2="105" y2="42" stroke="#c0c0c0" stroke-width="1.5" stroke-linecap="round"/>
-                        <line x1="122" y1="48" x2="125" y2="42" stroke="#c0c0c0" stroke-width="1.5" stroke-linecap="round"/>
-                    </g>
-                    <!-- Spark particles -->
-                    <circle cx="75" cy="82" r="2" fill="#f0c94b" class="spark s1"/>
-                    <circle cx="125" cy="78" r="1.8" fill="#f0c94b" class="spark s2"/>
-                    <circle cx="90" cy="75" r="1.5" fill="#f0c94b" class="spark s3"/>
-                    <circle cx="110" cy="80" r="2" fill="#f0c94b" class="spark s4"/>
-                    <circle cx="68" cy="76" r="1.2" fill="#e67e22" class="spark s5"/>
-                    <circle cx="132" cy="82" r="1.5" fill="#e67e22" class="spark s6"/>
-                    <!-- Defs -->
+                <svg viewBox="0 0 220 200" xmlns="http://www.w3.org/2000/svg" class="logo-svg">
                     <defs>
+                        <!-- Anvil metallic gradient -->
+                        <linearGradient id="anvilBody" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#7a7a92"/>
+                            <stop offset="35%" stop-color="#5a5a70"/>
+                            <stop offset="70%" stop-color="#44445c"/>
+                            <stop offset="100%" stop-color="#2e2e44"/>
+                        </linearGradient>
+                        <linearGradient id="anvilFace" x1="0%" y1="0%" x2="0%" y2="100%">
+                            <stop offset="0%" stop-color="#9090a8"/>
+                            <stop offset="100%" stop-color="#5a5a72"/>
+                        </linearGradient>
+                        <!-- Hammer head gradient -->
+                        <linearGradient id="hammerHead" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#8e8ea6"/>
+                            <stop offset="50%" stop-color="#6a6a84"/>
+                            <stop offset="100%" stop-color="#4a4a64"/>
+                        </linearGradient>
+                        <!-- Fire / heat gradient -->
+                        <linearGradient id="fireUp" x1="0%" y1="100%" x2="0%" y2="0%">
+                            <stop offset="0%" stop-color="#f0c94b"/>
+                            <stop offset="45%" stop-color="#e67e22"/>
+                            <stop offset="100%" stop-color="#e74c3c" stop-opacity="0"/>
+                        </linearGradient>
+                        <!-- Impact glow (used by existing CSS animation) -->
                         <radialGradient id="impactGlow">
-                            <stop offset="0%" stop-color="#f0c94b" stop-opacity="0.8"/>
+                            <stop offset="0%" stop-color="#f0c94b" stop-opacity="0.9"/>
+                            <stop offset="50%" stop-color="#e67e22" stop-opacity="0.4"/>
                             <stop offset="100%" stop-color="#d4a017" stop-opacity="0"/>
                         </radialGradient>
+                        <!-- Blade heat gradient -->
+                        <linearGradient id="bladeHeat" x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" stop-color="#f5d76e"/>
+                            <stop offset="40%" stop-color="#e67e22"/>
+                            <stop offset="100%" stop-color="#c0392b"/>
+                        </linearGradient>
                     </defs>
+
+                    <!-- ===== Anvil base / pedestal ===== -->
+                    <rect x="72" y="162" width="76" height="10" rx="2" fill="#2a2a40" stroke="#1a1a30" stroke-width="1"/>
+                    <rect x="78" y="152" width="64" height="14" rx="3" fill="#38384e" stroke="#28283e" stroke-width="1.5"/>
+
+                    <!-- ===== Anvil body ===== -->
+                    <path d="M48 152 L62 112 L68 102 L152 102 L158 112 L172 152 Z" fill="url(#anvilBody)" stroke="#28283e" stroke-width="2"/>
+                    <!-- Anvil top working face -->
+                    <path d="M68 102 L74 90 L146 90 L152 102 Z" fill="url(#anvilFace)" stroke="#28283e" stroke-width="1.5"/>
+                    <!-- Anvil horn (left beak) -->
+                    <path d="M68 102 L24 98 L22 104 L62 112 Z" fill="#6a6a84" stroke="#3a3a52" stroke-width="1.5"/>
+                    <path d="M68 90 L28 96 L24 98 L68 102 Z" fill="#7e7e98" stroke="#3a3a52" stroke-width="1"/>
+                    <!-- Anvil hardy hole (right step) -->
+                    <path d="M152 102 L180 98 L182 104 L158 112 Z" fill="#58586e" stroke="#3a3a52" stroke-width="1.5"/>
+                    <path d="M152 90 L176 95 L180 98 L152 102 Z" fill="#6e6e88" stroke="#3a3a52" stroke-width="1"/>
+                    <!-- Highlight edges -->
+                    <line x1="74" y1="90" x2="146" y2="90" stroke="#a0a0b8" stroke-width="0.8" opacity="0.5"/>
+                    <!-- Hardy / pritchel holes -->
+                    <circle cx="140" cy="96" r="2.5" fill="#1a1a2e" opacity="0.6"/>
+                    <rect x="130" y="94" width="3" height="4" rx="0.5" fill="#1a1a2e" opacity="0.5"/>
+
+                    <!-- ===== Glowing runes on anvil front ===== -->
+                    <path d="M90 120 L95 115 L100 125 L105 115 L110 120" fill="none" stroke="#d4a017" stroke-width="1.2" opacity="0.6" class="spark s5"/>
+                    <path d="M115 125 L120 118 L125 128 L130 118 L135 125" fill="none" stroke="#d4a017" stroke-width="1" opacity="0.4" class="spark s6"/>
+                    <circle cx="82" cy="130" r="3" fill="none" stroke="#d4a017" stroke-width="1" opacity="0.5" class="spark s3"/>
+                    <circle cx="82" cy="130" r="1.2" fill="#d4a017" opacity="0.3" class="spark s3"/>
+                    <circle cx="138" cy="130" r="3" fill="none" stroke="#d4a017" stroke-width="1" opacity="0.5" class="spark s4"/>
+                    <circle cx="138" cy="130" r="1.2" fill="#d4a017" opacity="0.3" class="spark s4"/>
+
+                    <!-- ===== Blade being forged (glowing hot) ===== -->
+                    <rect x="60" y="84" width="80" height="6" rx="1.5" fill="url(#bladeHeat)" opacity="0.85"/>
+                    <rect x="62" y="85.5" width="76" height="3" rx="1" fill="#f5e16d" opacity="0.5"/>
+                    <!-- Blade tip -->
+                    <polygon points="140,84 140,90 156,87" fill="#c0392b" opacity="0.7"/>
+                    <polygon points="141,85.5 141,88.5 153,87" fill="#e67e22" opacity="0.6"/>
+                    <!-- Blade guard (cross-guard at pommel end) -->
+                    <rect x="54" y="82" width="8" height="10" rx="1.5" fill="#8B7332" stroke="#5a4510" stroke-width="1"/>
+
+                    <!-- ===== Ornate hammer ===== -->
+                    <g class="hammer-swing">
+                        <!-- Handle -->
+                        <rect x="112" y="16" width="8" height="62" rx="3" fill="#8B6914" stroke="#5a4510" stroke-width="1.2" transform="rotate(-18, 116, 47)"/>
+                        <!-- Handle leather wraps -->
+                        <line x1="113.5" y1="38" x2="119.5" y2="36" stroke="#6d5210" stroke-width="1.5" transform="rotate(-18, 116, 47)" opacity="0.5"/>
+                        <line x1="113.5" y1="46" x2="119.5" y2="44" stroke="#6d5210" stroke-width="1.5" transform="rotate(-18, 116, 47)" opacity="0.5"/>
+                        <line x1="113.5" y1="54" x2="119.5" y2="52" stroke="#6d5210" stroke-width="1.5" transform="rotate(-18, 116, 47)" opacity="0.5"/>
+                        <line x1="113.5" y1="62" x2="119.5" y2="60" stroke="#6d5210" stroke-width="1.5" transform="rotate(-18, 116, 47)" opacity="0.5"/>
+                        <!-- Hammer head -->
+                        <rect x="94" y="4" width="48" height="28" rx="5" fill="url(#hammerHead)" stroke="#38384e" stroke-width="2" transform="rotate(-18, 118, 18)"/>
+                        <!-- Hammer face bevels -->
+                        <rect x="96" y="7" width="44" height="7" rx="2" fill="#9898b0" opacity="0.25" transform="rotate(-18, 118, 10)"/>
+                        <rect x="96" y="24" width="44" height="4" rx="1" fill="#2e2e44" opacity="0.3" transform="rotate(-18, 118, 26)"/>
+                        <!-- Ornate rune circle on hammer -->
+                        <circle cx="118" cy="18" r="7" fill="none" stroke="#d4a017" stroke-width="1.2" opacity="0.55" transform="rotate(-18, 118, 18)"/>
+                        <circle cx="118" cy="18" r="3" fill="#d4a017" opacity="0.35" transform="rotate(-18, 118, 18)"/>
+                        <path d="M114 18 L118 12 L122 18 L118 24 Z" fill="none" stroke="#d4a017" stroke-width="0.8" opacity="0.45" transform="rotate(-18, 118, 18)"/>
+                    </g>
+
+                    <!-- ===== Impact glow (animated by CSS) ===== -->
+                    <ellipse cx="110" cy="88" rx="28" ry="10" fill="url(#impactGlow)" class="impact-flash"/>
+
+                    <!-- ===== Rising fire & embers ===== -->
+                    <g class="char-pop char-1">
+                        <path d="M92 82 Q88 65 94 52 Q91 60 96 48 Q93 58 98 44 Q95 62 92 82" fill="url(#fireUp)" opacity="0.75"/>
+                    </g>
+                    <g class="char-pop char-2">
+                        <path d="M118 82 Q122 62 116 46 Q119 56 114 40 Q117 52 112 36 Q115 58 118 82" fill="url(#fireUp)" opacity="0.65"/>
+                    </g>
+                    <g class="char-pop char-3">
+                        <path d="M105 80 Q102 58 107 42 Q104 52 109 36 Q106 48 111 30 Q108 54 105 80" fill="url(#fireUp)" opacity="0.85"/>
+                    </g>
+                    <g class="char-pop char-4">
+                        <path d="M80 84 Q76 72 82 62 Q79 68 84 58 Q81 66 86 56 Q83 70 80 84" fill="url(#fireUp)" opacity="0.55"/>
+                    </g>
+
+                    <!-- ===== Spark particles (animated by CSS) ===== -->
+                    <circle cx="78" cy="78" r="2.8" fill="#f0c94b" class="spark s1"/>
+                    <circle cx="132" cy="74" r="2.4" fill="#f0c94b" class="spark s2"/>
+                    <circle cx="95" cy="68" r="2" fill="#f0c94b" class="spark s3"/>
+                    <circle cx="120" cy="76" r="2.8" fill="#f0c94b" class="spark s4"/>
+                    <circle cx="68" cy="72" r="1.6" fill="#e67e22" class="spark s5"/>
+                    <circle cx="142" cy="78" r="2" fill="#e67e22" class="spark s6"/>
+                    <!-- Extra fine sparks -->
+                    <circle cx="86" cy="56" r="1.1" fill="#f5d76e" class="spark s1" opacity="0.8"/>
+                    <circle cx="124" cy="50" r="1.3" fill="#f5d76e" class="spark s3" opacity="0.7"/>
+                    <circle cx="108" cy="42" r="1" fill="#f5d76e" class="spark s5" opacity="0.6"/>
+                    <circle cx="98" cy="62" r="0.9" fill="#f5d76e" class="spark s2" opacity="0.9"/>
+                    <circle cx="114" cy="54" r="0.9" fill="#f5d76e" class="spark s4" opacity="0.8"/>
+                    <circle cx="72" cy="64" r="0.7" fill="#f5d76e" class="spark s6" opacity="0.7"/>
+                    <circle cx="138" cy="60" r="0.8" fill="#f5d76e" class="spark s1" opacity="0.6"/>
                 </svg>
             </div>
             <!-- WoW Logo (shown when World of Warcraft is selected) -->

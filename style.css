@@ -61,15 +61,15 @@ body {
 }
 
 .bg-image.dnd-bg {
-    background-image: url('https://images.pexels.com/photos/2873895/pexels-photo-2873895.jpeg?auto=compress&cs=tinysrgb&w=1920&h=1080&fit=crop');
+    background-image: url('https://images.pexels.com/photos/13778249/pexels-photo-13778249.jpeg?auto=compress&cs=tinysrgb&w=1920&h=1080&fit=crop');
 }
 
 .bg-image.es-bg {
-    background-image: url('https://images.pexels.com/photos/20000964/pexels-photo-20000964.jpeg?auto=compress&cs=tinysrgb&w=1920&h=1080&fit=crop');
+    background-image: url('https://images.pexels.com/photos/948413/pexels-photo-948413.jpeg?auto=compress&cs=tinysrgb&w=1920&h=1080&fit=crop');
 }
 
 .bg-image.wow-bg {
-    background-image: url('https://images.pexels.com/photos/2387793/pexels-photo-2387793.jpeg?auto=compress&cs=tinysrgb&w=1920&h=1080&fit=crop');
+    background-image: url('https://images.pexels.com/photos/1428277/pexels-photo-1428277.jpeg?auto=compress&cs=tinysrgb&w=1920&h=1080&fit=crop');
 }
 
 /* ===== Background Overlay ===== */
@@ -133,10 +133,10 @@ body {
 }
 
 .forge-logo {
-    width: 160px;
-    height: 150px;
+    width: 200px;
+    height: 185px;
     margin: 0 auto 0.5rem;
-    filter: drop-shadow(0 0 25px rgba(212, 160, 23, 0.5));
+    filter: drop-shadow(0 0 30px rgba(212, 160, 23, 0.6)) drop-shadow(0 0 60px rgba(230, 126, 34, 0.25));
 }
 
 .logo-svg {
@@ -147,7 +147,7 @@ body {
 /* Hammer swing animation */
 .hammer-swing {
     transform-origin: 116px 47px;
-    animation: hammerSwing 2s ease-in-out infinite;
+    animation: hammerSwing 1.8s ease-in-out infinite;
 }
 
 @keyframes hammerSwing {
@@ -360,7 +360,7 @@ body.world-of-warcraft .particle {
 
 /* WoW Logo Styles */
 .wow-logo {
-    filter: drop-shadow(0 0 25px rgba(0, 112, 221, 0.6)) !important;
+    filter: drop-shadow(0 0 30px rgba(0, 112, 221, 0.7)) drop-shadow(0 0 60px rgba(163, 53, 238, 0.3)) !important;
 }
 
 .wow-swords-swing {
