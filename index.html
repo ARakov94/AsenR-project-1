@@ -255,12 +255,19 @@
 
         <div class="collapsible-content" id="itemsCollapsible" style="display: none;">
 
-        <!-- Character Name for Items -->
+        <!-- Item Options -->
         <section class="card">
             <div class="form-grid">
                 <div class="form-group">
-                    <label for="charName">Character Name <span class="optional-label">(optional)</span></label>
-                    <input type="text" id="charName" placeholder="e.g. Tordek Firebeard">
+                    <label for="itemQuality">Quality Level</label>
+                    <select id="itemQuality">
+                        <option value="common">🟤 Common</option>
+                        <option value="uncommon">🟢 Uncommon</option>
+                        <option value="rare">🔵 Rare</option>
+                        <option value="very-rare">🟣 Very Rare</option>
+                        <option value="legendary">🟠 Legendary</option>
+                        <option value="mixed" selected>🎲 Mixed (all rarities)</option>
+                    </select>
                 </div>
                 <div class="form-group">
                     <label>Item Types</label>

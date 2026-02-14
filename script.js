@@ -147,7 +147,7 @@ const UNIVERSES = {
 // ===== DOM Elements =====
 const DOM = {
     headerIcon: document.getElementById('headerIcon'),
-    charName: document.getElementById('charName'),
+    itemQuality: document.getElementById('itemQuality'),
     charClass: document.getElementById('charClass'),
     charRace: document.getElementById('charRace'),
     charLevel: document.getElementById('charLevel'),
@@ -1239,13 +1239,14 @@ async function generateItems() {
     showLoading();
 
     const payload = {
-        characterName: DOM.charName.value.trim() || '',
+        characterName: (state.lastBackstoryData && state.lastBackstoryData.name) ? state.lastBackstoryData.name : '',
         characterClass: charClass,
         characterRace: charRace,
         characterLevel: parseInt(DOM.charLevel.value),
         spiciness: parseInt(DOM.spicySlider.value),
         itemCount: state.itemCount,
         itemTypes: getSelectedItemTypes(),
+        itemQuality: DOM.itemQuality.value,
         universe: state.currentUniverse
     };
 
