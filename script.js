@@ -277,6 +277,60 @@ const DOM = {
     countBtns: document.querySelectorAll('.count-btn')
 };
 
+// ===== WoW Race-Class Restrictions (as of The War Within) =====
+const WOW_RACE_CLASSES = {
+    'Human':                ['Warrior', 'Paladin', 'Hunter', 'Rogue', 'Priest', 'Mage', 'Warlock', 'Monk', 'Death Knight'],
+    'Dwarf':                ['Warrior', 'Paladin', 'Hunter', 'Rogue', 'Priest', 'Shaman', 'Mage', 'Warlock', 'Monk', 'Death Knight'],
+    'Night Elf':            ['Warrior', 'Hunter', 'Rogue', 'Priest', 'Mage', 'Warlock', 'Monk', 'Druid', 'Demon Hunter', 'Death Knight'],
+    'Gnome':                ['Warrior', 'Hunter', 'Rogue', 'Priest', 'Mage', 'Warlock', 'Monk', 'Death Knight'],
+    'Draenei':              ['Warrior', 'Paladin', 'Hunter', 'Rogue', 'Priest', 'Shaman', 'Mage', 'Warlock', 'Monk', 'Death Knight'],
+    'Worgen':               ['Warrior', 'Hunter', 'Rogue', 'Priest', 'Mage', 'Warlock', 'Monk', 'Druid', 'Death Knight'],
+    'Void Elf':             ['Warrior', 'Hunter', 'Rogue', 'Priest', 'Mage', 'Warlock', 'Monk', 'Death Knight'],
+    'Lightforged Draenei':  ['Warrior', 'Paladin', 'Hunter', 'Rogue', 'Priest', 'Mage', 'Warlock', 'Monk', 'Death Knight'],
+    'Dark Iron Dwarf':      ['Warrior', 'Paladin', 'Hunter', 'Rogue', 'Priest', 'Shaman', 'Mage', 'Warlock', 'Monk', 'Death Knight'],
+    'Kul Tiran':            ['Warrior', 'Hunter', 'Rogue', 'Priest', 'Shaman', 'Mage', 'Warlock', 'Monk', 'Druid', 'Death Knight'],
+    'Mechagnome':           ['Warrior', 'Hunter', 'Rogue', 'Priest', 'Mage', 'Warlock', 'Monk', 'Death Knight'],
+    'Orc':                  ['Warrior', 'Hunter', 'Rogue', 'Priest', 'Shaman', 'Mage', 'Warlock', 'Monk', 'Death Knight'],
+    'Undead':               ['Warrior', 'Hunter', 'Rogue', 'Priest', 'Mage', 'Warlock', 'Monk', 'Death Knight'],
+    'Tauren':               ['Warrior', 'Paladin', 'Hunter', 'Rogue', 'Priest', 'Shaman', 'Mage', 'Warlock', 'Monk', 'Druid', 'Death Knight'],
+    'Troll':                ['Warrior', 'Hunter', 'Rogue', 'Priest', 'Shaman', 'Mage', 'Warlock', 'Monk', 'Druid', 'Death Knight'],
+    'Blood Elf':            ['Warrior', 'Paladin', 'Hunter', 'Rogue', 'Priest', 'Mage', 'Warlock', 'Monk', 'Demon Hunter', 'Death Knight'],
+    'Goblin':               ['Warrior', 'Hunter', 'Rogue', 'Priest', 'Shaman', 'Mage', 'Warlock', 'Monk', 'Death Knight'],
+    'Nightborne':           ['Warrior', 'Hunter', 'Rogue', 'Priest', 'Mage', 'Warlock', 'Monk', 'Death Knight'],
+    'Highmountain Tauren':  ['Warrior', 'Hunter', 'Rogue', 'Priest', 'Shaman', 'Mage', 'Warlock', 'Monk', 'Druid', 'Death Knight'],
+    "Mag'har Orc":          ['Warrior', 'Hunter', 'Rogue', 'Priest', 'Shaman', 'Mage', 'Warlock', 'Monk', 'Death Knight'],
+    'Zandalari Troll':      ['Warrior', 'Paladin', 'Hunter', 'Rogue', 'Priest', 'Shaman', 'Mage', 'Warlock', 'Monk', 'Druid', 'Death Knight'],
+    'Vulpera':              ['Warrior', 'Hunter', 'Rogue', 'Priest', 'Shaman', 'Mage', 'Warlock', 'Monk', 'Death Knight'],
+    'Pandaren':             ['Warrior', 'Hunter', 'Rogue', 'Priest', 'Shaman', 'Mage', 'Warlock', 'Monk', 'Death Knight'],
+    'Dracthyr':             ['Evoker', 'Warrior', 'Hunter', 'Rogue', 'Priest', 'Mage', 'Warlock'],
+    'Earthen':              ['Warrior', 'Paladin', 'Hunter', 'Rogue', 'Priest', 'Shaman', 'Mage', 'Warlock', 'Monk', 'Death Knight']
+};
+
+function updateWowClassesForRace() {
+    if (state.currentUniverse !== 'worldofwarcraft') return;
+    const selectedRace = DOM.charRace.value;
+    if (!selectedRace) {
+        // No race selected — show all classes
+        populateDropdown(DOM.charClass, getUniverse().classes);
+        return;
+    }
+    const allowedClasses = WOW_RACE_CLASSES[selectedRace];
+    if (!allowedClasses) {
+        populateDropdown(DOM.charClass, getUniverse().classes);
+        return;
+    }
+    const currentClass = DOM.charClass.value;
+    const filteredClasses = [{ value: '', label: '— Choose a class —' }];
+    allowedClasses.forEach(cls => {
+        filteredClasses.push({ value: cls, label: cls });
+    });
+    populateDropdown(DOM.charClass, filteredClasses);
+    // Restore selection if still valid
+    if (currentClass && allowedClasses.includes(currentClass)) {
+        DOM.charClass.value = currentClass;
+    }
+}
+
 // ===== State =====
 let state = {
     itemCount: 5,
@@ -335,6 +389,11 @@ function switchUniverse(universeKey) {
     // Populate dropdowns
     populateDropdown(DOM.charClass, universe.classes);
     populateDropdown(DOM.charRace, universe.races);
+    
+    // Apply WoW race-class restrictions
+    if (universeKey === 'worldofwarcraft') {
+        updateWowClassesForRace();
+    }
     
     // Update webhook URLs
     CONFIG.backstoryWebhookUrl = universe.backstoryWebhook;
@@ -1425,6 +1484,9 @@ DOM.universeTabs.forEach(tab => {
     });
 });
 
+// WoW race-class filtering
+DOM.charRace.addEventListener('change', updateWowClassesForRace);
+
 // Collapsible items section
 DOM.itemsToggle.addEventListener('click', () => {
     state.itemsCollapsed = !state.itemsCollapsed;
@@ -1472,6 +1534,11 @@ function init() {
     });
     populateDropdown(DOM.charClass, universe.classes);
     populateDropdown(DOM.charRace, universe.races);
+    
+    // Apply WoW race-class restrictions on init
+    if (savedUniverse === 'worldofwarcraft') {
+        updateWowClassesForRace();
+    }
     
     // Prompt for webhook if not set
     if (!CONFIG.webhookUrl) {
