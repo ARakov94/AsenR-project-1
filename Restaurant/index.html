@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ресторант — Управление на Резервации</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍽️</text></svg>">
+</head>
+<body>
+    <!-- Header -->
+    <header class="app-header">
+        <div class="header-left">
+            <span class="logo">🍽️</span>
+            <h1>Управление на Резервации</h1>
+        </div>
+        <div class="header-right">
+            <button id="syncBtn" class="btn btn-secondary" title="Синхронизирай с Google Calendar">
+                <span class="btn-icon">🔄</span> Синхронизирай
+            </button>
+            <button id="autoAllocateBtn" class="btn btn-secondary" title="Автоматично разпределение на маси">
+                <span class="btn-icon">🎯</span> Авто-разпределение
+            </button>
+            <button id="editModeBtn" class="btn btn-primary" title="Редактирай план на залата">
+                <span class="btn-icon">✏️</span> Редактирай план
+            </button>
+        </div>
+    </header>
+
+    <div class="app-content">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <!-- Date Picker -->
+            <div class="sidebar-section">
+                <h2>📅 Дата</h2>
+                <input type="date" id="datePicker" class="date-input">
+            </div>
+
+            <!-- Reservations List -->
+            <div class="sidebar-section">
+                <div class="section-header">
+                    <h2>📋 Резервации</h2>
+                    <button id="addReservationBtn" class="btn btn-small btn-accent" title="Добави нова резервация">+ Нова</button>
+                </div>
+                <div id="reservationsList" class="reservations-list">
+                    <!-- Rendered by JS -->
+                </div>
+            </div>
+
+            <!-- Statistics -->
+            <div class="sidebar-section stats-section">
+                <h2>📊 Статистика</h2>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <span class="stat-value" id="statTotalGuests">0</span>
+                        <span class="stat-label">Гости</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-value" id="statTotalReservations">0</span>
+                        <span class="stat-label">Резервации</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-value" id="statAvailableTables">0</span>
+                        <span class="stat-label">Свободни</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-value" id="statOccupiedTables">0</span>
+                        <span class="stat-label">Заети</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Floor Tabs -->
+            <div class="floor-tabs">
+                <button class="floor-tab active" data-floor="1">Етаж 1</button>
+                <button class="floor-tab" data-floor="2">Етаж 2</button>
+            </div>
+
+            <!-- Edit Mode Toolbar -->
+            <div id="editToolbar" class="edit-toolbar hidden">
+                <span class="toolbar-label">Редакция:</span>
+                <button class="btn btn-small" id="addBoothBtn">+ Сепаре (5 места)</button>
+                <button class="btn btn-small" id="addSmallTableBtn">+ Маса (2 места)</button>
+                <button class="btn btn-small" id="addMediumTableBtn">+ Маса (4 места)</button>
+                <button class="btn btn-small" id="addLargeTableBtn">+ Голяма маса (8 места)</button>
+                <button class="btn btn-small btn-danger" id="deleteTableBtn">🗑️ Изтрий избраната</button>
+                <button class="btn btn-small btn-success" id="saveLayoutBtn">💾 Запази план</button>
+            </div>
+
+            <!-- Floor Plan -->
+            <div id="floorPlan" class="floor-plan">
+                <!-- Rendered by JS -->
+            </div>
+
+            <!-- Legend -->
+            <div class="legend">
+                <div class="legend-item">
+                    <span class="legend-color available"></span> Свободна
+                </div>
+                <div class="legend-item">
+                    <span class="legend-color reserved"></span> Резервирана
+                </div>
+                <div class="legend-item">
+                    <span class="legend-color booth-style"></span> Сепаре
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Add / Edit Reservation Modal -->
+    <div id="reservationModal" class="modal hidden">
+        <div class="modal-overlay" id="modalOverlay"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">Нова Резервация</h3>
+                <button class="modal-close" id="closeModal">&times;</button>
+            </div>
+            <form id="reservationForm">
+                <div class="form-group">
+                    <label for="resName">Име на клиента</label>
+                    <input type="text" id="resName" required placeholder="Въведете име">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="resTime">Час</label>
+                        <input type="time" id="resTime" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="resGuests">Брой гости</label>
+                        <input type="number" id="resGuests" min="1" max="30" required placeholder="2">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="resPhone">Телефон</label>
+                    <input type="tel" id="resPhone" placeholder="Незадължително">
+                </div>
+                <div class="form-group">
+                    <label for="resNotes">Бележки</label>
+                    <textarea id="resNotes" rows="2" placeholder="Допълнителни бележки"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="resTable">Маса</label>
+                    <select id="resTable">
+                        <option value="">-- Автоматично --</option>
+                    </select>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" id="cancelReservation">Отказ</button>
+                    <button type="submit" class="btn btn-accent">Запази</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Table Info Popup -->
+    <div id="tablePopover" class="table-popover hidden">
+        <div class="popover-content">
+            <h4 id="popoverTitle"></h4>
+            <div id="popoverBody"></div>
+            <div class="popover-actions" id="popoverActions"></div>
+        </div>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <script src="script.js"></script>
+</body>
+</html>

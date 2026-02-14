@@ -936,11 +936,16 @@ function renderCharSheet(data) {
     const abilityOrder = ['STR', 'DEX', 'CON', 'INT', 'WIS', 'CHA'];
     const abilityNames = { STR: 'Strength', DEX: 'Dexterity', CON: 'Constitution', INT: 'Intelligence', WIS: 'Wisdom', CHA: 'Charisma' };
     
-    // Character header
+    // ── Header banner (D&D Beyond style) ──
     const headerName = data.characterName || '';
-    const headerInfo = `Level ${data.level || 1} ${data.race || ''} ${data.class || ''}`;
+    const charClass = data.class || '';
+    const charRace = data.race || '';
+    const charLevel = data.level || 1;
+    const background = data.background || '';
+    const alignment = data.alignment || '';
+    const profBonus = data.proficiencyBonus || 2;
     
-    // Ability scores grid
+    // ── Ability scores (vertical stack, D&D Beyond style) ──
     const abilityCards = abilityOrder.map(ab => {
         const score = abilities[ab] || 10;
         const mod = getAbilityModifier(score);
@@ -951,14 +956,7 @@ function renderCharSheet(data) {
         </div>`;
     }).join('');
     
-    // Combat stats
-    const hp = data.hitPoints || 10;
-    const ac = data.armorClass || 10;
-    const speed = data.speed || 30;
-    const initiative = data.initiative != null ? (data.initiative >= 0 ? `+${data.initiative}` : data.initiative) : '+0';
-    const profBonus = data.proficiencyBonus || 2;
-    
-    // Saving throws
+    // ── Saving throws ──
     const savingThrows = data.savingThrows || [];
     const savingThrowsHtml = abilityOrder.map(ab => {
         const score = abilities[ab] || 10;
@@ -973,7 +971,7 @@ function renderCharSheet(data) {
         </div>`;
     }).join('');
     
-    // Skills
+    // ── Skills ──
     const skills = data.skills || [];
     const skillsHtml = skills.map(skill => {
         const modStr = skill.modifier >= 0 ? `+${skill.modifier}` : `${skill.modifier}`;
@@ -985,11 +983,38 @@ function renderCharSheet(data) {
         </div>`;
     }).join('');
     
-    // Equipment
+    // ── Passive Perception ──
+    const passivePerception = data.passivePerception || 10;
+    
+    // ── Combat stats ──
+    const hp = data.hitPoints || 10;
+    const hpMax = data.hitPointMax || hp;
+    const ac = data.armorClass || 10;
+    const speed = data.speed || 30;
+    const initiative = data.initiative != null ? (data.initiative >= 0 ? `+${data.initiative}` : data.initiative) : '+0';
+    const hitDice = data.hitDice || `1d8`;
+    
+    // ── Attacks ──
+    const attacks = data.attacks || [];
+    const attacksHtml = attacks.length > 0 ? attacks.map(atk => `
+        <tr class="cs-attack-row">
+            <td class="cs-attack-name">${escapeHtml(atk.name || '')}</td>
+            <td class="cs-attack-bonus">${escapeHtml(atk.attackBonus || '')}</td>
+            <td class="cs-attack-damage">${escapeHtml(atk.damage || '')}</td>
+        </tr>
+    `).join('') : '<tr><td colspan="3" class="cs-attack-empty">—</td></tr>';
+    
+    // ── Equipment ──
     const equipment = data.equipment || [];
     const equipmentHtml = equipment.map(item => `<li>${escapeHtml(item)}</li>`).join('');
     
-    // Features
+    // ── Personality / Ideals / Bonds / Flaws ──
+    const personalityTraits = data.personalityTraits || '';
+    const ideals = data.ideals || '';
+    const bonds = data.bonds || '';
+    const flaws = data.flaws || '';
+    
+    // ── Features ──
     const features = data.features || [];
     const featuresHtml = features.map(feat => `
         <div class="cs-feature">
@@ -998,77 +1023,169 @@ function renderCharSheet(data) {
         </div>
     `).join('');
     
-    // Spells (optional)
+    // ── Proficiencies & Languages ──
+    const profLang = data.proficienciesAndLanguages || [];
+    const profLangHtml = profLang.map(p => `<span class="cs-prof-tag">${escapeHtml(p)}</span>`).join('');
+    
+    // ── Spells (optional) ──
     let spellsHtml = '';
     if (data.spells && (data.spells.cantrips?.length > 0 || data.spells.level1?.length > 0)) {
+        const spellAbility = data.spells.spellcastingAbility || '';
+        const spellDC = data.spells.spellSaveDC || '';
+        const spellAtk = data.spells.spellAttackBonus || '';
         const cantrips = (data.spells.cantrips || []).map(s => `<span class="cs-spell-tag">${escapeHtml(s)}</span>`).join('');
         const level1 = (data.spells.level1 || []).map(s => `<span class="cs-spell-tag">${escapeHtml(s)}</span>`).join('');
         spellsHtml = `
-            <div class="cs-section">
-                <h3 class="cs-section-title">✨ Spells</h3>
-                ${cantrips ? `<div class="cs-spell-group"><span class="cs-spell-level">Cantrips:</span> ${cantrips}</div>` : ''}
-                ${level1 ? `<div class="cs-spell-group"><span class="cs-spell-level">Level 1 (${data.spells.slots || 2} slots):</span> ${level1}</div>` : ''}
+            <div class="cs-section cs-spells-section">
+                <h3 class="cs-section-title">Spellcasting</h3>
+                <div class="cs-spell-header">
+                    ${spellAbility ? `<div class="cs-spell-stat"><span class="cs-spell-stat-label">Ability</span><span class="cs-spell-stat-value">${escapeHtml(spellAbility)}</span></div>` : ''}
+                    ${spellDC ? `<div class="cs-spell-stat"><span class="cs-spell-stat-label">Save DC</span><span class="cs-spell-stat-value">${spellDC}</span></div>` : ''}
+                    ${spellAtk ? `<div class="cs-spell-stat"><span class="cs-spell-stat-label">Attack</span><span class="cs-spell-stat-value">${escapeHtml(spellAtk)}</span></div>` : ''}
+                </div>
+                ${cantrips ? `<div class="cs-spell-group"><span class="cs-spell-level">Cantrips</span><div class="cs-spell-list">${cantrips}</div></div>` : ''}
+                ${level1 ? `<div class="cs-spell-group"><span class="cs-spell-level">Level 1 (${data.spells.slots || 2} slots)</span><div class="cs-spell-list">${level1}</div></div>` : ''}
             </div>
         `;
     }
 
     DOM.charSheetCard.innerHTML = `
+        <!-- D&D Beyond Header Banner -->
         <div class="cs-header">
             ${headerName ? `<h2 class="cs-name">${escapeHtml(headerName)}</h2>` : ''}
-            <p class="cs-info">${escapeHtml(headerInfo)}</p>
-        </div>
-        
-        <div class="cs-top-row">
-            <div class="cs-abilities-grid">
-                ${abilityCards}
+            <div class="cs-info-row">
+                <div class="cs-info-item"><span class="cs-info-value">${escapeHtml(charClass)} ${charLevel}</span><span class="cs-info-label">Class & Level</span></div>
+                <div class="cs-info-item"><span class="cs-info-value">${escapeHtml(background)}</span><span class="cs-info-label">Background</span></div>
+                <div class="cs-info-item"><span class="cs-info-value">${escapeHtml(charRace)}</span><span class="cs-info-label">Race</span></div>
+                <div class="cs-info-item"><span class="cs-info-value">${escapeHtml(alignment)}</span><span class="cs-info-label">Alignment</span></div>
             </div>
-            <div class="cs-combat-stats">
-                <div class="cs-combat-stat cs-hp">
-                    <div class="cs-stat-label">Hit Points</div>
-                    <div class="cs-stat-value">${hp}</div>
+        </div>
+
+        <!-- D&D Beyond 3-Column Layout -->
+        <div class="cs-body">
+            <!-- LEFT COLUMN: Abilities, Saves, Skills -->
+            <div class="cs-col-left">
+                <div class="cs-abilities-col">
+                    ${abilityCards}
                 </div>
-                <div class="cs-combat-stat cs-ac">
-                    <div class="cs-stat-label">Armor Class</div>
-                    <div class="cs-stat-value">${ac}</div>
-                </div>
-                <div class="cs-combat-row">
-                    <div class="cs-combat-mini">
-                        <div class="cs-mini-label">Speed</div>
-                        <div class="cs-mini-value">${speed} ft</div>
+                
+                <div class="cs-box cs-inspiration-prof">
+                    <div class="cs-inline-stat">
+                        <span class="cs-inline-dot">○</span>
+                        <span class="cs-inline-label">Inspiration</span>
                     </div>
-                    <div class="cs-combat-mini">
-                        <div class="cs-mini-label">Initiative</div>
-                        <div class="cs-mini-value">${initiative}</div>
-                    </div>
-                    <div class="cs-combat-mini">
-                        <div class="cs-mini-label">Prof. Bonus</div>
-                        <div class="cs-mini-value">+${profBonus}</div>
+                    <div class="cs-inline-stat">
+                        <span class="cs-inline-value">+${profBonus}</span>
+                        <span class="cs-inline-label">Proficiency Bonus</span>
                     </div>
                 </div>
+
+                <div class="cs-box">
+                    <div class="cs-saves-list">${savingThrowsHtml}</div>
+                    <div class="cs-box-label">Saving Throws</div>
+                </div>
+
+                <div class="cs-box">
+                    <div class="cs-skills-list">${skillsHtml}</div>
+                    <div class="cs-box-label">Skills</div>
+                </div>
+
+                <div class="cs-passive-box">
+                    <span class="cs-passive-value">${passivePerception}</span>
+                    <span class="cs-passive-label">Passive Wisdom (Perception)</span>
+                </div>
+            </div>
+
+            <!-- CENTER COLUMN: Combat, Attacks, Equipment -->
+            <div class="cs-col-center">
+                <div class="cs-combat-trio">
+                    <div class="cs-combat-box cs-ac-box">
+                        <div class="cs-combat-box-value">${ac}</div>
+                        <div class="cs-combat-box-label">Armor Class</div>
+                    </div>
+                    <div class="cs-combat-box cs-init-box">
+                        <div class="cs-combat-box-value">${initiative}</div>
+                        <div class="cs-combat-box-label">Initiative</div>
+                    </div>
+                    <div class="cs-combat-box cs-speed-box">
+                        <div class="cs-combat-box-value">${speed}<span class="cs-speed-unit">ft</span></div>
+                        <div class="cs-combat-box-label">Speed</div>
+                    </div>
+                </div>
+
+                <div class="cs-hp-block">
+                    <div class="cs-hp-header">
+                        <span class="cs-hp-label">Hit Point Maximum</span>
+                        <span class="cs-hp-max">${hpMax}</span>
+                    </div>
+                    <div class="cs-hp-current">
+                        <div class="cs-hp-value">${hp}</div>
+                        <div class="cs-hp-sublabel">Current Hit Points</div>
+                    </div>
+                </div>
+
+                <div class="cs-hitdice-death">
+                    <div class="cs-hitdice-box">
+                        <div class="cs-hd-label">Total</div>
+                        <div class="cs-hd-value">${escapeHtml(hitDice)}</div>
+                        <div class="cs-hd-sublabel">Hit Dice</div>
+                    </div>
+                    <div class="cs-death-box">
+                        <div class="cs-death-label">Death Saves</div>
+                        <div class="cs-death-row"><span class="cs-death-type">S</span><span class="cs-death-dots">○ ○ ○</span></div>
+                        <div class="cs-death-row"><span class="cs-death-type">F</span><span class="cs-death-dots">○ ○ ○</span></div>
+                    </div>
+                </div>
+
+                <div class="cs-box cs-attacks-box">
+                    <table class="cs-attacks-table">
+                        <thead>
+                            <tr><th>Name</th><th>Atk Bonus</th><th>Damage/Type</th></tr>
+                        </thead>
+                        <tbody>${attacksHtml}</tbody>
+                    </table>
+                    <div class="cs-box-label">Attacks & Spellcasting</div>
+                </div>
+
+                <div class="cs-box">
+                    <ul class="cs-equipment-list">${equipmentHtml}</ul>
+                    <div class="cs-box-label">Equipment</div>
+                </div>
+            </div>
+
+            <!-- RIGHT COLUMN: Personality, Features, Proficiencies -->
+            <div class="cs-col-right">
+                <div class="cs-personality-block">
+                    <div class="cs-personality-field">
+                        <div class="cs-personality-text">${escapeHtml(personalityTraits)}</div>
+                        <div class="cs-personality-label">Personality Traits</div>
+                    </div>
+                    <div class="cs-personality-field">
+                        <div class="cs-personality-text">${escapeHtml(ideals)}</div>
+                        <div class="cs-personality-label">Ideals</div>
+                    </div>
+                    <div class="cs-personality-field">
+                        <div class="cs-personality-text">${escapeHtml(bonds)}</div>
+                        <div class="cs-personality-label">Bonds</div>
+                    </div>
+                    <div class="cs-personality-field">
+                        <div class="cs-personality-text">${escapeHtml(flaws)}</div>
+                        <div class="cs-personality-label">Flaws</div>
+                    </div>
+                </div>
+
+                <div class="cs-box">
+                    ${featuresHtml}
+                    <div class="cs-box-label">Features & Traits</div>
+                </div>
+
+                <div class="cs-box">
+                    <div class="cs-prof-tags">${profLangHtml}</div>
+                    <div class="cs-box-label">Proficiencies & Languages</div>
+                </div>
             </div>
         </div>
-        
-        <div class="cs-two-columns">
-            <div class="cs-section">
-                <h3 class="cs-section-title">🛡️ Saving Throws</h3>
-                <div class="cs-saves-list">${savingThrowsHtml}</div>
-            </div>
-            <div class="cs-section">
-                <h3 class="cs-section-title">📊 Skills</h3>
-                <div class="cs-skills-list">${skillsHtml}</div>
-            </div>
-        </div>
-        
-        <div class="cs-section">
-            <h3 class="cs-section-title">🎒 Equipment</h3>
-            <ul class="cs-equipment-list">${equipmentHtml}</ul>
-        </div>
-        
-        <div class="cs-section">
-            <h3 class="cs-section-title">⚡ Features & Traits</h3>
-            ${featuresHtml}
-        </div>
-        
+
         ${spellsHtml}
     `;
     
@@ -1083,113 +1200,299 @@ function downloadCharSheetPdf() {
     
     // Get character name for filename
     const nameEl = card.querySelector('.cs-name');
-    const infoEl = card.querySelector('.cs-info');
     const charName = nameEl ? nameEl.textContent.trim().replace(/[^a-zA-Z0-9 ]/g, '').replace(/\s+/g, '_') : 'Character';
     const filename = `${charName}_Sheet.pdf`;
     
-    // Temporarily apply print-friendly styles
+    // Clone and prepare for PDF
     const clone = card.cloneNode(true);
     const wrapper = document.createElement('div');
-    wrapper.style.cssText = 'background: #1a1a2e; color: #e8e6e3; padding: 24px; font-family: Crimson Text, serif; width: 210mm;';
+    wrapper.style.cssText = 'background: #1a1a2e; color: #e8e6e3; padding: 20px; font-family: Crimson Text, serif; width: 210mm;';
     
-    // Add title header to PDF
+    // Title header
     const title = document.createElement('div');
-    title.style.cssText = 'text-align:center; margin-bottom:16px; padding-bottom:12px; border-bottom:2px solid #d4a017;';
-    title.innerHTML = `<div style="font-family:Cinzel,serif; font-size:22px; color:#d4a017; margin-bottom:4px;">📋 Character Sheet</div>`;
-    if (infoEl) {
-        title.innerHTML += `<div style="font-family:Crimson Text,serif; font-size:13px; color:#a09b8c;">The Magic Forge • D&D 5e</div>`;
-    }
+    title.style.cssText = 'text-align:center; margin-bottom:12px; padding-bottom:8px; border-bottom:2px solid #d4a017;';
+    title.innerHTML = `<div style="font-family:Cinzel,serif; font-size:18px; color:#d4a017; margin-bottom:2px;">Character Sheet</div><div style="font-family:Crimson Text,serif; font-size:11px; color:#a09b8c;">The Magic Forge &bull; D&amp;D 5e</div>`;
     wrapper.appendChild(title);
     
-    // Preserve computed styles on clone's key elements
     const applyInline = (el, styles) => {
         Object.entries(styles).forEach(([k, v]) => el.style[k] = v);
     };
     
-    // Style ability boxes
+    // Header
+    clone.querySelectorAll('.cs-header').forEach(el => {
+        applyInline(el, { textAlign: 'center', marginBottom: '10px', paddingBottom: '8px', borderBottom: '3px double #4a3f2f' });
+    });
+    clone.querySelectorAll('.cs-name').forEach(el => {
+        applyInline(el, { fontFamily: 'Cinzel,serif', fontSize: '20px', color: '#d4a017', margin: '0 0 6px', letterSpacing: '0.04em' });
+    });
+    clone.querySelectorAll('.cs-info-row').forEach(el => {
+        applyInline(el, { display: 'flex', justifyContent: 'center', gap: '8px', flexWrap: 'wrap' });
+    });
+    clone.querySelectorAll('.cs-info-item').forEach(el => {
+        applyInline(el, { display: 'flex', flexDirection: 'column', alignItems: 'center', minWidth: '80px', padding: '2px 6px', border: '1px solid rgba(74,63,47,0.5)', borderRadius: '4px', background: 'rgba(0,0,0,0.15)' });
+    });
+    clone.querySelectorAll('.cs-info-value').forEach(el => {
+        applyInline(el, { fontFamily: 'Crimson Text,serif', fontSize: '10px', color: '#e8e6e3', fontWeight: '600' });
+    });
+    clone.querySelectorAll('.cs-info-label').forEach(el => {
+        applyInline(el, { fontFamily: 'Cinzel,serif', fontSize: '6px', color: '#a09b8c', textTransform: 'uppercase', letterSpacing: '0.1em' });
+    });
+    
+    // 3-column body
+    clone.querySelectorAll('.cs-body').forEach(el => {
+        applyInline(el, { display: 'grid', gridTemplateColumns: '140px 1fr 1fr', gap: '8px', marginBottom: '8px' });
+    });
+    
+    // Ability scores
+    clone.querySelectorAll('.cs-abilities-col').forEach(el => {
+        applyInline(el, { display: 'flex', flexDirection: 'column', gap: '4px' });
+    });
     clone.querySelectorAll('.cs-ability').forEach(el => {
-        applyInline(el, { background: 'rgba(0,0,0,0.3)', border: '1px solid #4a3f2f', borderRadius: '8px', padding: '6px 4px', textAlign: 'center' });
+        applyInline(el, { background: 'rgba(0,0,0,0.35)', border: '2px solid #4a3f2f', borderRadius: '8px', padding: '3px', textAlign: 'center' });
     });
     clone.querySelectorAll('.cs-ability-name').forEach(el => {
-        applyInline(el, { fontFamily: 'Cinzel,serif', fontSize: '9px', color: '#a09b8c', letterSpacing: '0.05em' });
+        applyInline(el, { fontFamily: 'Cinzel,serif', fontSize: '7px', color: '#a09b8c', letterSpacing: '0.1em', textTransform: 'uppercase' });
     });
     clone.querySelectorAll('.cs-ability-mod').forEach(el => {
-        applyInline(el, { fontFamily: 'Cinzel,serif', fontSize: '18px', fontWeight: '700', color: '#d4a017' });
+        applyInline(el, { fontFamily: 'Cinzel,serif', fontSize: '16px', fontWeight: '700', color: '#d4a017', lineHeight: '1.1' });
     });
     clone.querySelectorAll('.cs-ability-score').forEach(el => {
-        applyInline(el, { fontSize: '10px', color: '#a09b8c' });
+        applyInline(el, { fontSize: '8px', color: '#a09b8c', background: 'rgba(0,0,0,0.3)', border: '1px solid #4a3f2f', borderRadius: '50%', width: '18px', height: '18px', lineHeight: '18px', margin: '1px auto 0', display: 'block', textAlign: 'center' });
     });
-    clone.querySelectorAll('.cs-combat-stat, .cs-combat-mini').forEach(el => {
-        applyInline(el, { background: 'rgba(0,0,0,0.3)', border: '1px solid #4a3f2f', borderRadius: '8px', padding: '6px', textAlign: 'center' });
+    
+    // Inspiration & Prof Bonus
+    clone.querySelectorAll('.cs-inspiration-prof').forEach(el => {
+        applyInline(el, { background: 'rgba(0,0,0,0.2)', border: '2px solid #4a3f2f', borderRadius: '8px', padding: '3px 5px' });
     });
-    clone.querySelectorAll('.cs-stat-label, .cs-mini-label').forEach(el => {
-        applyInline(el, { fontFamily: 'Cinzel,serif', fontSize: '9px', color: '#a09b8c', textTransform: 'uppercase' });
+    clone.querySelectorAll('.cs-inline-stat').forEach(el => {
+        applyInline(el, { display: 'flex', alignItems: 'center', gap: '3px', padding: '1px 0' });
     });
-    clone.querySelectorAll('.cs-stat-value').forEach(el => {
-        applyInline(el, { fontFamily: 'Cinzel,serif', fontSize: '22px', fontWeight: '900', color: '#d4a017' });
+    clone.querySelectorAll('.cs-inline-dot').forEach(el => {
+        applyInline(el, { fontSize: '7px', color: '#a09b8c', minWidth: '10px', textAlign: 'center' });
     });
-    clone.querySelectorAll('.cs-mini-value').forEach(el => {
-        applyInline(el, { fontFamily: 'Cinzel,serif', fontSize: '13px', fontWeight: '700', color: '#e8e6e3' });
+    clone.querySelectorAll('.cs-inline-value').forEach(el => {
+        applyInline(el, { fontFamily: 'Cinzel,serif', fontWeight: '700', color: '#d4a017', minWidth: '16px', textAlign: 'center', fontSize: '9px' });
     });
-    clone.querySelectorAll('.cs-hp .cs-stat-value').forEach(el => el.style.color = '#e74c3c');
-    clone.querySelectorAll('.cs-ac .cs-stat-value').forEach(el => el.style.color = '#3498db');
-    clone.querySelectorAll('.cs-section-title').forEach(el => {
-        applyInline(el, { fontFamily: 'Cinzel,serif', fontSize: '13px', color: '#d4a017', borderBottom: '1px solid rgba(212,160,23,0.3)', paddingBottom: '4px', marginBottom: '6px' });
+    clone.querySelectorAll('.cs-inline-label').forEach(el => {
+        applyInline(el, { fontFamily: 'Cinzel,serif', fontSize: '6px', color: '#a09b8c', textTransform: 'uppercase' });
+    });
+    
+    // Box elements
+    clone.querySelectorAll('.cs-box').forEach(el => {
+        applyInline(el, { background: 'rgba(0,0,0,0.2)', border: '2px solid #4a3f2f', borderRadius: '8px', padding: '4px' });
+    });
+    clone.querySelectorAll('.cs-box-label').forEach(el => {
+        applyInline(el, { fontFamily: 'Cinzel,serif', fontSize: '7px', color: '#d4a017', textTransform: 'uppercase', letterSpacing: '0.1em', textAlign: 'center', background: '#1a1a2e', padding: '1px 5px', border: '1px solid #4a3f2f', borderRadius: '4px', marginTop: '3px', display: 'table', marginLeft: 'auto', marginRight: 'auto' });
+    });
+    
+    // Saves & Skills
+    clone.querySelectorAll('.cs-saves-list, .cs-skills-list').forEach(el => {
+        applyInline(el, { display: 'flex', flexDirection: 'column', gap: '1px' });
     });
     clone.querySelectorAll('.cs-save, .cs-skill').forEach(el => {
-        applyInline(el, { fontFamily: 'Crimson Text,serif', fontSize: '11px', color: '#a09b8c', display: 'flex', alignItems: 'center', gap: '4px', padding: '1px 0' });
+        applyInline(el, { fontFamily: 'Crimson Text,serif', fontSize: '8px', color: '#a09b8c', display: 'flex', alignItems: 'center', gap: '2px', padding: '0' });
     });
     clone.querySelectorAll('.cs-save.proficient, .cs-skill.proficient').forEach(el => el.style.color = '#e8e6e3');
     clone.querySelectorAll('.cs-save.proficient .cs-save-dot, .cs-skill.proficient .cs-skill-dot').forEach(el => el.style.color = '#d4a017');
+    clone.querySelectorAll('.cs-save-dot, .cs-skill-dot').forEach(el => {
+        applyInline(el, { fontSize: '6px', minWidth: '7px' });
+    });
     clone.querySelectorAll('.cs-save-mod, .cs-skill-mod').forEach(el => {
-        applyInline(el, { fontFamily: 'Cinzel,serif', fontSize: '10px', fontWeight: '600', minWidth: '22px' });
+        applyInline(el, { fontFamily: 'Cinzel,serif', fontSize: '7px', fontWeight: '600', minWidth: '14px' });
     });
-    clone.querySelectorAll('.cs-feature').forEach(el => {
-        applyInline(el, { padding: '6px', background: 'rgba(0,0,0,0.2)', borderRadius: '6px', borderLeft: '3px solid #8b7535', marginBottom: '6px' });
-    });
-    clone.querySelectorAll('.cs-feature strong').forEach(el => {
-        applyInline(el, { fontFamily: 'Cinzel,serif', fontSize: '11px', color: '#e6c65a' });
-    });
-    clone.querySelectorAll('.cs-feature p').forEach(el => {
-        applyInline(el, { fontFamily: 'Crimson Text,serif', fontSize: '10px', color: '#a09b8c', margin: '2px 0 0', lineHeight: '1.4' });
-    });
-    clone.querySelectorAll('.cs-spell-tag').forEach(el => {
-        applyInline(el, { display: 'inline-block', background: 'rgba(155,89,182,0.2)', border: '1px solid rgba(155,89,182,0.4)', borderRadius: '12px', padding: '2px 8px', fontFamily: 'Crimson Text,serif', fontSize: '10px', color: '#bb8fce', margin: '2px' });
-    });
-    clone.querySelectorAll('.cs-equipment-list li').forEach(el => {
-        applyInline(el, { fontFamily: 'Crimson Text,serif', fontSize: '11px', color: '#e8e6e3' });
+    clone.querySelectorAll('.cs-skill-ability').forEach(el => {
+        applyInline(el, { fontSize: '6px', color: '#a09b8c', opacity: '0.5', marginLeft: 'auto' });
     });
     
-    // Style magic items section for PDF
+    // Passive Perception
+    clone.querySelectorAll('.cs-passive-box').forEach(el => {
+        applyInline(el, { display: 'flex', alignItems: 'center', gap: '4px', background: 'rgba(0,0,0,0.2)', border: '2px solid #4a3f2f', borderRadius: '8px', padding: '3px 5px' });
+    });
+    clone.querySelectorAll('.cs-passive-value').forEach(el => {
+        applyInline(el, { fontFamily: 'Cinzel,serif', fontSize: '10px', fontWeight: '700', color: '#d4a017', background: 'rgba(0,0,0,0.3)', border: '1px solid #4a3f2f', borderRadius: '50%', minWidth: '22px', height: '22px', lineHeight: '22px', textAlign: 'center' });
+    });
+    clone.querySelectorAll('.cs-passive-label').forEach(el => {
+        applyInline(el, { fontFamily: 'Cinzel,serif', fontSize: '6px', color: '#a09b8c', textTransform: 'uppercase' });
+    });
+    
+    // Combat trio
+    clone.querySelectorAll('.cs-combat-trio').forEach(el => {
+        applyInline(el, { display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '4px' });
+    });
+    clone.querySelectorAll('.cs-combat-box').forEach(el => {
+        applyInline(el, { background: 'rgba(0,0,0,0.3)', border: '2px solid #4a3f2f', borderRadius: '8px', padding: '4px', textAlign: 'center' });
+    });
+    clone.querySelectorAll('.cs-combat-box-value').forEach(el => {
+        applyInline(el, { fontFamily: 'Cinzel,serif', fontSize: '16px', fontWeight: '900', color: '#d4a017', lineHeight: '1.2' });
+    });
+    clone.querySelectorAll('.cs-ac-box .cs-combat-box-value').forEach(el => el.style.color = '#3498db');
+    clone.querySelectorAll('.cs-combat-box-label').forEach(el => {
+        applyInline(el, { fontFamily: 'Cinzel,serif', fontSize: '6px', color: '#a09b8c', textTransform: 'uppercase', letterSpacing: '0.08em', marginTop: '2px' });
+    });
+    
+    // HP block
+    clone.querySelectorAll('.cs-hp-block').forEach(el => {
+        applyInline(el, { background: 'rgba(0,0,0,0.3)', border: '2px solid #4a3f2f', borderRadius: '8px', overflow: 'hidden' });
+    });
+    clone.querySelectorAll('.cs-hp-header').forEach(el => {
+        applyInline(el, { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '2px 6px', background: 'rgba(0,0,0,0.2)', borderBottom: '1px solid rgba(74,63,47,0.4)' });
+    });
+    clone.querySelectorAll('.cs-hp-label').forEach(el => {
+        applyInline(el, { fontFamily: 'Cinzel,serif', fontSize: '6px', color: '#a09b8c', textTransform: 'uppercase' });
+    });
+    clone.querySelectorAll('.cs-hp-max').forEach(el => {
+        applyInline(el, { fontFamily: 'Cinzel,serif', fontSize: '9px', fontWeight: '700', color: '#e74c3c' });
+    });
+    clone.querySelectorAll('.cs-hp-current').forEach(el => {
+        applyInline(el, { padding: '4px', textAlign: 'center' });
+    });
+    clone.querySelectorAll('.cs-hp-value').forEach(el => {
+        applyInline(el, { fontFamily: 'Cinzel,serif', fontSize: '22px', fontWeight: '900', color: '#e74c3c', lineHeight: '1' });
+    });
+    clone.querySelectorAll('.cs-hp-sublabel').forEach(el => {
+        applyInline(el, { fontFamily: 'Cinzel,serif', fontSize: '6px', color: '#a09b8c', textTransform: 'uppercase', marginTop: '2px' });
+    });
+    
+    // Hit Dice & Death Saves
+    clone.querySelectorAll('.cs-hitdice-death').forEach(el => {
+        applyInline(el, { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4px' });
+    });
+    clone.querySelectorAll('.cs-hitdice-box, .cs-death-box').forEach(el => {
+        applyInline(el, { background: 'rgba(0,0,0,0.3)', border: '2px solid #4a3f2f', borderRadius: '8px', padding: '3px', textAlign: 'center' });
+    });
+    clone.querySelectorAll('.cs-hd-label, .cs-hd-sublabel, .cs-death-label').forEach(el => {
+        applyInline(el, { fontFamily: 'Cinzel,serif', fontSize: '6px', color: '#a09b8c', textTransform: 'uppercase' });
+    });
+    clone.querySelectorAll('.cs-hd-value').forEach(el => {
+        applyInline(el, { fontFamily: 'Cinzel,serif', fontSize: '11px', fontWeight: '700', color: '#d4a017', margin: '1px 0' });
+    });
+    clone.querySelectorAll('.cs-death-row').forEach(el => {
+        applyInline(el, { display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '2px', fontSize: '8px' });
+    });
+    clone.querySelectorAll('.cs-death-type').forEach(el => {
+        applyInline(el, { fontFamily: 'Cinzel,serif', fontSize: '6px', color: '#a09b8c', minWidth: '8px' });
+    });
+    clone.querySelectorAll('.cs-death-dots').forEach(el => {
+        applyInline(el, { color: '#a09b8c', fontSize: '7px' });
+    });
+    
+    // Attacks table
+    clone.querySelectorAll('.cs-attacks-table').forEach(el => {
+        applyInline(el, { width: '100%', borderCollapse: 'collapse', fontFamily: 'Crimson Text,serif', fontSize: '9px' });
+    });
+    clone.querySelectorAll('.cs-attacks-table th').forEach(el => {
+        applyInline(el, { fontFamily: 'Cinzel,serif', fontSize: '6px', color: '#a09b8c', textTransform: 'uppercase', padding: '2px 3px', borderBottom: '1px solid #4a3f2f', textAlign: 'left' });
+    });
+    clone.querySelectorAll('.cs-attacks-table td').forEach(el => {
+        applyInline(el, { padding: '2px 3px', borderBottom: '1px solid rgba(74,63,47,0.3)' });
+    });
+    clone.querySelectorAll('.cs-attack-name').forEach(el => {
+        applyInline(el, { color: '#e8e6e3', fontWeight: '600' });
+    });
+    clone.querySelectorAll('.cs-attack-bonus').forEach(el => {
+        applyInline(el, { color: '#d4a017', textAlign: 'center' });
+    });
+    clone.querySelectorAll('.cs-attack-damage').forEach(el => {
+        applyInline(el, { color: '#a09b8c' });
+    });
+    
+    // Equipment
+    clone.querySelectorAll('.cs-equipment-list').forEach(el => {
+        applyInline(el, { listStyle: 'none', padding: '0', margin: '0', display: 'flex', flexDirection: 'column', gap: '1px' });
+    });
+    clone.querySelectorAll('.cs-equipment-list li').forEach(el => {
+        applyInline(el, { fontFamily: 'Crimson Text,serif', fontSize: '9px', color: '#e8e6e3', padding: '1px 0' });
+    });
+    
+    // Personality fields
+    clone.querySelectorAll('.cs-personality-block').forEach(el => {
+        applyInline(el, { display: 'flex', flexDirection: 'column', gap: '4px' });
+    });
+    clone.querySelectorAll('.cs-personality-field').forEach(el => {
+        applyInline(el, { background: 'rgba(0,0,0,0.2)', border: '2px solid #4a3f2f', borderRadius: '8px', padding: '4px' });
+    });
+    clone.querySelectorAll('.cs-personality-text').forEach(el => {
+        applyInline(el, { fontFamily: 'Crimson Text,serif', fontSize: '8px', color: '#e8e6e3', lineHeight: '1.3', fontStyle: 'italic' });
+    });
+    clone.querySelectorAll('.cs-personality-label').forEach(el => {
+        applyInline(el, { fontFamily: 'Cinzel,serif', fontSize: '6px', color: '#d4a017', textTransform: 'uppercase', letterSpacing: '0.1em', textAlign: 'center', background: '#1a1a2e', padding: '1px 4px', border: '1px solid #4a3f2f', borderRadius: '4px', marginTop: '2px', display: 'table', marginLeft: 'auto', marginRight: 'auto' });
+    });
+    
+    // Features
+    clone.querySelectorAll('.cs-feature').forEach(el => {
+        applyInline(el, { padding: '4px', background: 'rgba(0,0,0,0.15)', borderRadius: '6px', borderLeft: '3px solid #8b7535', marginBottom: '4px' });
+    });
+    clone.querySelectorAll('.cs-feature strong').forEach(el => {
+        applyInline(el, { fontFamily: 'Cinzel,serif', fontSize: '9px', color: '#e6c65a' });
+    });
+    clone.querySelectorAll('.cs-feature p').forEach(el => {
+        applyInline(el, { fontFamily: 'Crimson Text,serif', fontSize: '8px', color: '#a09b8c', margin: '1px 0 0', lineHeight: '1.3' });
+    });
+    
+    // Proficiency tags
+    clone.querySelectorAll('.cs-prof-tags').forEach(el => {
+        applyInline(el, { display: 'flex', flexWrap: 'wrap', gap: '2px' });
+    });
+    clone.querySelectorAll('.cs-prof-tag').forEach(el => {
+        applyInline(el, { display: 'inline-block', background: 'rgba(212,160,23,0.1)', border: '1px solid rgba(212,160,23,0.3)', borderRadius: '12px', padding: '1px 5px', fontFamily: 'Crimson Text,serif', fontSize: '8px', color: '#8b7535' });
+    });
+    
+    // Spells
+    clone.querySelectorAll('.cs-section-title').forEach(el => {
+        applyInline(el, { fontFamily: 'Cinzel,serif', fontSize: '10px', color: '#d4a017', borderBottom: '1px solid rgba(212,160,23,0.3)', paddingBottom: '3px', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.05em' });
+    });
+    clone.querySelectorAll('.cs-spell-header').forEach(el => {
+        applyInline(el, { display: 'flex', gap: '6px', marginBottom: '4px', flexWrap: 'wrap' });
+    });
+    clone.querySelectorAll('.cs-spell-stat').forEach(el => {
+        applyInline(el, { display: 'flex', flexDirection: 'column', alignItems: 'center', background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(155,89,182,0.3)', borderRadius: '6px', padding: '2px 6px' });
+    });
+    clone.querySelectorAll('.cs-spell-stat-label').forEach(el => {
+        applyInline(el, { fontFamily: 'Cinzel,serif', fontSize: '6px', color: '#a09b8c', textTransform: 'uppercase' });
+    });
+    clone.querySelectorAll('.cs-spell-stat-value').forEach(el => {
+        applyInline(el, { fontFamily: 'Cinzel,serif', fontSize: '10px', fontWeight: '700', color: '#bb8fce' });
+    });
+    clone.querySelectorAll('.cs-spell-level').forEach(el => {
+        applyInline(el, { fontFamily: 'Cinzel,serif', fontSize: '8px', color: '#a09b8c', display: 'block', marginBottom: '2px' });
+    });
+    clone.querySelectorAll('.cs-spell-list').forEach(el => {
+        applyInline(el, { display: 'flex', flexWrap: 'wrap', gap: '2px' });
+    });
+    clone.querySelectorAll('.cs-spell-tag').forEach(el => {
+        applyInline(el, { display: 'inline-block', background: 'rgba(155,89,182,0.15)', border: '1px solid rgba(155,89,182,0.35)', borderRadius: '12px', padding: '1px 6px', fontFamily: 'Crimson Text,serif', fontSize: '8px', color: '#bb8fce' });
+    });
+    
+    // Magic items section for PDF
     clone.querySelectorAll('.cs-items-grid').forEach(el => {
-        applyInline(el, { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' });
+        applyInline(el, { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px' });
     });
     clone.querySelectorAll('.cs-item-card').forEach(el => {
-        applyInline(el, { background: 'rgba(0,0,0,0.3)', border: '1px solid #4a3f2f', borderRadius: '8px', padding: '8px', pageBreakInside: 'avoid' });
+        applyInline(el, { background: 'rgba(0,0,0,0.3)', border: '1px solid #4a3f2f', borderRadius: '8px', padding: '6px', pageBreakInside: 'avoid' });
     });
     clone.querySelectorAll('.cs-item-header').forEach(el => {
-        applyInline(el, { display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap', marginBottom: '4px' });
+        applyInline(el, { display: 'flex', alignItems: 'center', gap: '4px', flexWrap: 'wrap', marginBottom: '3px' });
     });
     clone.querySelectorAll('.cs-item-emoji').forEach(el => {
-        applyInline(el, { fontSize: '14px' });
+        applyInline(el, { fontSize: '12px' });
     });
     clone.querySelectorAll('.cs-item-name').forEach(el => {
-        applyInline(el, { fontFamily: 'Cinzel,serif', fontSize: '11px', fontWeight: '700', color: '#e6c65a' });
+        applyInline(el, { fontFamily: 'Cinzel,serif', fontSize: '9px', fontWeight: '700', color: '#e6c65a' });
     });
     clone.querySelectorAll('.cs-item-rarity').forEach(el => {
-        applyInline(el, { fontFamily: 'Crimson Text,serif', fontSize: '9px', padding: '1px 6px', borderRadius: '8px', background: 'rgba(212,160,23,0.15)', color: '#d4a017', border: '1px solid rgba(212,160,23,0.3)' });
+        applyInline(el, { fontFamily: 'Crimson Text,serif', fontSize: '7px', padding: '1px 5px', borderRadius: '8px', background: 'rgba(212,160,23,0.15)', color: '#d4a017', border: '1px solid rgba(212,160,23,0.3)' });
     });
     clone.querySelectorAll('.cs-item-type').forEach(el => {
-        applyInline(el, { fontFamily: 'Crimson Text,serif', fontSize: '9px', color: '#a09b8c', fontStyle: 'italic', marginBottom: '3px' });
+        applyInline(el, { fontFamily: 'Crimson Text,serif', fontSize: '7px', color: '#a09b8c', fontStyle: 'italic', marginBottom: '2px' });
     });
     clone.querySelectorAll('.cs-item-desc').forEach(el => {
-        applyInline(el, { fontFamily: 'Crimson Text,serif', fontSize: '10px', color: '#c8c3b4', lineHeight: '1.4', margin: '0' });
+        applyInline(el, { fontFamily: 'Crimson Text,serif', fontSize: '8px', color: '#c8c3b4', lineHeight: '1.3', margin: '0' });
     });
     clone.querySelectorAll('.cs-item-props').forEach(el => {
-        applyInline(el, { listStyle: 'none', padding: '0', margin: '4px 0 0' });
+        applyInline(el, { listStyle: 'none', padding: '0', margin: '3px 0 0' });
     });
     clone.querySelectorAll('.cs-item-props li').forEach(el => {
-        applyInline(el, { fontFamily: 'Crimson Text,serif', fontSize: '9px', color: '#a09b8c', padding: '1px 0', borderTop: '1px solid rgba(74,63,47,0.5)' });
+        applyInline(el, { fontFamily: 'Crimson Text,serif', fontSize: '7px', color: '#a09b8c', padding: '1px 0', borderTop: '1px solid rgba(74,63,47,0.5)' });
     });
     // Rarity colors for PDF items
     clone.querySelectorAll('.cs-item-card.rarity-common .cs-item-name').forEach(el => el.style.color = '#c8c3b4');
@@ -1199,40 +1502,11 @@ function downloadCharSheetPdf() {
     clone.querySelectorAll('.cs-item-card.rarity-legendary .cs-item-name').forEach(el => el.style.color = '#e67e22');
     clone.querySelectorAll('.cs-item-card.rarity-artifact .cs-item-name').forEach(el => el.style.color = '#e74c3c');
     
-    // Layout grids
-    clone.querySelectorAll('.cs-header').forEach(el => {
-        applyInline(el, { textAlign: 'center', marginBottom: '14px', paddingBottom: '10px', borderBottom: '2px solid #4a3f2f' });
-    });
-    clone.querySelectorAll('.cs-name').forEach(el => {
-        applyInline(el, { fontFamily: 'Cinzel,serif', fontSize: '20px', color: '#d4a017', margin: '0 0 4px' });
-    });
-    clone.querySelectorAll('.cs-info').forEach(el => {
-        applyInline(el, { fontFamily: 'Crimson Text,serif', color: '#a09b8c', fontSize: '12px', margin: '0' });
-    });
-    clone.querySelectorAll('.cs-top-row').forEach(el => {
-        applyInline(el, { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px', marginBottom: '14px' });
-    });
-    clone.querySelectorAll('.cs-abilities-grid').forEach(el => {
-        applyInline(el, { display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '6px' });
-    });
-    clone.querySelectorAll('.cs-combat-stats').forEach(el => {
-        applyInline(el, { display: 'flex', flexDirection: 'column', gap: '6px' });
-    });
-    clone.querySelectorAll('.cs-combat-row').forEach(el => {
-        applyInline(el, { display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '5px' });
-    });
-    clone.querySelectorAll('.cs-two-columns').forEach(el => {
-        applyInline(el, { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px', marginBottom: '14px' });
-    });
-    clone.querySelectorAll('.cs-equipment-list').forEach(el => {
-        applyInline(el, { listStyle: 'none', padding: '0', margin: '0', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '3px' });
-    });
-    
     wrapper.appendChild(clone);
     document.body.appendChild(wrapper);
     
     const opt = {
-        margin: [8, 8, 8, 8],
+        margin: [6, 6, 6, 6],
         filename: filename,
         image: { type: 'jpeg', quality: 0.98 },
         html2canvas: { scale: 2, useCORS: true, backgroundColor: '#1a1a2e' },

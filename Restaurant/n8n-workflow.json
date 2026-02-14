@@ -1,0 +1,143 @@
+{
+  "name": "Restaurant Reservations — Google Calendar Sync",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "GET",
+        "path": "restaurant-reservations",
+        "responseMode": "responseNode",
+        "options": {
+          "allowedOrigins": "*"
+        }
+      },
+      "id": "a1b2c3d4-0001-4000-a000-000000000001",
+      "name": "Webhook — Get Reservations",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [250, 300],
+      "webhookId": "restaurant-reservations"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Extract date from query params and build time range for Google Calendar\nconst input = $input.first().json;\nconst query = input.query || {};\nconst date = query.date || new Date().toISOString().split('T')[0];\n\n// Use Bulgaria timezone (UTC+2 / UTC+3 DST)\nconst timeMin = `${date}T00:00:00+02:00`;\nconst timeMax = `${date}T23:59:59+02:00`;\n\nreturn [{ json: { date, timeMin, timeMax } }];"
+      },
+      "id": "a1b2c3d4-0001-4000-a000-000000000002",
+      "name": "Prepare Date Range",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [480, 300]
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "calendar": {
+          "__rl": true,
+          "value": "primary",
+          "mode": "id"
+        },
+        "returnAll": true,
+        "options": {
+          "timeMin": "={{ $json.timeMin }}",
+          "timeMax": "={{ $json.timeMax }}"
+        }
+      },
+      "id": "a1b2c3d4-0001-4000-a000-000000000003",
+      "name": "Google Calendar — Get Events",
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1.2,
+      "position": [710, 300],
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "YOUR_GOOGLE_CALENDAR_CREDENTIAL_ID",
+          "name": "Google Calendar Account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Parse Google Calendar events into the reservation format\n// expected by the frontend application.\n\nconst items = $input.all();\n\n// If no events returned, respond with empty array\nif (!items.length || (!items[0].json.summary && !items[0].json.id && !items[0].json.start)) {\n    return [{ json: { reservations: [] } }];\n}\n\nconst reservations = items.map(item => {\n    const e = item.json;\n    const summary     = e.summary || '';\n    const description = e.description || '';\n    const startStr    = (e.start && (e.start.dateTime || e.start.date)) || '';\n\n    // Extract time\n    let time = '19:00';\n    if (startStr) {\n        try {\n            const d = new Date(startStr);\n            time = String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');\n        } catch (_) {}\n    }\n\n    // Extract guest count from summary or description\n    let guests = 2;\n    const guestPatterns = [\n        /(\\d+)\\s*(?:гости|човека|души|гост)/i,\n        /(\\d+)\\s*(?:x|х)\\s/i,\n        /(\\d+)\\s*(?:people|guests|pax|covers)/i,\n        /(?:брой|места|за)\\s*:?\\s*(\\d+)/i\n    ];\n    const combined = summary + ' ' + description;\n    for (const pat of guestPatterns) {\n        const m = combined.match(pat);\n        if (m) { guests = parseInt(m[1]); break; }\n    }\n\n    // Extract name (remove guest count part from summary)\n    let name = summary\n        .replace(/\\s*[-–:]?\\s*\\d+\\s*(?:гости|човека|души|гост|x|х|people|guests|pax|covers|брой|места)\\s*/gi, '')\n        .trim();\n    if (!name) name = 'Резервация';\n\n    // Try to extract phone from description\n    let phone = '';\n    const pm = description.match(/(0\\d{9}|\\+\\d{10,12})/);\n    if (pm) phone = pm[1];\n\n    return {\n        id: e.id || ('gcal-' + Date.now() + '-' + Math.random().toString(36).substr(2, 6)),\n        name,\n        time,\n        guests,\n        phone,\n        notes: description,\n        source: 'google-calendar'\n    };\n});\n\nreturn [{ json: { reservations } }];"
+      },
+      "id": "a1b2c3d4-0001-4000-a000-000000000004",
+      "name": "Format Reservations",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [940, 300]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify($json) }}",
+        "options": {
+          "responseCode": 200,
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              },
+              {
+                "name": "Access-Control-Allow-Headers",
+                "value": "Content-Type"
+              }
+            ]
+          }
+        }
+      },
+      "id": "a1b2c3d4-0001-4000-a000-000000000005",
+      "name": "Respond with Reservations",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [1170, 300]
+    }
+  ],
+  "connections": {
+    "Webhook — Get Reservations": {
+      "main": [
+        [
+          {
+            "node": "Prepare Date Range",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Date Range": {
+      "main": [
+        [
+          {
+            "node": "Google Calendar — Get Events",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Calendar — Get Events": {
+      "main": [
+        [
+          {
+            "node": "Format Reservations",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Reservations": {
+      "main": [
+        [
+          {
+            "node": "Respond with Reservations",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}
