@@ -1198,327 +1198,161 @@ function downloadCharSheetPdf() {
     const card = DOM.charSheetCard;
     if (!card || card.innerHTML === '') return;
     
-    // Get character name for filename
     const nameEl = card.querySelector('.cs-name');
     const charName = nameEl ? nameEl.textContent.trim().replace(/[^a-zA-Z0-9 ]/g, '').replace(/\s+/g, '_') : 'Character';
     const filename = `${charName}_Sheet.pdf`;
     
-    // Clone and prepare for PDF — use flexbox instead of CSS Grid for html2canvas compatibility
     const clone = card.cloneNode(true);
     const wrapper = document.createElement('div');
-    wrapper.style.cssText = 'background:#1a1a2e; color:#e8e6e3; padding:20px; font-family:Crimson Text,serif; width:794px; position:absolute; left:0; top:0; z-index:-1;';
+    wrapper.style.cssText = 'background:#1a1a2e; color:#e8e6e3; padding:20px; font-family:Crimson Text,serif; width:754px; box-sizing:border-box;';
     
-    // Title header
+    // Title
     const title = document.createElement('div');
     title.style.cssText = 'text-align:center; margin-bottom:12px; padding-bottom:8px; border-bottom:2px solid #d4a017;';
-    title.innerHTML = `<div style="font-family:Cinzel,serif; font-size:18px; color:#d4a017; margin-bottom:2px;">Character Sheet</div><div style="font-family:Crimson Text,serif; font-size:11px; color:#a09b8c;">The Magic Forge &bull; D&amp;D 5e</div>`;
+    title.innerHTML = '<div style="font-family:Cinzel,serif; font-size:18px; color:#d4a017; margin-bottom:2px;">Character Sheet</div><div style="font-family:Crimson Text,serif; font-size:11px; color:#a09b8c;">The Magic Forge • D&D 5e</div>';
     wrapper.appendChild(title);
     
-    const applyInline = (el, styles) => {
-        Object.entries(styles).forEach(([k, v]) => el.style[k] = v);
+    const S = (sel, styles) => {
+        clone.querySelectorAll(sel).forEach(el => {
+            Object.entries(styles).forEach(([k, v]) => el.style[k] = v);
+        });
     };
     
-    // Header
-    clone.querySelectorAll('.cs-header').forEach(el => {
-        applyInline(el, { textAlign: 'center', marginBottom: '10px', paddingBottom: '8px', borderBottom: '3px double #4a3f2f' });
-    });
-    clone.querySelectorAll('.cs-name').forEach(el => {
-        applyInline(el, { fontFamily: 'Cinzel,serif', fontSize: '20px', color: '#d4a017', margin: '0 0 6px', letterSpacing: '0.04em' });
-    });
-    clone.querySelectorAll('.cs-info-row').forEach(el => {
-        applyInline(el, { display: 'flex', justifyContent: 'center', gap: '8px', flexWrap: 'wrap' });
-    });
-    clone.querySelectorAll('.cs-info-item').forEach(el => {
-        applyInline(el, { display: 'inline-flex', flexDirection: 'column', alignItems: 'center', minWidth: '80px', padding: '2px 6px', border: '1px solid rgba(74,63,47,0.5)', borderRadius: '4px', background: 'rgba(0,0,0,0.15)' });
-    });
-    clone.querySelectorAll('.cs-info-value').forEach(el => {
-        applyInline(el, { fontFamily: 'Crimson Text,serif', fontSize: '10px', color: '#e8e6e3', fontWeight: '600' });
-    });
-    clone.querySelectorAll('.cs-info-label').forEach(el => {
-        applyInline(el, { fontFamily: 'Cinzel,serif', fontSize: '6px', color: '#a09b8c', textTransform: 'uppercase', letterSpacing: '0.1em' });
-    });
+    // === HEADER ===
+    S('.cs-header', { textAlign:'center', marginBottom:'10px', paddingBottom:'8px', borderBottom:'3px double #4a3f2f' });
+    S('.cs-name', { fontFamily:'Cinzel,serif', fontSize:'20px', color:'#d4a017', margin:'0 0 6px', letterSpacing:'0.04em' });
+    S('.cs-info-row', { textAlign:'center' });
+    S('.cs-info-item', { display:'inline-block', verticalAlign:'top', textAlign:'center', minWidth:'80px', padding:'2px 6px', border:'1px solid #4a3f2f', borderRadius:'4px', background:'rgba(0,0,0,0.15)', marginRight:'6px', marginBottom:'4px' });
+    S('.cs-info-value', { fontFamily:'Crimson Text,serif', fontSize:'10px', color:'#e8e6e3', fontWeight:'600', display:'block' });
+    S('.cs-info-label', { fontFamily:'Cinzel,serif', fontSize:'6px', color:'#a09b8c', textTransform:'uppercase', letterSpacing:'0.1em', display:'block' });
     
-    // 3-column body — use FLEXBOX, not grid, for html2canvas compatibility
-    clone.querySelectorAll('.cs-body').forEach(el => {
-        applyInline(el, { display: 'flex', gap: '8px', marginBottom: '8px' });
-    });
-    clone.querySelectorAll('.cs-col-left').forEach(el => {
-        applyInline(el, { width: '140px', minWidth: '140px', maxWidth: '140px', display: 'flex', flexDirection: 'column', gap: '4px' });
-    });
-    clone.querySelectorAll('.cs-col-center').forEach(el => {
-        applyInline(el, { flex: '1', display: 'flex', flexDirection: 'column', gap: '4px' });
-    });
-    clone.querySelectorAll('.cs-col-right').forEach(el => {
-        applyInline(el, { flex: '1', display: 'flex', flexDirection: 'column', gap: '4px' });
-    });
+    // === 3-COL BODY (table layout for html2canvas) ===
+    const body = clone.querySelector('.cs-body');
+    if (body) {
+        body.style.cssText = 'display:table; width:100%; table-layout:fixed; margin-bottom:8px;';
+        const colLeft = body.querySelector('.cs-col-left');
+        const colCenter = body.querySelector('.cs-col-center');
+        const colRight = body.querySelector('.cs-col-right');
+        if (colLeft) colLeft.style.cssText = 'display:table-cell; width:140px; vertical-align:top; padding-right:6px;';
+        if (colCenter) colCenter.style.cssText = 'display:table-cell; vertical-align:top; padding-right:6px;';
+        if (colRight) colRight.style.cssText = 'display:table-cell; vertical-align:top;';
+    }
     
-    // Ability scores
-    clone.querySelectorAll('.cs-abilities-col').forEach(el => {
-        applyInline(el, { display: 'flex', flexDirection: 'column', gap: '3px' });
-    });
-    clone.querySelectorAll('.cs-ability').forEach(el => {
-        applyInline(el, { background: 'rgba(0,0,0,0.35)', border: '2px solid #4a3f2f', borderRadius: '8px', padding: '3px', textAlign: 'center' });
-    });
-    clone.querySelectorAll('.cs-ability-name').forEach(el => {
-        applyInline(el, { fontFamily: 'Cinzel,serif', fontSize: '7px', color: '#a09b8c', letterSpacing: '0.1em', textTransform: 'uppercase' });
-    });
-    clone.querySelectorAll('.cs-ability-mod').forEach(el => {
-        applyInline(el, { fontFamily: 'Cinzel,serif', fontSize: '16px', fontWeight: '700', color: '#d4a017', lineHeight: '1.1' });
-    });
-    clone.querySelectorAll('.cs-ability-score').forEach(el => {
-        applyInline(el, { fontSize: '8px', color: '#a09b8c', background: 'rgba(0,0,0,0.3)', border: '1px solid #4a3f2f', borderRadius: '50%', width: '18px', height: '18px', lineHeight: '18px', margin: '1px auto 0', display: 'block', textAlign: 'center' });
-    });
+    // === ABILITIES ===
+    S('.cs-abilities-col', { });
+    S('.cs-ability', { background:'rgba(0,0,0,0.35)', border:'2px solid #4a3f2f', borderRadius:'8px', padding:'3px', textAlign:'center', marginBottom:'3px' });
+    S('.cs-ability-name', { fontFamily:'Cinzel,serif', fontSize:'7px', color:'#a09b8c', letterSpacing:'0.1em', textTransform:'uppercase' });
+    S('.cs-ability-mod', { fontFamily:'Cinzel,serif', fontSize:'16px', fontWeight:'700', color:'#d4a017', lineHeight:'1.1' });
+    S('.cs-ability-score', { fontSize:'8px', color:'#a09b8c', background:'rgba(0,0,0,0.3)', border:'1px solid #4a3f2f', borderRadius:'50%', width:'18px', height:'18px', lineHeight:'18px', margin:'1px auto 0', display:'block', textAlign:'center' });
     
-    // Inspiration & Prof Bonus
-    clone.querySelectorAll('.cs-inspiration-prof').forEach(el => {
-        applyInline(el, { background: 'rgba(0,0,0,0.2)', border: '2px solid #4a3f2f', borderRadius: '8px', padding: '3px 5px' });
-    });
-    clone.querySelectorAll('.cs-inline-stat').forEach(el => {
-        applyInline(el, { display: 'flex', alignItems: 'center', gap: '3px', padding: '1px 0' });
-    });
-    clone.querySelectorAll('.cs-inline-dot').forEach(el => {
-        applyInline(el, { fontSize: '7px', color: '#a09b8c', minWidth: '10px', textAlign: 'center' });
-    });
-    clone.querySelectorAll('.cs-inline-value').forEach(el => {
-        applyInline(el, { fontFamily: 'Cinzel,serif', fontWeight: '700', color: '#d4a017', minWidth: '16px', textAlign: 'center', fontSize: '9px' });
-    });
-    clone.querySelectorAll('.cs-inline-label').forEach(el => {
-        applyInline(el, { fontFamily: 'Cinzel,serif', fontSize: '6px', color: '#a09b8c', textTransform: 'uppercase' });
-    });
+    // === INSPIRATION & PROF ===
+    S('.cs-inspiration-prof', { background:'rgba(0,0,0,0.2)', border:'2px solid #4a3f2f', borderRadius:'8px', padding:'3px 5px', marginBottom:'3px' });
+    S('.cs-inline-stat', { marginBottom:'1px' });
+    S('.cs-inline-dot', { fontSize:'7px', color:'#a09b8c', marginRight:'3px' });
+    S('.cs-inline-value', { fontFamily:'Cinzel,serif', fontWeight:'700', color:'#d4a017', fontSize:'9px', marginRight:'3px' });
+    S('.cs-inline-label', { fontFamily:'Cinzel,serif', fontSize:'6px', color:'#a09b8c', textTransform:'uppercase' });
     
-    // Box elements
-    clone.querySelectorAll('.cs-box').forEach(el => {
-        applyInline(el, { background: 'rgba(0,0,0,0.2)', border: '2px solid #4a3f2f', borderRadius: '8px', padding: '4px' });
-    });
-    clone.querySelectorAll('.cs-box-label').forEach(el => {
-        applyInline(el, { fontFamily: 'Cinzel,serif', fontSize: '7px', color: '#d4a017', textTransform: 'uppercase', letterSpacing: '0.1em', textAlign: 'center', background: '#1a1a2e', padding: '1px 5px', border: '1px solid #4a3f2f', borderRadius: '4px', marginTop: '3px', display: 'table', marginLeft: 'auto', marginRight: 'auto' });
-    });
+    // === BOX / LABEL ===
+    S('.cs-box', { background:'rgba(0,0,0,0.2)', border:'2px solid #4a3f2f', borderRadius:'8px', padding:'4px', marginBottom:'4px' });
+    S('.cs-box-label', { fontFamily:'Cinzel,serif', fontSize:'7px', color:'#d4a017', textTransform:'uppercase', letterSpacing:'0.1em', textAlign:'center', background:'#1a1a2e', padding:'1px 5px', border:'1px solid #4a3f2f', borderRadius:'4px', marginTop:'3px', marginLeft:'auto', marginRight:'auto', display:'table' });
     
-    // Saves & Skills
-    clone.querySelectorAll('.cs-saves-list, .cs-skills-list').forEach(el => {
-        applyInline(el, { display: 'flex', flexDirection: 'column', gap: '1px' });
-    });
-    clone.querySelectorAll('.cs-save, .cs-skill').forEach(el => {
-        applyInline(el, { fontFamily: 'Crimson Text,serif', fontSize: '8px', color: '#a09b8c', display: 'flex', alignItems: 'center', gap: '2px', padding: '0' });
-    });
-    clone.querySelectorAll('.cs-save.proficient, .cs-skill.proficient').forEach(el => el.style.color = '#e8e6e3');
-    clone.querySelectorAll('.cs-save.proficient .cs-save-dot, .cs-skill.proficient .cs-skill-dot').forEach(el => el.style.color = '#d4a017');
-    clone.querySelectorAll('.cs-save-dot, .cs-skill-dot').forEach(el => {
-        applyInline(el, { fontSize: '6px', minWidth: '7px' });
-    });
-    clone.querySelectorAll('.cs-save-mod, .cs-skill-mod').forEach(el => {
-        applyInline(el, { fontFamily: 'Cinzel,serif', fontSize: '7px', fontWeight: '600', minWidth: '14px' });
-    });
-    clone.querySelectorAll('.cs-skill-ability').forEach(el => {
-        applyInline(el, { fontSize: '6px', color: '#a09b8c', opacity: '0.5', marginLeft: 'auto' });
-    });
-    clone.querySelectorAll('.cs-skill-name, .cs-save-name').forEach(el => {
-        applyInline(el, { fontSize: '8px' });
-    });
+    // === SAVES & SKILLS ===
+    S('.cs-saves-list, .cs-skills-list', { });
+    S('.cs-save, .cs-skill', { fontFamily:'Crimson Text,serif', fontSize:'8px', color:'#a09b8c', lineHeight:'1.5' });
+    S('.cs-save.proficient, .cs-skill.proficient', { color:'#e8e6e3' });
+    S('.cs-save.proficient .cs-save-dot, .cs-skill.proficient .cs-skill-dot', { color:'#d4a017' });
+    S('.cs-save-dot, .cs-skill-dot', { fontSize:'6px', marginRight:'2px' });
+    S('.cs-save-mod, .cs-skill-mod', { fontFamily:'Cinzel,serif', fontSize:'7px', fontWeight:'600', marginRight:'3px', display:'inline-block', minWidth:'14px' });
+    S('.cs-skill-name, .cs-save-name', { fontSize:'8px' });
+    S('.cs-skill-ability', { fontSize:'6px', color:'#a09b8c', opacity:'0.5', marginLeft:'2px' });
     
-    // Passive Perception
-    clone.querySelectorAll('.cs-passive-box').forEach(el => {
-        applyInline(el, { display: 'flex', alignItems: 'center', gap: '4px', background: 'rgba(0,0,0,0.2)', border: '2px solid #4a3f2f', borderRadius: '8px', padding: '3px 5px' });
-    });
-    clone.querySelectorAll('.cs-passive-value').forEach(el => {
-        applyInline(el, { fontFamily: 'Cinzel,serif', fontSize: '10px', fontWeight: '700', color: '#d4a017', background: 'rgba(0,0,0,0.3)', border: '1px solid #4a3f2f', borderRadius: '50%', minWidth: '22px', height: '22px', lineHeight: '22px', textAlign: 'center' });
-    });
-    clone.querySelectorAll('.cs-passive-label').forEach(el => {
-        applyInline(el, { fontFamily: 'Cinzel,serif', fontSize: '6px', color: '#a09b8c', textTransform: 'uppercase' });
-    });
+    // === PASSIVE PERCEPTION ===
+    S('.cs-passive-box', { background:'rgba(0,0,0,0.2)', border:'2px solid #4a3f2f', borderRadius:'8px', padding:'3px 5px', marginBottom:'3px' });
+    S('.cs-passive-value', { fontFamily:'Cinzel,serif', fontSize:'10px', fontWeight:'700', color:'#d4a017', background:'rgba(0,0,0,0.3)', border:'1px solid #4a3f2f', borderRadius:'50%', width:'22px', height:'22px', lineHeight:'22px', textAlign:'center', display:'inline-block', marginRight:'4px', verticalAlign:'middle' });
+    S('.cs-passive-label', { fontFamily:'Cinzel,serif', fontSize:'6px', color:'#a09b8c', textTransform:'uppercase', verticalAlign:'middle' });
     
-    // Combat trio — use flexbox instead of grid
-    clone.querySelectorAll('.cs-combat-trio').forEach(el => {
-        applyInline(el, { display: 'flex', gap: '4px' });
-    });
-    clone.querySelectorAll('.cs-combat-box').forEach(el => {
-        applyInline(el, { flex: '1', background: 'rgba(0,0,0,0.3)', border: '2px solid #4a3f2f', borderRadius: '8px', padding: '4px', textAlign: 'center' });
-    });
-    clone.querySelectorAll('.cs-combat-box-value').forEach(el => {
-        applyInline(el, { fontFamily: 'Cinzel,serif', fontSize: '16px', fontWeight: '900', color: '#d4a017', lineHeight: '1.2' });
-    });
-    clone.querySelectorAll('.cs-ac-box .cs-combat-box-value').forEach(el => el.style.color = '#3498db');
-    clone.querySelectorAll('.cs-speed-unit').forEach(el => {
-        applyInline(el, { fontSize: '7px', fontWeight: '400', color: '#a09b8c' });
-    });
-    clone.querySelectorAll('.cs-combat-box-label').forEach(el => {
-        applyInline(el, { fontFamily: 'Cinzel,serif', fontSize: '6px', color: '#a09b8c', textTransform: 'uppercase', letterSpacing: '0.08em', marginTop: '2px' });
-    });
+    // === COMBAT TRIO (inline-block) ===
+    S('.cs-combat-trio', { marginBottom:'4px', textAlign:'center' });
+    S('.cs-combat-box', { display:'inline-block', width:'31%', background:'rgba(0,0,0,0.3)', border:'2px solid #4a3f2f', borderRadius:'8px', padding:'4px', textAlign:'center', verticalAlign:'top', marginRight:'2px', boxSizing:'border-box' });
+    S('.cs-combat-box-value', { fontFamily:'Cinzel,serif', fontSize:'16px', fontWeight:'900', color:'#d4a017', lineHeight:'1.2' });
+    S('.cs-ac-box .cs-combat-box-value', { color:'#3498db' });
+    S('.cs-speed-unit', { fontSize:'7px', fontWeight:'400', color:'#a09b8c' });
+    S('.cs-combat-box-label', { fontFamily:'Cinzel,serif', fontSize:'6px', color:'#a09b8c', textTransform:'uppercase', letterSpacing:'0.08em', marginTop:'2px' });
     
-    // HP block
-    clone.querySelectorAll('.cs-hp-block').forEach(el => {
-        applyInline(el, { background: 'rgba(0,0,0,0.3)', border: '2px solid #4a3f2f', borderRadius: '8px', overflow: 'hidden' });
-    });
-    clone.querySelectorAll('.cs-hp-header').forEach(el => {
-        applyInline(el, { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '2px 6px', background: 'rgba(0,0,0,0.2)', borderBottom: '1px solid rgba(74,63,47,0.4)' });
-    });
-    clone.querySelectorAll('.cs-hp-label').forEach(el => {
-        applyInline(el, { fontFamily: 'Cinzel,serif', fontSize: '6px', color: '#a09b8c', textTransform: 'uppercase' });
-    });
-    clone.querySelectorAll('.cs-hp-max').forEach(el => {
-        applyInline(el, { fontFamily: 'Cinzel,serif', fontSize: '9px', fontWeight: '700', color: '#e74c3c' });
-    });
-    clone.querySelectorAll('.cs-hp-current').forEach(el => {
-        applyInline(el, { padding: '4px', textAlign: 'center' });
-    });
-    clone.querySelectorAll('.cs-hp-value').forEach(el => {
-        applyInline(el, { fontFamily: 'Cinzel,serif', fontSize: '22px', fontWeight: '900', color: '#e74c3c', lineHeight: '1' });
-    });
-    clone.querySelectorAll('.cs-hp-sublabel').forEach(el => {
-        applyInline(el, { fontFamily: 'Cinzel,serif', fontSize: '6px', color: '#a09b8c', textTransform: 'uppercase', marginTop: '2px' });
-    });
+    // === HP ===
+    S('.cs-hp-block', { background:'rgba(0,0,0,0.3)', border:'2px solid #4a3f2f', borderRadius:'8px', overflow:'hidden', marginBottom:'4px' });
+    S('.cs-hp-header', { padding:'2px 6px', background:'rgba(0,0,0,0.2)', borderBottom:'1px solid #4a3f2f' });
+    S('.cs-hp-label', { fontFamily:'Cinzel,serif', fontSize:'6px', color:'#a09b8c', textTransform:'uppercase' });
+    S('.cs-hp-max', { fontFamily:'Cinzel,serif', fontSize:'9px', fontWeight:'700', color:'#e74c3c', float:'right' });
+    S('.cs-hp-current', { padding:'4px', textAlign:'center' });
+    S('.cs-hp-value', { fontFamily:'Cinzel,serif', fontSize:'22px', fontWeight:'900', color:'#e74c3c', lineHeight:'1' });
+    S('.cs-hp-sublabel', { fontFamily:'Cinzel,serif', fontSize:'6px', color:'#a09b8c', textTransform:'uppercase', marginTop:'2px' });
     
-    // Hit Dice & Death Saves — use flexbox
-    clone.querySelectorAll('.cs-hitdice-death').forEach(el => {
-        applyInline(el, { display: 'flex', gap: '4px' });
-    });
-    clone.querySelectorAll('.cs-hitdice-box, .cs-death-box').forEach(el => {
-        applyInline(el, { flex: '1', background: 'rgba(0,0,0,0.3)', border: '2px solid #4a3f2f', borderRadius: '8px', padding: '3px', textAlign: 'center' });
-    });
-    clone.querySelectorAll('.cs-hd-label, .cs-hd-sublabel, .cs-death-label').forEach(el => {
-        applyInline(el, { fontFamily: 'Cinzel,serif', fontSize: '6px', color: '#a09b8c', textTransform: 'uppercase' });
-    });
-    clone.querySelectorAll('.cs-hd-value').forEach(el => {
-        applyInline(el, { fontFamily: 'Cinzel,serif', fontSize: '11px', fontWeight: '700', color: '#d4a017', margin: '1px 0' });
-    });
-    clone.querySelectorAll('.cs-death-row').forEach(el => {
-        applyInline(el, { display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '2px', fontSize: '8px' });
-    });
-    clone.querySelectorAll('.cs-death-type').forEach(el => {
-        applyInline(el, { fontFamily: 'Cinzel,serif', fontSize: '6px', color: '#a09b8c', minWidth: '8px' });
-    });
-    clone.querySelectorAll('.cs-death-dots').forEach(el => {
-        applyInline(el, { color: '#a09b8c', fontSize: '7px' });
-    });
+    // === HIT DICE & DEATH SAVES (inline-block) ===
+    S('.cs-hitdice-death', { marginBottom:'4px', textAlign:'center' });
+    S('.cs-hitdice-box, .cs-death-box', { display:'inline-block', width:'48%', background:'rgba(0,0,0,0.3)', border:'2px solid #4a3f2f', borderRadius:'8px', padding:'3px', textAlign:'center', verticalAlign:'top', boxSizing:'border-box' });
+    S('.cs-hitdice-box', { marginRight:'2%' });
+    S('.cs-hd-label, .cs-hd-sublabel, .cs-death-label', { fontFamily:'Cinzel,serif', fontSize:'6px', color:'#a09b8c', textTransform:'uppercase' });
+    S('.cs-hd-value', { fontFamily:'Cinzel,serif', fontSize:'11px', fontWeight:'700', color:'#d4a017', margin:'1px 0' });
+    S('.cs-death-row', { fontSize:'8px', textAlign:'center' });
+    S('.cs-death-type', { fontFamily:'Cinzel,serif', fontSize:'6px', color:'#a09b8c', marginRight:'2px' });
+    S('.cs-death-dots', { color:'#a09b8c', fontSize:'7px', letterSpacing:'0.1em' });
     
-    // Attacks table
-    clone.querySelectorAll('.cs-attacks-table').forEach(el => {
-        applyInline(el, { width: '100%', borderCollapse: 'collapse', fontFamily: 'Crimson Text,serif', fontSize: '9px' });
-    });
-    clone.querySelectorAll('.cs-attacks-table th').forEach(el => {
-        applyInline(el, { fontFamily: 'Cinzel,serif', fontSize: '6px', color: '#a09b8c', textTransform: 'uppercase', padding: '2px 3px', borderBottom: '1px solid #4a3f2f', textAlign: 'left' });
-    });
-    clone.querySelectorAll('.cs-attacks-table td').forEach(el => {
-        applyInline(el, { padding: '2px 3px', borderBottom: '1px solid rgba(74,63,47,0.3)', color: '#e8e6e3' });
-    });
-    clone.querySelectorAll('.cs-attack-name').forEach(el => {
-        applyInline(el, { color: '#e8e6e3', fontWeight: '600' });
-    });
-    clone.querySelectorAll('.cs-attack-bonus').forEach(el => {
-        applyInline(el, { color: '#d4a017', textAlign: 'center' });
-    });
-    clone.querySelectorAll('.cs-attack-damage').forEach(el => {
-        applyInline(el, { color: '#a09b8c' });
-    });
+    // === ATTACKS ===
+    S('.cs-attacks-table', { width:'100%', borderCollapse:'collapse', fontFamily:'Crimson Text,serif', fontSize:'9px' });
+    S('.cs-attacks-table th', { fontFamily:'Cinzel,serif', fontSize:'6px', color:'#a09b8c', textTransform:'uppercase', padding:'2px 3px', borderBottom:'1px solid #4a3f2f', textAlign:'left' });
+    S('.cs-attacks-table td', { padding:'2px 3px', borderBottom:'1px solid #3a3226', color:'#e8e6e3' });
+    S('.cs-attack-name', { color:'#e8e6e3', fontWeight:'600' });
+    S('.cs-attack-bonus', { color:'#d4a017', textAlign:'center' });
+    S('.cs-attack-damage', { color:'#a09b8c' });
     
-    // Equipment
-    clone.querySelectorAll('.cs-equipment-list').forEach(el => {
-        applyInline(el, { listStyle: 'none', padding: '0', margin: '0', display: 'flex', flexDirection: 'column', gap: '1px' });
-    });
-    clone.querySelectorAll('.cs-equipment-list li').forEach(el => {
-        applyInline(el, { fontFamily: 'Crimson Text,serif', fontSize: '9px', color: '#e8e6e3', padding: '1px 0' });
-    });
+    // === EQUIPMENT ===
+    S('.cs-equipment-list', { listStyle:'none', padding:'0', margin:'0' });
+    S('.cs-equipment-list li', { fontFamily:'Crimson Text,serif', fontSize:'9px', color:'#e8e6e3', padding:'1px 0' });
     
-    // Personality fields
-    clone.querySelectorAll('.cs-personality-block').forEach(el => {
-        applyInline(el, { display: 'flex', flexDirection: 'column', gap: '4px' });
-    });
-    clone.querySelectorAll('.cs-personality-field').forEach(el => {
-        applyInline(el, { background: 'rgba(0,0,0,0.2)', border: '2px solid #4a3f2f', borderRadius: '8px', padding: '4px' });
-    });
-    clone.querySelectorAll('.cs-personality-text').forEach(el => {
-        applyInline(el, { fontFamily: 'Crimson Text,serif', fontSize: '8px', color: '#e8e6e3', lineHeight: '1.3', fontStyle: 'italic' });
-    });
-    clone.querySelectorAll('.cs-personality-label').forEach(el => {
-        applyInline(el, { fontFamily: 'Cinzel,serif', fontSize: '6px', color: '#d4a017', textTransform: 'uppercase', letterSpacing: '0.1em', textAlign: 'center', background: '#1a1a2e', padding: '1px 4px', border: '1px solid #4a3f2f', borderRadius: '4px', marginTop: '2px', display: 'table', marginLeft: 'auto', marginRight: 'auto' });
-    });
+    // === PERSONALITY ===
+    S('.cs-personality-block', { });
+    S('.cs-personality-field', { background:'rgba(0,0,0,0.2)', border:'2px solid #4a3f2f', borderRadius:'8px', padding:'4px', marginBottom:'4px' });
+    S('.cs-personality-text', { fontFamily:'Crimson Text,serif', fontSize:'8px', color:'#e8e6e3', lineHeight:'1.3', fontStyle:'italic' });
+    S('.cs-personality-label', { fontFamily:'Cinzel,serif', fontSize:'6px', color:'#d4a017', textTransform:'uppercase', letterSpacing:'0.1em', textAlign:'center', background:'#1a1a2e', padding:'1px 4px', border:'1px solid #4a3f2f', borderRadius:'4px', marginTop:'2px', display:'table', marginLeft:'auto', marginRight:'auto' });
     
-    // Features
-    clone.querySelectorAll('.cs-feature').forEach(el => {
-        applyInline(el, { padding: '4px', background: 'rgba(0,0,0,0.15)', borderRadius: '6px', borderLeft: '3px solid #8b7535', marginBottom: '4px' });
-    });
-    clone.querySelectorAll('.cs-feature strong').forEach(el => {
-        applyInline(el, { fontFamily: 'Cinzel,serif', fontSize: '9px', color: '#e6c65a' });
-    });
-    clone.querySelectorAll('.cs-feature p').forEach(el => {
-        applyInline(el, { fontFamily: 'Crimson Text,serif', fontSize: '8px', color: '#a09b8c', margin: '1px 0 0', lineHeight: '1.3' });
-    });
+    // === FEATURES ===
+    S('.cs-feature', { padding:'4px', background:'rgba(0,0,0,0.15)', borderRadius:'6px', borderLeft:'3px solid #8b7535', marginBottom:'4px' });
+    S('.cs-feature strong', { fontFamily:'Cinzel,serif', fontSize:'9px', color:'#e6c65a' });
+    S('.cs-feature p', { fontFamily:'Crimson Text,serif', fontSize:'8px', color:'#a09b8c', margin:'1px 0 0', lineHeight:'1.3' });
     
-    // Proficiency tags
-    clone.querySelectorAll('.cs-prof-tags').forEach(el => {
-        applyInline(el, { display: 'flex', flexWrap: 'wrap', gap: '2px' });
-    });
-    clone.querySelectorAll('.cs-prof-tag').forEach(el => {
-        applyInline(el, { display: 'inline-block', background: 'rgba(212,160,23,0.1)', border: '1px solid rgba(212,160,23,0.3)', borderRadius: '12px', padding: '1px 5px', fontFamily: 'Crimson Text,serif', fontSize: '8px', color: '#8b7535' });
-    });
+    // === PROF TAGS ===
+    S('.cs-prof-tags', { });
+    S('.cs-prof-tag', { display:'inline-block', background:'rgba(212,160,23,0.1)', border:'1px solid #6b5a28', borderRadius:'12px', padding:'1px 5px', fontFamily:'Crimson Text,serif', fontSize:'8px', color:'#8b7535', marginRight:'2px', marginBottom:'2px' });
     
-    // Spells
-    clone.querySelectorAll('.cs-spells-section').forEach(el => {
-        applyInline(el, { marginTop: '6px' });
-    });
-    clone.querySelectorAll('.cs-section-title').forEach(el => {
-        applyInline(el, { fontFamily: 'Cinzel,serif', fontSize: '10px', color: '#d4a017', borderBottom: '1px solid rgba(212,160,23,0.3)', paddingBottom: '3px', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.05em' });
-    });
-    clone.querySelectorAll('.cs-spell-header').forEach(el => {
-        applyInline(el, { display: 'flex', gap: '6px', marginBottom: '4px', flexWrap: 'wrap' });
-    });
-    clone.querySelectorAll('.cs-spell-stat').forEach(el => {
-        applyInline(el, { display: 'inline-flex', flexDirection: 'column', alignItems: 'center', background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(155,89,182,0.3)', borderRadius: '6px', padding: '2px 6px' });
-    });
-    clone.querySelectorAll('.cs-spell-stat-label').forEach(el => {
-        applyInline(el, { fontFamily: 'Cinzel,serif', fontSize: '6px', color: '#a09b8c', textTransform: 'uppercase' });
-    });
-    clone.querySelectorAll('.cs-spell-stat-value').forEach(el => {
-        applyInline(el, { fontFamily: 'Cinzel,serif', fontSize: '10px', fontWeight: '700', color: '#bb8fce' });
-    });
-    clone.querySelectorAll('.cs-spell-level').forEach(el => {
-        applyInline(el, { fontFamily: 'Cinzel,serif', fontSize: '8px', color: '#a09b8c', display: 'block', marginBottom: '2px' });
-    });
-    clone.querySelectorAll('.cs-spell-list').forEach(el => {
-        applyInline(el, { display: 'flex', flexWrap: 'wrap', gap: '2px' });
-    });
-    clone.querySelectorAll('.cs-spell-tag').forEach(el => {
-        applyInline(el, { display: 'inline-block', background: 'rgba(155,89,182,0.15)', border: '1px solid rgba(155,89,182,0.35)', borderRadius: '12px', padding: '1px 6px', fontFamily: 'Crimson Text,serif', fontSize: '8px', color: '#bb8fce' });
-    });
+    // === SPELLS ===
+    S('.cs-spells-section', { marginTop:'6px' });
+    S('.cs-section-title', { fontFamily:'Cinzel,serif', fontSize:'10px', color:'#d4a017', borderBottom:'1px solid #5a4a1e', paddingBottom:'3px', marginBottom:'4px', textTransform:'uppercase', letterSpacing:'0.05em' });
+    S('.cs-spell-header', { marginBottom:'4px' });
+    S('.cs-spell-stat', { display:'inline-block', textAlign:'center', background:'rgba(0,0,0,0.2)', border:'1px solid #5b3a7a', borderRadius:'6px', padding:'2px 6px', marginRight:'4px', verticalAlign:'top' });
+    S('.cs-spell-stat-label', { fontFamily:'Cinzel,serif', fontSize:'6px', color:'#a09b8c', textTransform:'uppercase', display:'block' });
+    S('.cs-spell-stat-value', { fontFamily:'Cinzel,serif', fontSize:'10px', fontWeight:'700', color:'#bb8fce', display:'block' });
+    S('.cs-spell-level', { fontFamily:'Cinzel,serif', fontSize:'8px', color:'#a09b8c', display:'block', marginBottom:'2px' });
+    S('.cs-spell-list', { });
+    S('.cs-spell-tag', { display:'inline-block', background:'rgba(155,89,182,0.15)', border:'1px solid #5b3a7a', borderRadius:'12px', padding:'1px 6px', fontFamily:'Crimson Text,serif', fontSize:'8px', color:'#bb8fce', marginRight:'2px', marginBottom:'2px' });
     
-    // Magic items section for PDF
-    clone.querySelectorAll('.cs-items-grid').forEach(el => {
-        applyInline(el, { display: 'flex', flexWrap: 'wrap', gap: '6px' });
-    });
-    clone.querySelectorAll('.cs-item-card').forEach(el => {
-        applyInline(el, { width: 'calc(50% - 3px)', background: 'rgba(0,0,0,0.3)', border: '1px solid #4a3f2f', borderRadius: '8px', padding: '6px', boxSizing: 'border-box' });
-    });
-    clone.querySelectorAll('.cs-item-header').forEach(el => {
-        applyInline(el, { display: 'flex', alignItems: 'center', gap: '4px', flexWrap: 'wrap', marginBottom: '3px' });
-    });
-    clone.querySelectorAll('.cs-item-emoji').forEach(el => {
-        applyInline(el, { fontSize: '12px' });
-    });
-    clone.querySelectorAll('.cs-item-name').forEach(el => {
-        applyInline(el, { fontFamily: 'Cinzel,serif', fontSize: '9px', fontWeight: '700', color: '#e6c65a' });
-    });
-    clone.querySelectorAll('.cs-item-rarity').forEach(el => {
-        applyInline(el, { fontFamily: 'Crimson Text,serif', fontSize: '7px', padding: '1px 5px', borderRadius: '8px', background: 'rgba(212,160,23,0.15)', color: '#d4a017', border: '1px solid rgba(212,160,23,0.3)' });
-    });
-    clone.querySelectorAll('.cs-item-type').forEach(el => {
-        applyInline(el, { fontFamily: 'Crimson Text,serif', fontSize: '7px', color: '#a09b8c', fontStyle: 'italic', marginBottom: '2px' });
-    });
-    clone.querySelectorAll('.cs-item-desc').forEach(el => {
-        applyInline(el, { fontFamily: 'Crimson Text,serif', fontSize: '8px', color: '#c8c3b4', lineHeight: '1.3', margin: '0' });
-    });
-    clone.querySelectorAll('.cs-item-props').forEach(el => {
-        applyInline(el, { listStyle: 'none', padding: '0', margin: '3px 0 0' });
-    });
-    clone.querySelectorAll('.cs-item-props li').forEach(el => {
-        applyInline(el, { fontFamily: 'Crimson Text,serif', fontSize: '7px', color: '#a09b8c', padding: '1px 0', borderTop: '1px solid rgba(74,63,47,0.5)' });
-    });
-    // Rarity colors for PDF items
-    clone.querySelectorAll('.cs-item-card.rarity-common .cs-item-name').forEach(el => el.style.color = '#c8c3b4');
-    clone.querySelectorAll('.cs-item-card.rarity-uncommon .cs-item-name').forEach(el => el.style.color = '#2ecc71');
-    clone.querySelectorAll('.cs-item-card.rarity-rare .cs-item-name').forEach(el => el.style.color = '#3498db');
-    clone.querySelectorAll('.cs-item-card.rarity-epic .cs-item-name').forEach(el => el.style.color = '#9b59b6');
-    clone.querySelectorAll('.cs-item-card.rarity-legendary .cs-item-name').forEach(el => el.style.color = '#e67e22');
-    clone.querySelectorAll('.cs-item-card.rarity-artifact .cs-item-name').forEach(el => el.style.color = '#e74c3c');
+    // === MAGIC ITEMS ===
+    S('.cs-items-grid', { });
+    S('.cs-item-card', { display:'inline-block', width:'48%', background:'rgba(0,0,0,0.3)', border:'1px solid #4a3f2f', borderRadius:'8px', padding:'6px', boxSizing:'border-box', verticalAlign:'top', marginRight:'2%', marginBottom:'4px' });
+    S('.cs-item-header', { marginBottom:'3px' });
+    S('.cs-item-emoji', { fontSize:'12px', marginRight:'3px' });
+    S('.cs-item-name', { fontFamily:'Cinzel,serif', fontSize:'9px', fontWeight:'700', color:'#e6c65a' });
+    S('.cs-item-rarity', { fontFamily:'Crimson Text,serif', fontSize:'7px', padding:'1px 5px', borderRadius:'8px', background:'rgba(212,160,23,0.15)', color:'#d4a017', border:'1px solid #6b5a28', marginLeft:'4px' });
+    S('.cs-item-type', { fontFamily:'Crimson Text,serif', fontSize:'7px', color:'#a09b8c', fontStyle:'italic', marginBottom:'2px' });
+    S('.cs-item-desc', { fontFamily:'Crimson Text,serif', fontSize:'8px', color:'#c8c3b4', lineHeight:'1.3', margin:'0' });
+    S('.cs-item-props', { listStyle:'none', padding:'0', margin:'3px 0 0' });
+    S('.cs-item-props li', { fontFamily:'Crimson Text,serif', fontSize:'7px', color:'#a09b8c', padding:'1px 0', borderTop:'1px solid #3a3226' });
+    S('.cs-item-card.rarity-common .cs-item-name', { color:'#c8c3b4' });
+    S('.cs-item-card.rarity-uncommon .cs-item-name', { color:'#2ecc71' });
+    S('.cs-item-card.rarity-rare .cs-item-name', { color:'#3498db' });
+    S('.cs-item-card.rarity-epic .cs-item-name', { color:'#9b59b6' });
+    S('.cs-item-card.rarity-legendary .cs-item-name', { color:'#e67e22' });
+    S('.cs-item-card.rarity-artifact .cs-item-name', { color:'#e74c3c' });
     
     wrapper.appendChild(clone);
     document.body.appendChild(wrapper);
@@ -1527,7 +1361,7 @@ function downloadCharSheetPdf() {
         margin: [6, 6, 6, 6],
         filename: filename,
         image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2, useCORS: true, backgroundColor: '#1a1a2e', scrollY: 0, windowWidth: 794 },
+        html2canvas: { scale: 2, useCORS: true, backgroundColor: '#1a1a2e' },
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
         pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
     };
