@@ -207,7 +207,9 @@ let state = {
     isGeneratingBackstory: false,
     isGeneratingCharSheet: false,
     itemsCollapsed: true,
-    currentUniverse: 'dnd'
+    currentUniverse: 'dnd',
+    lastCharSheetData: null,
+    lastGeneratedItems: null
 };
 
 // ===== Universe Switching =====
@@ -263,6 +265,8 @@ function switchUniverse(universeKey) {
     DOM.backstoryError.style.display = 'none';
     DOM.errorMessage.style.display = 'none';
     DOM.charSheetError.style.display = 'none';
+    state.lastCharSheetData = null;
+    state.lastGeneratedItems = null;
     
     // Save preference
     localStorage.setItem('selected_universe', universeKey);
@@ -482,6 +486,52 @@ function renderItems(items) {
     
     DOM.results.style.display = 'block';
     DOM.results.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    
+    // Store generated items and append to character sheet if one exists
+    state.lastGeneratedItems = items;
+    renderItemsOnCharSheet(items);
+}
+
+// ===== Render Items on Character Sheet =====
+function renderItemsOnCharSheet(items) {
+    if (!DOM.charSheetCard || DOM.charSheetCard.innerHTML === '') return;
+    
+    // Remove existing items section from char sheet if present
+    const existingSection = DOM.charSheetCard.querySelector('.cs-items-section');
+    if (existingSection) existingSection.remove();
+    
+    if (!items || items.length === 0) return;
+    
+    const itemsHtml = items.map(item => {
+        const emoji = getItemEmoji(item.type || item.name);
+        const rarityClass = getRarityClass(item.rarity);
+        const properties = item.properties || [];
+        return `
+            <div class="cs-item-card ${rarityClass}">
+                <div class="cs-item-header">
+                    <span class="cs-item-emoji">${emoji}</span>
+                    <span class="cs-item-name">${escapeHtml(item.name)}</span>
+                    ${item.rarity ? `<span class="cs-item-rarity">${escapeHtml(item.rarity)}</span>` : ''}
+                </div>
+                ${item.type ? `<div class="cs-item-type">${escapeHtml(item.type)}</div>` : ''}
+                <p class="cs-item-desc">${escapeHtml(item.description)}</p>
+                ${properties.length > 0 ? `
+                    <ul class="cs-item-props">
+                        ${properties.map(p => `<li>${escapeHtml(p)}</li>`).join('')}
+                    </ul>
+                ` : ''}
+            </div>
+        `;
+    }).join('');
+    
+    const section = document.createElement('div');
+    section.className = 'cs-section cs-items-section';
+    section.innerHTML = `
+        <h3 class="cs-section-title">⚔️ Magic Items</h3>
+        <div class="cs-items-grid">${itemsHtml}</div>
+    `;
+    
+    DOM.charSheetCard.appendChild(section);
 }
 
 function escapeHtml(text) {
@@ -968,6 +1018,45 @@ function downloadCharSheetPdf() {
         applyInline(el, { fontFamily: 'Crimson Text,serif', fontSize: '11px', color: '#e8e6e3' });
     });
     
+    // Style magic items section for PDF
+    clone.querySelectorAll('.cs-items-grid').forEach(el => {
+        applyInline(el, { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' });
+    });
+    clone.querySelectorAll('.cs-item-card').forEach(el => {
+        applyInline(el, { background: 'rgba(0,0,0,0.3)', border: '1px solid #4a3f2f', borderRadius: '8px', padding: '8px', pageBreakInside: 'avoid' });
+    });
+    clone.querySelectorAll('.cs-item-header').forEach(el => {
+        applyInline(el, { display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap', marginBottom: '4px' });
+    });
+    clone.querySelectorAll('.cs-item-emoji').forEach(el => {
+        applyInline(el, { fontSize: '14px' });
+    });
+    clone.querySelectorAll('.cs-item-name').forEach(el => {
+        applyInline(el, { fontFamily: 'Cinzel,serif', fontSize: '11px', fontWeight: '700', color: '#e6c65a' });
+    });
+    clone.querySelectorAll('.cs-item-rarity').forEach(el => {
+        applyInline(el, { fontFamily: 'Crimson Text,serif', fontSize: '9px', padding: '1px 6px', borderRadius: '8px', background: 'rgba(212,160,23,0.15)', color: '#d4a017', border: '1px solid rgba(212,160,23,0.3)' });
+    });
+    clone.querySelectorAll('.cs-item-type').forEach(el => {
+        applyInline(el, { fontFamily: 'Crimson Text,serif', fontSize: '9px', color: '#a09b8c', fontStyle: 'italic', marginBottom: '3px' });
+    });
+    clone.querySelectorAll('.cs-item-desc').forEach(el => {
+        applyInline(el, { fontFamily: 'Crimson Text,serif', fontSize: '10px', color: '#c8c3b4', lineHeight: '1.4', margin: '0' });
+    });
+    clone.querySelectorAll('.cs-item-props').forEach(el => {
+        applyInline(el, { listStyle: 'none', padding: '0', margin: '4px 0 0' });
+    });
+    clone.querySelectorAll('.cs-item-props li').forEach(el => {
+        applyInline(el, { fontFamily: 'Crimson Text,serif', fontSize: '9px', color: '#a09b8c', padding: '1px 0', borderTop: '1px solid rgba(74,63,47,0.5)' });
+    });
+    // Rarity colors for PDF items
+    clone.querySelectorAll('.cs-item-card.rarity-common .cs-item-name').forEach(el => el.style.color = '#c8c3b4');
+    clone.querySelectorAll('.cs-item-card.rarity-uncommon .cs-item-name').forEach(el => el.style.color = '#2ecc71');
+    clone.querySelectorAll('.cs-item-card.rarity-rare .cs-item-name').forEach(el => el.style.color = '#3498db');
+    clone.querySelectorAll('.cs-item-card.rarity-epic .cs-item-name').forEach(el => el.style.color = '#9b59b6');
+    clone.querySelectorAll('.cs-item-card.rarity-legendary .cs-item-name').forEach(el => el.style.color = '#e67e22');
+    clone.querySelectorAll('.cs-item-card.rarity-artifact .cs-item-name').forEach(el => el.style.color = '#e74c3c');
+    
     // Layout grids
     clone.querySelectorAll('.cs-header').forEach(el => {
         applyInline(el, { textAlign: 'center', marginBottom: '14px', paddingBottom: '10px', borderBottom: '2px solid #4a3f2f' });
@@ -1078,6 +1167,18 @@ async function generateCharSheet() {
 
         hideCharSheetLoading();
         renderCharSheet(data);
+        
+        // Store character sheet data for item integration
+        state.lastCharSheetData = data;
+        state.lastGeneratedItems = null;
+        
+        // Auto-fill the item generator's character name
+        DOM.charName.value = data.characterName || '';
+        
+        // Auto-expand items section so user can generate items for this character
+        state.itemsCollapsed = false;
+        DOM.itemsCollapsible.style.display = 'block';
+        DOM.itemsToggleArrow.classList.add('open');
 
     } catch (error) {
         console.error('Character sheet generation error:', error);

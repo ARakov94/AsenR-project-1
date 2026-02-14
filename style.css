@@ -1486,6 +1486,105 @@ body.elder-scrolls .background-overlay {
     margin: 0.15rem 0.2rem;
 }
 
+/* ===== Magic Items on Character Sheet ===== */
+.cs-items-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.6rem;
+}
+
+.cs-item-card {
+    background: rgba(0, 0, 0, 0.25);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 0.6rem;
+    transition: border-color 0.3s ease;
+}
+
+.cs-item-card:hover {
+    border-color: var(--gold-dim);
+}
+
+.cs-item-header {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+    margin-bottom: 0.3rem;
+}
+
+.cs-item-emoji {
+    font-size: 1.1rem;
+}
+
+.cs-item-name {
+    font-family: 'Cinzel', serif;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--gold-light);
+}
+
+.cs-item-rarity {
+    font-family: 'Crimson Text', serif;
+    font-size: 0.7rem;
+    padding: 0.1rem 0.5rem;
+    border-radius: 8px;
+    background: rgba(212, 160, 23, 0.15);
+    color: var(--gold-primary);
+    border: 1px solid rgba(212, 160, 23, 0.3);
+    margin-left: auto;
+}
+
+.cs-item-type {
+    font-family: 'Crimson Text', serif;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    font-style: italic;
+    margin-bottom: 0.25rem;
+}
+
+.cs-item-desc {
+    font-family: 'Crimson Text', serif;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    line-height: 1.4;
+    margin: 0;
+}
+
+.cs-item-props {
+    list-style: none;
+    padding: 0;
+    margin: 0.3rem 0 0;
+}
+
+.cs-item-props li {
+    font-family: 'Crimson Text', serif;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    padding: 0.15rem 0;
+    border-top: 1px solid rgba(74, 63, 47, 0.5);
+}
+
+.cs-item-props li::before {
+    content: '◆ ';
+    color: var(--gold-dim);
+}
+
+/* Rarity color overrides for item names */
+.cs-item-card.rarity-common .cs-item-name { color: var(--text-secondary); }
+.cs-item-card.rarity-uncommon .cs-item-name { color: #2ecc71; }
+.cs-item-card.rarity-rare .cs-item-name { color: #3498db; }
+.cs-item-card.rarity-epic .cs-item-name { color: #9b59b6; }
+.cs-item-card.rarity-legendary .cs-item-name { color: #e67e22; }
+.cs-item-card.rarity-artifact .cs-item-name { color: #e74c3c; }
+
+/* Rarity border accents */
+.cs-item-card.rarity-uncommon { border-left: 3px solid #2ecc71; }
+.cs-item-card.rarity-rare { border-left: 3px solid #3498db; }
+.cs-item-card.rarity-epic { border-left: 3px solid #9b59b6; }
+.cs-item-card.rarity-legendary { border-left: 3px solid #e67e22; }
+.cs-item-card.rarity-artifact { border-left: 3px solid #e74c3c; }
+
 @media (max-width: 600px) {
     .cs-top-row {
         grid-template-columns: 1fr;
@@ -1501,6 +1600,9 @@ body.elder-scrolls .background-overlay {
     }
     .cs-combat-row {
         grid-template-columns: 1fr 1fr 1fr;
+    }
+    .cs-items-grid {
+        grid-template-columns: 1fr;
     }
 }
 
