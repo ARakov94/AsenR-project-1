@@ -51,9 +51,7 @@ const flavorTexts = [
     "Кръчмарят шепне слухове...",
     "Мимикът проверява сандъците...",
     "Багажът на приключенеца се пълни...",
-    "Артифайсърът смесва съставките...",
-    "Художникът скицира предметите...",
-    "Илюстраторът рисува артефактите..."
+    "Артифайсърът смесва съставките..."
 ];
 
 // ===== Multi-Select Item Types =====
@@ -262,19 +260,8 @@ function renderItems(items) {
         
         const emoji = getItemEmoji(item.type || item.name);
         const properties = item.properties || [];
-        
-        // Build image URL with unique seed per item
-        const imageDesc = item.imagePrompt || `${item.name}, ${item.type || 'magical item'}, dark fantasy style, detailed, game icon, no text`;
-        const seed = Math.floor(Math.random() * 99999);
 
         card.innerHTML = `
-            <div class="item-image-container">
-                <div class="image-loading-placeholder">
-                    <span class="image-loading-emoji">${emoji}</span>
-                    <span class="image-loading-text">Зареждане...</span>
-                </div>
-                <img class="item-image" data-src="https://image.pollinations.ai/prompt/${encodeURIComponent(imageDesc)}?width=512&height=512&nologo=true&seed=${seed}" alt="${escapeHtml(item.name)}" loading="lazy" style="opacity:0">
-            </div>
             <div class="item-header">
                 <span class="item-emoji">${emoji}</span>
                 <span class="item-name">${escapeHtml(item.name)}</span>
@@ -294,50 +281,6 @@ function renderItems(items) {
     
     DOM.results.style.display = 'block';
     DOM.results.scrollIntoView({ behavior: 'smooth', block: 'start' });
-
-    // Stagger image loading to avoid Pollinations rate limits
-    loadImagesStaggered();
-}
-
-function loadImagesStaggered() {
-    const images = DOM.itemsGrid.querySelectorAll('img.item-image[data-src]');
-    const DELAY = 1500; // 1.5 seconds between each image request
-    const MAX_RETRIES = 2;
-
-    images.forEach((img, index) => {
-        setTimeout(() => {
-            loadImageWithRetry(img, img.dataset.src, MAX_RETRIES);
-        }, index * DELAY);
-    });
-}
-
-function loadImageWithRetry(img, url, retriesLeft) {
-    const placeholder = img.parentElement.querySelector('.image-loading-placeholder');
-
-    img.onload = function() {
-        img.style.opacity = '1';
-        img.style.transition = 'opacity 0.4s ease';
-        if (placeholder) placeholder.style.display = 'none';
-    };
-
-    img.onerror = function() {
-        if (retriesLeft > 0) {
-            // Retry after a delay with a new seed
-            const newSeed = Math.floor(Math.random() * 99999);
-            const retryUrl = url.replace(/seed=\d+/, 'seed=' + newSeed);
-            setTimeout(() => {
-                loadImageWithRetry(img, retryUrl, retriesLeft - 1);
-            }, 3000);
-        } else {
-            // All retries failed — hide image, keep placeholder with emoji
-            img.style.display = 'none';
-            if (placeholder) {
-                placeholder.querySelector('.image-loading-text').textContent = '';
-            }
-        }
-    };
-
-    img.src = url;
 }
 
 function escapeHtml(text) {

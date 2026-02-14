@@ -1,3 +1,24 @@
 {
-	"servers": {}
+    "inputs": [
+        {
+            "type": "promptString",
+            "id": "n8n-api-key",
+            "description": "Въведи твоя n8n API ключ (Settings > API > Create API Key)",
+            "password": true
+        }
+    ],
+    "servers": {
+        "n8n-mcp": {
+            "type": "stdio",
+            "command": "npx",
+            "args": ["-y", "n8n-mcp"],
+            "env": {
+                "MCP_MODE": "stdio",
+                "LOG_LEVEL": "error",
+                "DISABLE_CONSOLE_OUTPUT": "true",
+                "N8N_API_URL": "https://n8n.simeontsvetanovn8nworkflows.site",
+                "N8N_API_KEY": "${input:n8n-api-key}"
+            }
+        }
+    }
 }

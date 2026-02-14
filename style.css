@@ -595,61 +595,6 @@ body {
     flex-direction: column;
 }
 
-/* Item Image */
-.item-image-container {
-    width: 100%;
-    aspect-ratio: 1 / 1;
-    overflow: hidden;
-    background: var(--bg-dark);
-    position: relative;
-}
-
-.image-loading-placeholder {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 0.75rem;
-    background: linear-gradient(135deg, rgba(15, 15, 25, 0.9), rgba(25, 20, 40, 0.9));
-    z-index: 1;
-}
-
-.image-loading-emoji {
-    font-size: 3rem;
-    animation: loadingPulse 2s ease-in-out infinite;
-}
-
-.image-loading-text {
-    font-family: var(--font-body);
-    font-size: 0.8rem;
-    color: var(--text-muted);
-    letter-spacing: 1px;
-}
-
-@keyframes loadingPulse {
-    0%, 100% { opacity: 0.4; transform: scale(1); }
-    50% { opacity: 1; transform: scale(1.15); }
-}
-
-.item-image {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-    transition: transform 0.4s ease, opacity 0.4s ease;
-    position: relative;
-    z-index: 2;
-}
-
-.item-card:hover .item-image {
-    transform: scale(1.05);
-}
-
 .item-card .item-header,
 .item-card .item-type,
 .item-card .item-rarity,

@@ -73,60 +73,6 @@
     },
     {
       "parameters": {
-        "jsCode": "// Split items into individual outputs — one per item\n// Each output contains the item data + a dedicated image prompt request\n// n8n will automatically loop AI Agent - Images for each output\nconst items = $input.first().json.items;\n\nreturn items.map((item, index) => ({\n  json: {\n    itemIndex: index,\n    item: item,\n    totalItems: items.length,\n    imagePromptText: `Describe this single D&D fantasy item visually for an AI image generator.\\n\\nItem: \"${item.name}\"\\nType: ${item.type || 'magical item'}\\nRarity: ${item.rarity || 'common'}\\nDescription: ${item.description || ''}\\n\\nRespond with ONLY a JSON object (no array, no markdown, no code fences):\\n{\"imagePrompt\": \"your 15-25 word visual description here\"}\\n\\nThe imagePrompt must describe the item\\'s physical appearance: shape, material, color, magical glow, engravings, etc. End with \\\"dark fantasy style, detailed illustration, game icon art, no text\\\".\\n\\nExample: {\"imagePrompt\": \"ornate steel warhammer with glowing red runes, dragon-head pommel, leather grip, dark fantasy style, detailed illustration, game icon art, no text\"}`\n  }\n}));"
-      },
-      "id": "d1a2b3c4-0001-4000-a000-000000000007",
-      "name": "Split Items",
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [1170, 300]
-    },
-    {
-      "parameters": {
-        "text": "={{ $json.imagePromptText }}",
-        "options": {
-          "systemMessage": "You are a visual description specialist for fantasy items. You respond ONLY with a single valid JSON object like {\"imagePrompt\": \"...\"}. No arrays, no markdown, no code fences, no explanation. The imagePrompt must be a unique, vivid 15-25 word English description of the specific item's appearance.",
-          "maxIterations": 1
-        }
-      },
-      "id": "d1a2b3c4-0001-4000-a000-000000000008",
-      "name": "AI Agent - Images",
-      "type": "@n8n/n8n-nodes-langchain.agent",
-      "typeVersion": 1.7,
-      "position": [1400, 300]
-    },
-    {
-      "parameters": {
-        "model": "x-ai/grok-3-mini",
-        "options": {
-          "temperature": 0.7,
-          "maxTokens": 300
-        }
-      },
-      "id": "d1a2b3c4-0001-4000-a000-000000000009",
-      "name": "OpenRouter Model - Images",
-      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
-      "typeVersion": 1,
-      "position": [1400, 500],
-      "credentials": {
-        "openRouterApi": {
-          "id": "YOUR_OPENROUTER_CREDENTIAL_ID",
-          "name": "OpenRouter API"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "jsCode": "// Collect all split items and their AI-generated image prompts\n// n8n ran AI Agent - Images once per item, now we merge them all back\nconst splitItems = $('Split Items').all();\nconst imageOutputs = $('AI Agent - Images').all();\n\nconst finalItems = splitItems.map((splitItem, index) => {\n  const item = splitItem.json.item;\n  let imagePrompt = '';\n\n  try {\n    let output = imageOutputs[index].json.output || '';\n    // Clean markdown fences\n    output = output.trim();\n    if (output.startsWith('```json')) output = output.slice(7);\n    if (output.startsWith('```')) output = output.slice(3);\n    if (output.endsWith('```')) output = output.slice(0, -3);\n    output = output.trim();\n\n    const parsed = JSON.parse(output);\n    imagePrompt = parsed.imagePrompt || '';\n  } catch (e) {\n    // Try regex extraction\n    try {\n      const raw = imageOutputs[index].json.output || '';\n      const match = raw.match(/\"imagePrompt\"\\s*:\\s*\"([^\"]+)\"/);\n      if (match) imagePrompt = match[1];\n    } catch (e2) {}\n  }\n\n  // Fallback: generate from item data\n  if (!imagePrompt) {\n    imagePrompt = `${item.name}, ${item.type || 'magical item'}, ${item.rarity || 'common'} quality, dark fantasy style, detailed illustration, game icon art, no text`;\n  }\n\n  return {\n    ...item,\n    imagePrompt\n  };\n});\n\nreturn [{ json: { items: finalItems } }];"
-      },
-      "id": "d1a2b3c4-0001-4000-a000-000000000010",
-      "name": "Merge Items & Images",
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [1630, 300]
-    },
-    {
-      "parameters": {
         "respondWith": "json",
         "responseBody": "={{ JSON.stringify($json.items) }}",
         "options": {
@@ -149,7 +95,7 @@
       "name": "Respond to Webhook",
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.1,
-      "position": [1860, 300]
+      "position": [1170, 300]
     }
   ],
   "connections": {
@@ -174,26 +120,6 @@
       ]
     },
     "Parse Items": {
-      "main": [
-        [{ "node": "Split Items", "type": "main", "index": 0 }]
-      ]
-    },
-    "Split Items": {
-      "main": [
-        [{ "node": "AI Agent - Images", "type": "main", "index": 0 }]
-      ]
-    },
-    "OpenRouter Model - Images": {
-      "ai_languageModel": [
-        [{ "node": "AI Agent - Images", "type": "ai_languageModel", "index": 0 }]
-      ]
-    },
-    "AI Agent - Images": {
-      "main": [
-        [{ "node": "Merge Items & Images", "type": "main", "index": 0 }]
-      ]
-    },
-    "Merge Items & Images": {
       "main": [
         [{ "node": "Respond to Webhook", "type": "main", "index": 0 }]
       ]
