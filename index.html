@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>D&D 5e 2024 — Генератор на предмети</title>
+    <title>D&D 5e 2024 — Генератор на герои и предмети</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚔️</text></svg>">
@@ -19,19 +19,14 @@
         <header class="header">
             <div class="dragon-icon">🐉</div>
             <h1 class="title">D&D 5e Ковачница</h1>
-            <p class="subtitle">Създай уникална екипировка за своя герой — Издание 2024</p>
+            <p class="subtitle">Създай своя герой и неговата история — Издание 2024</p>
         </header>
 
         <!-- Character Setup -->
         <section class="card character-setup">
-            <h2 class="card-title">⚔️ Настройки на героя</h2>
+            <h2 class="card-title">⚔️ Основни настройки</h2>
             
             <div class="form-grid">
-                <div class="form-group">
-                    <label for="charName">Име на героя <span class="optional-label">(по избор)</span></label>
-                    <input type="text" id="charName" placeholder="напр. Тордек Огнебрадия">
-                </div>
-
                 <div class="form-group">
                     <label for="charClass">Клас</label>
                     <select id="charClass">
@@ -79,7 +74,90 @@
                         <option value="5">Ниво 5</option>
                     </select>
                 </div>
+            </div>
+        </section>
 
+        <!-- Backstory Elements Selection -->
+        <section class="card backstory-setup">
+            <h2 class="card-title">📜 Елементи на героя</h2>
+            <p class="backstory-desc">Избери кои елементи да бъдат генерирани за твоя герой:</p>
+            <div class="backstory-checkboxes">
+                <label class="backstory-option">
+                    <input type="checkbox" value="name" checked> <span>🏷️ Име на героя</span>
+                </label>
+                <label class="backstory-option">
+                    <input type="checkbox" value="origin" checked> <span>🌍 От къде е (родно място)</span>
+                </label>
+                <label class="backstory-option">
+                    <input type="checkbox" value="strengths" checked> <span>💪 Силни черти</span>
+                </label>
+                <label class="backstory-option">
+                    <input type="checkbox" value="weaknesses" checked> <span>😰 Слаби черти</span>
+                </label>
+                <label class="backstory-option">
+                    <input type="checkbox" value="personality" checked> <span>🎭 Характер</span>
+                </label>
+                <label class="backstory-option">
+                    <input type="checkbox" value="history" checked> <span>📖 История и произход</span>
+                </label>
+                <label class="backstory-option">
+                    <input type="checkbox" value="goal" checked> <span>🎯 Цел в живота</span>
+                </label>
+                <label class="backstory-option">
+                    <input type="checkbox" value="aspiration" checked> <span>⭐ Към какво се стреми</span>
+                </label>
+            </div>
+        </section>
+
+        <!-- Generate Backstory Button -->
+        <div class="generate-section">
+            <button id="generateBackstoryBtn" class="generate-btn backstory-btn">
+                <span class="btn-icon">📜</span>
+                <span class="btn-text">Генерирай герой!</span>
+            </button>
+        </div>
+
+        <!-- Backstory Loading -->
+        <div class="loading" id="backstoryLoading" style="display: none;">
+            <div class="loading-spinner"></div>
+            <p class="loading-text">Бардът разказва историята... 📜</p>
+            <p class="loading-flavor" id="backstoryLoadingFlavor"></p>
+        </div>
+
+        <!-- Backstory Error -->
+        <div class="error-message" id="backstoryError" style="display: none;">
+            <p>⚠️ <span id="backstoryErrorText"></span></p>
+        </div>
+
+        <!-- Backstory Results -->
+        <section class="backstory-results" id="backstoryResults" style="display: none;">
+            <h2 class="results-title">🧙 Твоят герой</h2>
+            <div class="backstory-card" id="backstoryCard"></div>
+        </section>
+
+        <!-- Separator -->
+        <div class="section-separator">
+            <span class="separator-line"></span>
+            <span class="separator-icon">⚔️</span>
+            <span class="separator-line"></span>
+        </div>
+
+        <!-- Items Section (Secondary) -->
+        <section class="card items-section-header" id="itemsSectionHeader">
+            <button class="collapsible-toggle" id="itemsToggle">
+                <h2 class="card-title" style="margin-bottom:0; border-bottom:none; padding-bottom:0; cursor:pointer;">🎒 Генератор на предмети <span class="toggle-arrow" id="itemsToggleArrow">▾</span></h2>
+            </button>
+        </section>
+
+        <div class="collapsible-content" id="itemsCollapsible" style="display: none;">
+
+        <!-- Character Name for Items -->
+        <section class="card">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="charName">Име на героя <span class="optional-label">(по избор)</span></label>
+                    <input type="text" id="charName" placeholder="напр. Тордек Огнебрадия">
+                </div>
                 <div class="form-group">
                     <label>Вид предмети</label>
                     <div class="multi-select" id="itemTypeSelect">
@@ -155,9 +233,9 @@
             </div>
         </section>
 
-        <!-- Generate Button -->
+        <!-- Generate Items Button -->
         <div class="generate-section">
-            <button id="generateBtn" class="generate-btn">
+            <button id="generateBtn" class="generate-btn items-btn">
                 <span class="btn-icon">⚒️</span>
                 <span class="btn-text">Генерирай предмети!</span>
             </button>
@@ -175,11 +253,13 @@
             <p>⚠️ <span id="errorText"></span></p>
         </div>
 
-        <!-- Results -->
+        <!-- Item Results -->
         <section class="results" id="results" style="display: none;">
             <h2 class="results-title">🎒 Твоите предмети</h2>
             <div class="items-grid" id="itemsGrid"></div>
         </section>
+
+        </div><!-- end collapsible-content -->
 
         <!-- Footer -->
         <footer class="footer">

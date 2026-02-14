@@ -1,6 +1,7 @@
 // ===== Configuration =====
 const CONFIG = {
     webhookUrl: localStorage.getItem('n8n_webhook_url') || 'https://n8n.simeontsvetanovn8nworkflows.site/webhook/dnd-items',
+    backstoryWebhookUrl: localStorage.getItem('n8n_backstory_webhook_url') || 'https://n8n.simeontsvetanovn8nworkflows.site/webhook/dnd-backstory',
     storageKey: 'n8n_webhook_url'
 };
 
@@ -19,12 +20,23 @@ const DOM = {
     spicyEmoji: document.getElementById('spicyEmoji'),
     ageWarning: document.getElementById('ageWarning'),
     generateBtn: document.getElementById('generateBtn'),
+    generateBackstoryBtn: document.getElementById('generateBackstoryBtn'),
     loading: document.getElementById('loading'),
     loadingFlavor: document.getElementById('loadingFlavor'),
     errorMessage: document.getElementById('errorMessage'),
     errorText: document.getElementById('errorText'),
     results: document.getElementById('results'),
     itemsGrid: document.getElementById('itemsGrid'),
+    backstoryLoading: document.getElementById('backstoryLoading'),
+    backstoryLoadingFlavor: document.getElementById('backstoryLoadingFlavor'),
+    backstoryError: document.getElementById('backstoryError'),
+    backstoryErrorText: document.getElementById('backstoryErrorText'),
+    backstoryResults: document.getElementById('backstoryResults'),
+    backstoryCard: document.getElementById('backstoryCard'),
+    backstoryCheckboxes: document.querySelectorAll('.backstory-checkboxes input[type="checkbox"]'),
+    itemsToggle: document.getElementById('itemsToggle'),
+    itemsToggleArrow: document.getElementById('itemsToggleArrow'),
+    itemsCollapsible: document.getElementById('itemsCollapsible'),
     settingsBtn: document.getElementById('settingsBtn'),
     configModal: document.getElementById('configModal'),
     webhookUrl: document.getElementById('webhookUrl'),
@@ -37,7 +49,9 @@ const DOM = {
 // ===== State =====
 let state = {
     itemCount: 5,
-    isGenerating: false
+    isGenerating: false,
+    isGeneratingBackstory: false,
+    itemsCollapsed: true
 };
 
 // ===== Loading Flavor Texts =====
@@ -52,6 +66,17 @@ const flavorTexts = [
     "Мимикът проверява сандъците...",
     "Багажът на приключенеца се пълни...",
     "Артифайсърът смесва съставките..."
+];
+
+const backstoryFlavorTexts = [
+    "Бардът настройва лютнята...",
+    "Мъдрецът чете звездите...",
+    "Поредното пророчество се разкрива...",
+    "Древните свитъци се разгъват...",
+    "Съдбата се плете...",
+    "Боговете наблюдават...",
+    "Летописецът записва...",
+    "Приключението започва..."
 ];
 
 // ===== Multi-Select Item Types =====
@@ -289,6 +314,159 @@ function escapeHtml(text) {
     return div.innerHTML;
 }
 
+// ===== Backstory Helpers =====
+function getSelectedBackstoryElements() {
+    const checkboxes = document.querySelectorAll('.backstory-checkboxes input[type="checkbox"]:checked');
+    return Array.from(checkboxes).map(cb => cb.value);
+}
+
+const backstoryElementLabels = {
+    name: { emoji: '🏷️', title: 'Име' },
+    origin: { emoji: '🌍', title: 'Родно място' },
+    strengths: { emoji: '💪', title: 'Силни черти' },
+    weaknesses: { emoji: '😰', title: 'Слаби черти' },
+    personality: { emoji: '🎭', title: 'Характер' },
+    history: { emoji: '📖', title: 'История и произход' },
+    goal: { emoji: '🎯', title: 'Цел в живота' },
+    aspiration: { emoji: '⭐', title: 'Към какво се стреми' }
+};
+
+function showBackstoryLoading() {
+    DOM.backstoryLoading.style.display = 'block';
+    DOM.backstoryResults.style.display = 'none';
+    DOM.backstoryError.style.display = 'none';
+    DOM.generateBackstoryBtn.disabled = true;
+    
+    DOM.backstoryLoadingFlavor.textContent = backstoryFlavorTexts[Math.floor(Math.random() * backstoryFlavorTexts.length)];
+    state.backstoryFlavorInterval = setInterval(() => {
+        DOM.backstoryLoadingFlavor.textContent = backstoryFlavorTexts[Math.floor(Math.random() * backstoryFlavorTexts.length)];
+    }, 2500);
+}
+
+function hideBackstoryLoading() {
+    DOM.backstoryLoading.style.display = 'none';
+    DOM.generateBackstoryBtn.disabled = false;
+    if (state.backstoryFlavorInterval) clearInterval(state.backstoryFlavorInterval);
+}
+
+function showBackstoryError(message) {
+    hideBackstoryLoading();
+    DOM.backstoryErrorText.textContent = message;
+    DOM.backstoryError.style.display = 'block';
+}
+
+function renderBackstory(data, selectedElements) {
+    DOM.backstoryCard.innerHTML = '';
+    
+    const sections = [];
+    
+    selectedElements.forEach(key => {
+        const meta = backstoryElementLabels[key];
+        if (!meta || !data[key]) return;
+        
+        let content = data[key];
+        let html = '';
+        
+        if (Array.isArray(content)) {
+            html = `<ul>${content.map(item => `<li>${escapeHtml(item)}</li>`).join('')}</ul>`;
+        } else {
+            html = escapeHtml(content);
+        }
+        
+        sections.push(`
+            <div class="backstory-section-block">
+                <h3 class="backstory-section-title">${meta.emoji} ${meta.title}</h3>
+                <div class="backstory-section-text">${html}</div>
+            </div>
+        `);
+    });
+    
+    DOM.backstoryCard.innerHTML = sections.join('');
+    DOM.backstoryResults.style.display = 'block';
+    DOM.backstoryResults.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// ===== Generate Backstory =====
+async function generateBackstory() {
+    if (state.isGeneratingBackstory) return;
+    
+    const charClass = DOM.charClass.value;
+    const charRace = DOM.charRace.value;
+    
+    if (!charClass) {
+        showBackstoryError('Моля, избери клас за своя герой.');
+        return;
+    }
+    
+    if (!charRace) {
+        showBackstoryError('Моля, избери раса за своя герой.');
+        return;
+    }
+    
+    const selectedElements = getSelectedBackstoryElements();
+    if (selectedElements.length === 0) {
+        showBackstoryError('Моля, избери поне един елемент за генериране.');
+        return;
+    }
+
+    state.isGeneratingBackstory = true;
+    showBackstoryLoading();
+
+    const payload = {
+        characterClass: charClass,
+        characterRace: charRace,
+        characterLevel: parseInt(DOM.charLevel.value),
+        elements: selectedElements
+    };
+
+    try {
+        const response = await fetch(CONFIG.backstoryWebhookUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`Сървърът отговори с код ${response.status}: ${errorText || 'Няма допълнителна информация'}`);
+        }
+
+        const responseText = await response.text();
+        if (!responseText || responseText.trim() === '') {
+            throw new Error('Сървърът върна празен отговор. Провери дали n8n workflow-ът е активен.');
+        }
+
+        let data;
+        try {
+            data = JSON.parse(responseText);
+        } catch (parseErr) {
+            throw new Error(`Невалиден JSON отговор: ${responseText.substring(0, 200)}`);
+        }
+        
+        // Handle different response formats
+        if (data.output) {
+            try {
+                data = JSON.parse(data.output);
+            } catch {
+                // keep data as-is
+            }
+        }
+
+        hideBackstoryLoading();
+        renderBackstory(data, selectedElements);
+
+    } catch (error) {
+        console.error('Backstory generation error:', error);
+        if (error.name === 'TypeError' && error.message.includes('fetch')) {
+            showBackstoryError('Няма връзка със сървъра. Провери дали n8n работи.');
+        } else {
+            showBackstoryError(error.message || 'Възникна грешка при създаването на историята.');
+        }
+    } finally {
+        state.isGeneratingBackstory = false;
+    }
+}
+
 // ===== Generate Items =====
 async function generateItems() {
     if (state.isGenerating) return;
@@ -386,11 +564,19 @@ async function generateItems() {
 // ===== Event Listeners =====
 DOM.spicySlider.addEventListener('input', updateSpiciness);
 DOM.generateBtn.addEventListener('click', generateItems);
+DOM.generateBackstoryBtn.addEventListener('click', generateBackstory);
 DOM.settingsBtn.addEventListener('click', openSettings);
 DOM.saveConfig.addEventListener('click', saveSettings);
 DOM.cancelConfig.addEventListener('click', closeSettings);
 DOM.configModal.addEventListener('click', (e) => {
     if (e.target === DOM.configModal) closeSettings();
+});
+
+// Collapsible items section
+DOM.itemsToggle.addEventListener('click', () => {
+    state.itemsCollapsed = !state.itemsCollapsed;
+    DOM.itemsCollapsible.style.display = state.itemsCollapsed ? 'none' : 'block';
+    DOM.itemsToggleArrow.classList.toggle('open', !state.itemsCollapsed);
 });
 
 // Keyboard: Escape to close modal

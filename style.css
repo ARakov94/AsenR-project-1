@@ -860,3 +860,209 @@ body {
         font-size: 1.1rem;
     }
 }
+
+/* ===== Backstory Section ===== */
+.backstory-desc {
+    color: var(--text-secondary);
+    margin-bottom: 1rem;
+    font-size: 0.95rem;
+}
+
+.backstory-checkboxes {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 0.5rem;
+}
+
+.backstory-option {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.65rem 0.9rem;
+    cursor: pointer;
+    transition: background 0.15s ease;
+    color: var(--text-primary);
+    font-size: 0.95rem;
+    border-radius: 8px;
+    border: 1px solid transparent;
+}
+
+.backstory-option:hover {
+    background: rgba(212, 160, 23, 0.08);
+    border-color: var(--border-gold);
+}
+
+.backstory-option input[type="checkbox"] {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 20px;
+    height: 20px;
+    min-width: 20px;
+    border: 2px solid var(--border-color);
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.05);
+    cursor: pointer;
+    position: relative;
+    transition: all 0.15s ease;
+}
+
+.backstory-option input[type="checkbox"]:checked {
+    background: var(--gold);
+    border-color: var(--gold);
+}
+
+.backstory-option input[type="checkbox"]:checked::after {
+    content: '✓';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: var(--bg-dark);
+    font-size: 13px;
+    font-weight: bold;
+}
+
+/* ===== Backstory Results ===== */
+.backstory-results {
+    margin-top: 2rem;
+}
+
+.backstory-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-gold);
+    border-radius: var(--radius);
+    padding: 2rem;
+    box-shadow: 0 4px 30px var(--shadow-gold);
+    animation: itemAppear 0.5s ease;
+}
+
+.backstory-section-block {
+    margin-bottom: 1.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.backstory-section-block:last-child {
+    margin-bottom: 0;
+    padding-bottom: 0;
+    border-bottom: none;
+}
+
+.backstory-section-title {
+    font-family: var(--font-title);
+    font-size: 1.1rem;
+    color: var(--gold-light);
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.backstory-section-text {
+    color: var(--text-secondary);
+    font-size: 1rem;
+    line-height: 1.7;
+}
+
+.backstory-section-text ul {
+    list-style: none;
+    padding: 0;
+    margin-top: 0.3rem;
+}
+
+.backstory-section-text ul li {
+    padding: 0.2rem 0;
+}
+
+.backstory-section-text ul li::before {
+    content: '◆ ';
+    color: var(--gold-dim);
+}
+
+/* ===== Section Separator ===== */
+.section-separator {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin: 2.5rem 0;
+}
+
+.separator-line {
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(to right, transparent, var(--border-gold), transparent);
+}
+
+.separator-icon {
+    font-size: 1.5rem;
+    color: var(--gold-dim);
+}
+
+/* ===== Collapsible Items Section ===== */
+.items-section-header {
+    cursor: pointer;
+    margin-bottom: 0;
+}
+
+.items-section-header:hover {
+    border-color: var(--gold);
+}
+
+.collapsible-toggle {
+    background: none;
+    border: none;
+    width: 100%;
+    text-align: left;
+    cursor: pointer;
+    padding: 0;
+}
+
+.toggle-arrow {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    transition: transform 0.3s ease;
+    display: inline-block;
+    margin-left: 0.5rem;
+}
+
+.toggle-arrow.open {
+    transform: rotate(180deg);
+}
+
+.collapsible-content {
+    animation: collapseAppear 0.3s ease;
+}
+
+@keyframes collapseAppear {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.collapsible-content .card:first-child {
+    margin-top: 1rem;
+}
+
+/* Backstory generate button */
+.backstory-btn {
+    background: linear-gradient(135deg, #9b59b6, #8e44ad);
+    box-shadow: 0 4px 20px rgba(155, 89, 182, 0.3);
+}
+
+.backstory-btn:hover {
+    box-shadow: 0 8px 30px rgba(155, 89, 182, 0.4);
+}
+
+.items-btn {
+    background: linear-gradient(135deg, var(--gold-light), var(--gold));
+    box-shadow: 0 4px 20px rgba(212, 160, 23, 0.3);
+}
+
+@media (max-width: 600px) {
+    .backstory-checkboxes {
+        grid-template-columns: 1fr;
+    }
+    
+    .backstory-card {
+        padding: 1.2rem;
+    }
+}

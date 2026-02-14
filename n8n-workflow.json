@@ -1,5 +1,5 @@
 {
-  "name": "DnD 5e Item Generator",
+  "name": "DnD 5e Hero & Item Generator",
   "nodes": [
     {
       "parameters": {
@@ -96,6 +96,102 @@
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.1,
       "position": [1170, 300]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "dnd-backstory",
+        "responseMode": "responseNode",
+        "options": {
+          "allowedOrigins": "*"
+        }
+      },
+      "id": "b2c3d4e5-0001-4000-b000-000000000001",
+      "name": "Backstory Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [250, 700],
+      "webhookId": "dnd-backstory"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Extract input from the webhook body\nconst input = $input.first().json.body;\n\nconst characterClass = input.characterClass || 'Fighter';\nconst characterRace = input.characterRace || 'Human';\nconst characterLevel = input.characterLevel || 1;\nconst elements = input.elements || ['name', 'origin', 'strengths', 'weaknesses', 'personality', 'history', 'goal', 'aspiration'];\n\n// Map elements to detailed descriptions for the prompt\nconst elementDescriptions = {\n  name: 'A lore-appropriate character name fitting the race and class. Use naming conventions from official D&D sourcebooks (e.g., Elvish names for Elves, Nordic-style for Goliaths, Infernal-touched for Tieflings). Provide first name and optional surname or epithet.',\n  origin: 'Where the character comes from — a specific region, city, village, or realm from the Forgotten Realms or D&D multiverse. Describe the place briefly and how it shaped the character. Examples: Waterdeep, Baldur\\'s Gate, Menzoberranzan, a nomadic tribe, a remote monastery.',\n  strengths: 'Exactly 3 strong character traits or abilities that define what the character excels at. These should be personality-driven strengths (e.g., unwavering courage, natural leadership, sharp wit) tied to their class/race background.',\n  weaknesses: 'Exactly 3 character flaws or vulnerabilities that create interesting roleplay opportunities. These should feel real and tied to who the character is (e.g., arrogance, fear of the dark, inability to trust others, reckless impulsiveness).',\n  personality: 'A vivid 2-3 sentence description of the character\\'s personality, demeanor, and how they interact with others. Include quirks, habits, or mannerisms that make them memorable.',\n  history: 'A compelling 3-5 sentence backstory explaining the character\\'s past — key events, turning points, family, mentors, or traumas that led them to become an adventurer. Reference appropriate D&D lore for the race and class.',\n  goal: 'The character\\'s primary life goal or driving motivation — what they are trying to achieve in the grand scheme. This should be specific and tied to their backstory (e.g., avenge a fallen mentor, reclaim an ancestral homeland, break a curse).',\n  aspiration: 'What the character aspires to become or achieve on a personal/spiritual level — their ideal future self or dream. This is more abstract than their goal (e.g., become worthy of a god\\'s blessing, find inner peace, be remembered as a legend).'\n};\n\n// Build the list of requested elements\nconst requestedParts = elements.map(el => {\n  const desc = elementDescriptions[el];\n  if (!desc) return null;\n  return `- \"${el}\": ${desc}`;\n}).filter(Boolean).join('\\n');\n\n// Build format instructions for each element\nconst formatInstructions = elements.map(el => {\n  if (el === 'strengths' || el === 'weaknesses') {\n    return `  \"${el}\": [\"trait1\", \"trait2\", \"trait3\"]`;\n  }\n  return `  \"${el}\": \"string value\"`;\n}).join(',\\n');\n\nconst userPrompt = `Generate a complete character backstory for a D&D 5e (2024 edition) character with the following details:\n\n- Class: ${characterClass}\n- Race: ${characterRace}\n- Level: ${characterLevel}\n\nGenerate ONLY the following elements:\n${requestedParts}\n\nIMPORTANT RULES:\n1. Use official D&D 5e lore from the Forgotten Realms setting. Reference real locations, deities, factions, and cultural details appropriate for the race.\n2. Everything must be internally consistent — the name, origin, history, personality, and goals should all connect logically.\n3. The backstory should reflect the character's class training and racial heritage.\n4. For level ${characterLevel}, the character should feel appropriately experienced (level 1 = novice adventurer, level 5 = seasoned).\n5. Be creative and evocative — make this character feel alive and interesting to roleplay.\n6. \"strengths\" and \"weaknesses\" MUST be JSON arrays of exactly 3 strings each.\n7. All other fields must be strings.\n\nRespond with a JSON object in this exact format (no markdown, no code fences, no extra text):\n{\n${formatInstructions}\n}`;\n\nreturn [{\n  json: {\n    userPrompt,\n    characterClass,\n    characterRace,\n    characterLevel,\n    elements\n  }\n}];"
+      },
+      "id": "b2c3d4e5-0001-4000-b000-000000000002",
+      "name": "Build Backstory Prompt",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [480, 700]
+    },
+    {
+      "parameters": {
+        "text": "={{ $json.userPrompt }}",
+        "options": {
+          "systemMessage": "You are an expert D&D 5e lore master and character creator with deep knowledge of the Forgotten Realms, Greyhawk, and the D&D multiverse. You specialize in creating rich, immersive character backstories that are consistent with official D&D lore. You always respond ONLY with valid JSON objects. No markdown, no code fences, no explanation text. Your characters feel alive, with interconnected traits, histories, and motivations.",
+          "maxIterations": 1
+        }
+      },
+      "id": "b2c3d4e5-0001-4000-b000-000000000003",
+      "name": "AI Agent - Backstory",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [710, 700]
+    },
+    {
+      "parameters": {
+        "model": "x-ai/grok-3-mini",
+        "options": {
+          "temperature": 0.85,
+          "maxTokens": 4000
+        }
+      },
+      "id": "b2c3d4e5-0001-4000-b000-000000000004",
+      "name": "OpenRouter Model - Backstory",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [710, 900],
+      "credentials": {
+        "openRouterApi": {
+          "id": "YOUR_OPENROUTER_CREDENTIAL_ID",
+          "name": "OpenRouter API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Parse the AI Agent response into backstory object\nconst aiResponse = $input.first().json.output;\n\nif (!aiResponse) {\n  throw new Error('No response from Backstory AI Agent');\n}\n\ntry {\n  let cleaned = aiResponse.trim();\n  // Remove markdown code fences if present\n  if (cleaned.startsWith('```json')) cleaned = cleaned.slice(7);\n  if (cleaned.startsWith('```')) cleaned = cleaned.slice(3);\n  if (cleaned.endsWith('```')) cleaned = cleaned.slice(0, -3);\n  cleaned = cleaned.trim();\n\n  const backstory = JSON.parse(cleaned);\n  return [{ json: backstory }];\n\n} catch (error) {\n  // Try to find a JSON object in the response\n  const match = aiResponse.match(/\\{[\\s\\S]*\\}/);\n  if (match) {\n    try {\n      const backstory = JSON.parse(match[0]);\n      return [{ json: backstory }];\n    } catch (e) {}\n  }\n\n  // Fallback error response\n  return [{ json: {\n    name: 'Unknown Hero',\n    origin: 'The mists of an unknown realm...',\n    strengths: ['Determination', 'Adaptability', 'Courage'],\n    weaknesses: ['Mysterious past', 'Unknown enemies', 'Self-doubt'],\n    personality: 'A mysterious figure whose story is yet to be written.',\n    history: 'The magical scribe encountered an error while recording this tale. Please try again.',\n    goal: 'To discover their true destiny.',\n    aspiration: 'To become a legend worth remembering.'\n  } }];\n}"
+      },
+      "id": "b2c3d4e5-0001-4000-b000-000000000005",
+      "name": "Parse Backstory",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [940, 700]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify($json) }}",
+        "options": {
+          "responseCode": 200,
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              },
+              {
+                "name": "Access-Control-Allow-Headers",
+                "value": "Content-Type"
+              }
+            ]
+          }
+        }
+      },
+      "id": "b2c3d4e5-0001-4000-b000-000000000006",
+      "name": "Respond Backstory",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [1170, 700]
     }
   ],
   "connections": {
@@ -123,6 +219,31 @@
       "main": [
         [{ "node": "Respond to Webhook", "type": "main", "index": 0 }]
       ]
+    },
+    "Backstory Webhook": {
+      "main": [
+        [{ "node": "Build Backstory Prompt", "type": "main", "index": 0 }]
+      ]
+    },
+    "Build Backstory Prompt": {
+      "main": [
+        [{ "node": "AI Agent - Backstory", "type": "main", "index": 0 }]
+      ]
+    },
+    "OpenRouter Model - Backstory": {
+      "ai_languageModel": [
+        [{ "node": "AI Agent - Backstory", "type": "ai_languageModel", "index": 0 }]
+      ]
+    },
+    "AI Agent - Backstory": {
+      "main": [
+        [{ "node": "Parse Backstory", "type": "main", "index": 0 }]
+      ]
+    },
+    "Parse Backstory": {
+      "main": [
+        [{ "node": "Respond Backstory", "type": "main", "index": 0 }]
+      ]
     }
   },
   "settings": {
@@ -131,6 +252,7 @@
   "staticData": null,
   "tags": [
     { "name": "DnD", "id": "1" },
-    { "name": "AI", "id": "2" }
+    { "name": "AI", "id": "2" },
+    { "name": "Backstory", "id": "3" }
   ]
 }
