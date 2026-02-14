@@ -934,6 +934,17 @@ body.elder-scrolls .background-overlay {
     margin-bottom: 1.5rem;
 }
 
+.confirm-modal-text {
+    color: var(--text-secondary);
+    font-size: 1rem;
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+}
+
+.confirm-modal .modal-buttons {
+    justify-content: center;
+}
+
 .modal .form-group {
     margin-bottom: 1.5rem;
 }

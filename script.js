@@ -183,6 +183,9 @@ const DOM = {
     charSheetErrorText: document.getElementById('charSheetErrorText'),
     charSheetResults: document.getElementById('charSheetResults'),
     charSheetCard: document.getElementById('charSheetCard'),
+    confirmNoItemsModal: document.getElementById('confirmNoItemsModal'),
+    confirmNoItemsYes: document.getElementById('confirmNoItemsYes'),
+    confirmNoItemsNo: document.getElementById('confirmNoItemsNo'),
     itemsWrapper: document.getElementById('itemsWrapper'),
     itemsSeparator: document.getElementById('itemsSeparator'),
     itemsToggle: document.getElementById('itemsToggle'),
@@ -1106,7 +1109,7 @@ function downloadCharSheetPdf() {
 }
 
 // ===== Generate Character Sheet =====
-async function generateCharSheet() {
+async function generateCharSheet(skipItemCheck) {
     if (state.isGeneratingCharSheet) return;
     
     const charClass = DOM.charClass.value;
@@ -1119,6 +1122,12 @@ async function generateCharSheet() {
     
     if (!charRace) {
         showCharSheetError('Please choose a race for your character.');
+        return;
+    }
+    
+    // If no items generated and not already confirmed, show popup
+    if (!skipItemCheck && !state.lastGeneratedItems) {
+        DOM.confirmNoItemsModal.style.display = 'flex';
         return;
     }
     
@@ -1170,15 +1179,11 @@ async function generateCharSheet() {
         
         // Store character sheet data for item integration
         state.lastCharSheetData = data;
-        state.lastGeneratedItems = null;
         
-        // Auto-fill the item generator's character name
-        DOM.charName.value = data.characterName || '';
-        
-        // Auto-expand items section so user can generate items for this character
-        state.itemsCollapsed = false;
-        DOM.itemsCollapsible.style.display = 'block';
-        DOM.itemsToggleArrow.classList.add('open');
+        // If items were already generated, re-render them on the new sheet
+        if (state.lastGeneratedItems) {
+            renderItemsOnCharSheet(state.lastGeneratedItems);
+        }
 
     } catch (error) {
         console.error('Character sheet generation error:', error);
@@ -1292,6 +1297,24 @@ DOM.generateBtn.addEventListener('click', generateItems);
 DOM.generateBackstoryBtn.addEventListener('click', generateBackstory);
 DOM.generateCharSheetBtn.addEventListener('click', generateCharSheet);
 DOM.downloadPdfBtn.addEventListener('click', downloadCharSheetPdf);
+
+// Confirm modal for generating sheet without items
+DOM.confirmNoItemsYes.addEventListener('click', () => {
+    DOM.confirmNoItemsModal.style.display = 'none';
+    generateCharSheet(true);
+});
+DOM.confirmNoItemsNo.addEventListener('click', () => {
+    DOM.confirmNoItemsModal.style.display = 'none';
+    // Expand items section so user can generate items
+    state.itemsCollapsed = false;
+    DOM.itemsCollapsible.style.display = 'block';
+    DOM.itemsToggleArrow.classList.add('open');
+    DOM.itemsWrapper.scrollIntoView({ behavior: 'smooth', block: 'start' });
+});
+DOM.confirmNoItemsModal.addEventListener('click', (e) => {
+    if (e.target === DOM.confirmNoItemsModal) DOM.confirmNoItemsModal.style.display = 'none';
+});
+
 DOM.settingsBtn.addEventListener('click', openSettings);
 DOM.saveConfig.addEventListener('click', saveSettings);
 DOM.cancelConfig.addEventListener('click', closeSettings);
