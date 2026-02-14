@@ -288,6 +288,78 @@
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.1,
       "position": [1170, 1600]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "wow-backstory",
+        "responseMode": "responseNode",
+        "options": { "allowedOrigins": "*" }
+      },
+      "id": "c7d8e9f0-0001-4000-a000-000000000001",
+      "name": "Webhook - WoW Backstory",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [250, 2000],
+      "webhookId": "wow-backstory"
+    },
+    {
+      "parameters": {
+        "jsCode": "const input = $input.first().json.body;\nconst characterClass = input.characterClass || 'Warrior';\nconst characterRace = input.characterRace || 'Human';\nconst characterLevel = input.characterLevel || 1;\nconst elements = input.elements || ['name', 'origin', 'strengths', 'weaknesses', 'personality', 'history', 'goal', 'aspiration'];\n\nconst raceOrigins = {\n  'Human': 'Stormwind — the proud capital of the Alliance, rebuilt after the First War',\n  'Dwarf': 'Ironforge — the mountain stronghold of the dwarves, heart of Khaz Modan',\n  'Night Elf': 'Teldrassil and Darnassus — the ancient forests of Kalimdor, home of the Kaldorei',\n  'Gnome': 'Gnomeregan — the irradiated gnomish capital, now partially reclaimed',\n  'Draenei': 'The Exodar — crashed dimensional ship, refugees from Argus and Outland',\n  'Worgen': 'Gilneas — the walled kingdom cursed with the Worgen affliction',\n  'Void Elf': 'Telogrus Rift — exiled blood elves who embrace the Void',\n  'Lightforged Draenei': 'The Vindicaar — warriors of the Army of the Light who fought the Burning Legion',\n  'Dark Iron Dwarf': 'Shadowforge City — under Blackrock Mountain, masters of dark iron',\n  'Kul Tiran': 'Boralus — the maritime nation of Kul Tiras, seafarers and shipwrights',\n  'Mechagnome': 'Mechagon — the island of King Mechagon, partially mechanized gnomes',\n  'Orc': 'Orgrimmar — the fortress capital of the Horde in Durotar',\n  'Undead': 'The Undercity — the Forsaken stronghold beneath Lordaeron',\n  'Tauren': 'Thunder Bluff — the mesa city of the peaceful Tauren in Mulgore',\n  'Troll': 'The Echo Isles — home of the Darkspear tribe, loyal to the Horde',\n  'Blood Elf': 'Silvermoon City — the rebuilt capital of Quel\\'Thalas, powered by the Sunwell',\n  'Goblin': 'Bilgewater Harbor in Azshara — former Kezan evacuees, trade princes of the Horde',\n  'Nightborne': 'Suramar — the ancient elven city, freed from the Legion\\'s grasp',\n  'Highmountain Tauren': 'Thunder Totem in Highmountain — descendants of Huln Highmountain',\n  'Mag\\'har Orc': 'Alternate Draenor — uncorrupted orcs from the Mag\\'har clans',\n  'Zandalari Troll': 'Dazar\\'alor in Zandalar — the golden empire of the oldest troll civilization',\n  'Vulpera': 'Vol\\'dun in Zandalar — resourceful fox-folk nomads of the desert',\n  'Pandaren': 'The Wandering Isle or Pandaria — peaceful monks following the ways of balance',\n  'Dracthyr': 'The Forbidden Reach — draconic soldiers created by Neltharion',\n  'Earthen': 'Khaz Algar — titan-forged beings of living stone from the Isle of Dorn'\n};\n\nconst elementDescriptions = {\n  name: `A lore-appropriate World of Warcraft name for a ${characterRace}. Use Azeroth naming conventions fitting the race.`,\n  origin: `Where in Azeroth (or beyond) the character comes from. Consider: ${raceOrigins[characterRace] || 'a region of Azeroth'}. Name a specific city, settlement, or zone and describe how it shaped them.`,\n  strengths: 'Exactly 3 strong character traits tied to their race and class in World of Warcraft lore.',\n  weaknesses: 'Exactly 3 character flaws that create interesting roleplay opportunities in Azeroth.',\n  personality: 'A vivid 2-3 sentence description of personality, demeanor, and mannerisms befitting the World of Warcraft world.',\n  history: 'A compelling 3-5 sentence backstory referencing World of Warcraft events, factions (Horde, Alliance, Cenarion Circle, Argent Dawn, Kirin Tor, Ebon Blade), world events (Burning Crusade, Wrath of the Lich King, Cataclysm, Battle for Azeroth, Shadowlands, Dragonflight, The War Within), or other WoW lore.',\n  goal: 'Primary life goal tied to WoW lore (e.g., defend the Horde, reclaim lost lands, master arcane power, hunt demons, seek redemption).',\n  aspiration: 'What the character aspires to become — their ideal future self in the world of Azeroth.'\n};\n\nconst requestedParts = elements.map(el => elementDescriptions[el] ? `- \"${el}\": ${elementDescriptions[el]}` : null).filter(Boolean).join('\\n');\nconst formatInstructions = elements.map(el => (el === 'strengths' || el === 'weaknesses') ? `  \"${el}\": [\"trait1\", \"trait2\", \"trait3\"]` : `  \"${el}\": \"string value\"`).join(',\\n');\n\nconst userPrompt = `Generate a character backstory for a World of Warcraft character:\\n\\n- Class: ${characterClass}\\n- Race: ${characterRace}\\n- Level: ${characterLevel}\\n\\nGenerate ONLY these elements:\\n${requestedParts}\\n\\nRules:\\n1. Use official World of Warcraft lore from across all expansions (Classic through The War Within).\\n2. Reference real WoW locations, factions, world events, raids, dungeons, and cultural details.\\n3. Everything must be internally consistent with WoW canon.\\n4. \"strengths\" and \"weaknesses\" MUST be JSON arrays of exactly 3 strings each.\\n\\nRespond with JSON object (no markdown, no code fences):\\n{\\n${formatInstructions}\\n}`;\n\nreturn [{ json: { userPrompt, characterClass, characterRace, characterLevel, elements } }];"
+      },
+      "id": "c7d8e9f0-0001-4000-a000-000000000002",
+      "name": "Build WoW Backstory Prompt",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [480, 2000]
+    },
+    {
+      "parameters": {
+        "text": "={{ $json.userPrompt }}",
+        "options": {
+          "systemMessage": "You are an expert World of Warcraft lore master with encyclopedic knowledge of Azeroth, Outland, Draenor, the Shadowlands, the Dragon Isles, and Khaz Algar. You know the history of the Horde and Alliance, every expansion from Classic through The War Within, every major faction (Kirin Tor, Cenarion Circle, Knights of the Ebon Blade, Argent Crusade, Earthen Ring), every Old God, every Dragon Aspect, the Titans, the Burning Legion, the Scourge, and the Void Lords. You create rich character backstories deeply rooted in WoW lore. Respond ONLY with valid JSON objects. No markdown, no code fences.",
+          "maxIterations": 1
+        }
+      },
+      "id": "c7d8e9f0-0001-4000-a000-000000000003",
+      "name": "AI Agent - WoW Backstory",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [710, 2000]
+    },
+    {
+      "parameters": {
+        "model": "x-ai/grok-3-mini",
+        "options": { "temperature": 0.85, "maxTokens": 4000 }
+      },
+      "id": "c7d8e9f0-0001-4000-a000-000000000004",
+      "name": "OpenRouter - WoW Backstory",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [710, 2200],
+      "credentials": { "openRouterApi": { "id": "YOUR_OPENROUTER_CREDENTIAL_ID", "name": "OpenRouter API" } }
+    },
+    {
+      "parameters": {
+        "jsCode": "const aiResponse = $input.first().json.output;\nif (!aiResponse) throw new Error('No response from AI Agent');\ntry {\n  let cleaned = aiResponse.trim();\n  if (cleaned.startsWith('```json')) cleaned = cleaned.slice(7);\n  if (cleaned.startsWith('```')) cleaned = cleaned.slice(3);\n  if (cleaned.endsWith('```')) cleaned = cleaned.slice(0, -3);\n  cleaned = cleaned.trim();\n  return [{ json: JSON.parse(cleaned) }];\n} catch (error) {\n  const match = aiResponse.match(/\\{[\\s\\S]*\\}/);\n  if (match) { try { return [{ json: JSON.parse(match[0]) }]; } catch(e) {} }\n  return [{ json: { name: 'Unknown Champion', origin: 'Somewhere in the lands of Azeroth...', strengths: ['Determination', 'Adaptability', 'Courage'], weaknesses: ['Unknown past', 'Haunted memories', 'Self-doubt'], personality: 'A mysterious champion whose story is yet to unfold across Azeroth.', history: 'The Bronze Dragonflight could not reveal this tale. Please try again.', goal: 'To defend Azeroth from all threats.', aspiration: 'To become a legend remembered across both factions.' } }];\n}"
+      },
+      "id": "c7d8e9f0-0001-4000-a000-000000000005",
+      "name": "Parse WoW Backstory",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [940, 2000]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify($json) }}",
+        "options": { "responseCode": 200, "responseHeaders": { "entries": [{ "name": "Access-Control-Allow-Origin", "value": "*" }, { "name": "Access-Control-Allow-Headers", "value": "Content-Type" }] } }
+      },
+      "id": "c7d8e9f0-0001-4000-a000-000000000006",
+      "name": "Respond WoW Backstory",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [1170, 2000]
     }
   ],
   "connections": {
@@ -350,6 +422,21 @@
     },
     "Parse ES Backstory": {
       "main": [[{ "node": "Respond ES Backstory", "type": "main", "index": 0 }]]
+    },
+    "Webhook - WoW Backstory": {
+      "main": [[{ "node": "Build WoW Backstory Prompt", "type": "main", "index": 0 }]]
+    },
+    "Build WoW Backstory Prompt": {
+      "main": [[{ "node": "AI Agent - WoW Backstory", "type": "main", "index": 0 }]]
+    },
+    "OpenRouter - WoW Backstory": {
+      "ai_languageModel": [[{ "node": "AI Agent - WoW Backstory", "type": "ai_languageModel", "index": 0 }]]
+    },
+    "AI Agent - WoW Backstory": {
+      "main": [[{ "node": "Parse WoW Backstory", "type": "main", "index": 0 }]]
+    },
+    "Parse WoW Backstory": {
+      "main": [[{ "node": "Respond WoW Backstory", "type": "main", "index": 0 }]]
     }
   },
   "settings": { "executionOrder": "v1" },
@@ -358,6 +445,7 @@
     { "name": "DnD", "id": "1" },
     { "name": "AI", "id": "2" },
     { "name": "Elder Scrolls", "id": "3" },
-    { "name": "The Magic Forge", "id": "4" }
+    { "name": "The Magic Forge", "id": "4" },
+    { "name": "World of Warcraft", "id": "5" }
   ]
 }

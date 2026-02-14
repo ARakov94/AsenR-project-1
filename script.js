@@ -141,12 +141,86 @@ const UNIVERSES = {
             "A Daedric vision appears...",
             "Destiny calls from Nirn..."
         ]
+    },
+    worldofwarcraft: {
+        key: 'worldofwarcraft',
+        label: 'World of Warcraft',
+        headerIcon: '⚔️',
+        footerText: 'World of Warcraft Universe',
+        backstoryWebhook: 'https://n8n.simeontsvetanovn8nworkflows.site/webhook/wow-backstory',
+        classes: [
+            { value: '', label: '— Choose a class —' },
+            { value: 'Warrior', label: 'Warrior' },
+            { value: 'Paladin', label: 'Paladin' },
+            { value: 'Hunter', label: 'Hunter' },
+            { value: 'Rogue', label: 'Rogue' },
+            { value: 'Priest', label: 'Priest' },
+            { value: 'Shaman', label: 'Shaman' },
+            { value: 'Mage', label: 'Mage' },
+            { value: 'Warlock', label: 'Warlock' },
+            { value: 'Monk', label: 'Monk' },
+            { value: 'Druid', label: 'Druid' },
+            { value: 'Demon Hunter', label: 'Demon Hunter' },
+            { value: 'Death Knight', label: 'Death Knight' },
+            { value: 'Evoker', label: 'Evoker' }
+        ],
+        races: [
+            { value: '', label: '— Choose a race —' },
+            { value: 'Human', label: 'Human (Alliance)' },
+            { value: 'Dwarf', label: 'Dwarf (Alliance)' },
+            { value: 'Night Elf', label: 'Night Elf (Alliance)' },
+            { value: 'Gnome', label: 'Gnome (Alliance)' },
+            { value: 'Draenei', label: 'Draenei (Alliance)' },
+            { value: 'Worgen', label: 'Worgen (Alliance)' },
+            { value: 'Void Elf', label: 'Void Elf (Alliance)' },
+            { value: 'Lightforged Draenei', label: 'Lightforged Draenei (Alliance)' },
+            { value: 'Dark Iron Dwarf', label: 'Dark Iron Dwarf (Alliance)' },
+            { value: 'Kul Tiran', label: 'Kul Tiran (Alliance)' },
+            { value: 'Mechagnome', label: 'Mechagnome (Alliance)' },
+            { value: 'Orc', label: 'Orc (Horde)' },
+            { value: 'Undead', label: 'Undead (Horde)' },
+            { value: 'Tauren', label: 'Tauren (Horde)' },
+            { value: 'Troll', label: 'Troll (Horde)' },
+            { value: 'Blood Elf', label: 'Blood Elf (Horde)' },
+            { value: 'Goblin', label: 'Goblin (Horde)' },
+            { value: 'Nightborne', label: 'Nightborne (Horde)' },
+            { value: 'Highmountain Tauren', label: 'Highmountain Tauren (Horde)' },
+            { value: 'Mag\'har Orc', label: 'Mag\'har Orc (Horde)' },
+            { value: 'Zandalari Troll', label: 'Zandalari Troll (Horde)' },
+            { value: 'Vulpera', label: 'Vulpera (Horde)' },
+            { value: 'Pandaren', label: 'Pandaren (Neutral)' },
+            { value: 'Dracthyr', label: 'Dracthyr (Neutral)' },
+            { value: 'Earthen', label: 'Earthen (Neutral)' }
+        ],
+        flavorTexts: [
+            "A goblin examines the goods...",
+            "The Ethereals appraise the wares...",
+            "The forge of Light burns bright...",
+            "Thrall blesses the materials...",
+            "The Auction House buzzes...",
+            "A gnomish engineer tinkers...",
+            "The Dark Lady watches...",
+            "Dalaran merchants gather...",
+            "Champions of Azeroth arrive...",
+            "The Horde armory opens..."
+        ],
+        backstoryFlavorTexts: [
+            "The Lorewalkers recount your tale...",
+            "Chromie peers through time...",
+            "The Naaru illuminate your path...",
+            "An old god whispers...",
+            "The spirits of Azeroth speak...",
+            "Nozdormu sees your timeline...",
+            "The Earthmother remembers...",
+            "For the Horde... or the Alliance..."
+        ]
     }
 };
 
 // ===== DOM Elements =====
 const DOM = {
     headerIcon: document.getElementById('headerIcon'),
+    wowLogo: document.getElementById('wowLogo'),
     itemQuality: document.getElementById('itemQuality'),
     charClass: document.getElementById('charClass'),
     charRace: document.getElementById('charRace'),
@@ -233,8 +307,13 @@ function switchUniverse(universeKey) {
     });
     
     // Update background image
-    DOM.bgImage.classList.remove('dnd-bg', 'es-bg');
-    DOM.bgImage.classList.add(universeKey === 'elderscrolls' ? 'es-bg' : 'dnd-bg');
+    DOM.bgImage.classList.remove('dnd-bg', 'es-bg', 'wow-bg');
+    const bgMap = { dnd: 'dnd-bg', elderscrolls: 'es-bg', worldofwarcraft: 'wow-bg' };
+    DOM.bgImage.classList.add(bgMap[universeKey] || 'dnd-bg');
+    
+    // Toggle logos
+    DOM.headerIcon.style.display = universeKey === 'worldofwarcraft' ? 'none' : '';
+    DOM.wowLogo.style.display = universeKey === 'worldofwarcraft' ? '' : 'none';
     
     // Show/hide D&D-only sections
     const dndOnlySections = document.querySelectorAll('.dnd-only-section');
@@ -246,9 +325,11 @@ function switchUniverse(universeKey) {
     DOM.footerUniverse.textContent = universe.footerText;
     
     // Update body class for theme
-    document.body.classList.remove('dnd', 'elder-scrolls');
+    document.body.classList.remove('dnd', 'elder-scrolls', 'world-of-warcraft');
     if (universeKey === 'elderscrolls') {
         document.body.classList.add('elder-scrolls');
+    } else if (universeKey === 'worldofwarcraft') {
+        document.body.classList.add('world-of-warcraft');
     }
     
     // Populate dropdowns
@@ -1373,11 +1454,17 @@ function init() {
     DOM.universeTabs.forEach(tab => {
         tab.classList.toggle('active', tab.dataset.universe === savedUniverse);
     });
-    DOM.bgImage.classList.add(savedUniverse === 'elderscrolls' ? 'es-bg' : 'dnd-bg');
+    const bgMap = { dnd: 'dnd-bg', elderscrolls: 'es-bg', worldofwarcraft: 'wow-bg' };
+    DOM.bgImage.classList.add(bgMap[savedUniverse] || 'dnd-bg');
     DOM.footerUniverse.textContent = universe.footerText;
     if (savedUniverse === 'elderscrolls') {
         document.body.classList.add('elder-scrolls');
+    } else if (savedUniverse === 'worldofwarcraft') {
+        document.body.classList.add('world-of-warcraft');
     }
+    // Toggle logos for saved universe
+    DOM.headerIcon.style.display = savedUniverse === 'worldofwarcraft' ? 'none' : '';
+    DOM.wowLogo.style.display = savedUniverse === 'worldofwarcraft' ? '' : 'none';
     // Show/hide D&D-only sections
     const dndOnlySections = document.querySelectorAll('.dnd-only-section');
     dndOnlySections.forEach(el => {

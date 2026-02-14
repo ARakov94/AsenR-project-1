@@ -87,6 +87,45 @@
                     </defs>
                 </svg>
             </div>
+            <!-- WoW Logo (shown when World of Warcraft is selected) -->
+            <div class="forge-logo wow-logo" id="wowLogo" style="display: none;">
+                <svg viewBox="0 0 200 180" xmlns="http://www.w3.org/2000/svg" class="logo-svg">
+                    <!-- Shield base -->
+                    <path d="M100 10 L170 45 L170 110 Q170 150 100 175 Q30 150 30 110 L30 45 Z" fill="#1a1a3e" stroke="#0070dd" stroke-width="2.5" opacity="0.9"/>
+                    <path d="M100 18 L162 49 L162 108 Q162 144 100 167 Q38 144 38 108 L38 49 Z" fill="none" stroke="#4db8ff" stroke-width="1" opacity="0.4"/>
+                    <!-- Horde/Alliance crossed swords -->
+                    <g class="wow-swords-swing">
+                        <!-- Left sword (Alliance blue) -->
+                        <line x1="55" y1="130" x2="100" y2="40" stroke="#4db8ff" stroke-width="3" stroke-linecap="round"/>
+                        <polygon points="97,42 103,42 100,30" fill="#4db8ff"/>
+                        <line x1="65" y1="115" x2="80" y2="120" stroke="#4db8ff" stroke-width="2.5" stroke-linecap="round"/>
+                        <!-- Right sword (Horde red) -->
+                        <line x1="145" y1="130" x2="100" y2="40" stroke="#c0392b" stroke-width="3" stroke-linecap="round"/>
+                        <polygon points="97,42 103,42 100,30" fill="#c0392b"/>
+                        <line x1="135" y1="115" x2="120" y2="120" stroke="#c0392b" stroke-width="2.5" stroke-linecap="round"/>
+                    </g>
+                    <!-- Central emblem glow -->
+                    <circle cx="100" cy="85" r="22" fill="none" stroke="#0070dd" stroke-width="2" opacity="0.6" class="wow-emblem-pulse"/>
+                    <circle cx="100" cy="85" r="15" fill="rgba(0,112,221,0.15)" stroke="#4db8ff" stroke-width="1.5"/>
+                    <!-- Inner rune symbol -->
+                    <path d="M100 72 L108 82 L105 95 L100 98 L95 95 L92 82 Z" fill="#4db8ff" opacity="0.8"/>
+                    <circle cx="100" cy="83" r="4" fill="#0a0a2e" stroke="#4db8ff" stroke-width="1"/>
+                    <!-- Arcane particles -->
+                    <circle cx="70" cy="60" r="2" fill="#4db8ff" class="wow-spark ws1"/>
+                    <circle cx="130" cy="55" r="1.8" fill="#0070dd" class="wow-spark ws2"/>
+                    <circle cx="85" cy="45" r="1.5" fill="#4db8ff" class="wow-spark ws3"/>
+                    <circle cx="115" cy="48" r="2" fill="#0070dd" class="wow-spark ws4"/>
+                    <circle cx="60" cy="90" r="1.2" fill="#a335ee" class="wow-spark ws5"/>
+                    <circle cx="140" cy="95" r="1.5" fill="#a335ee" class="wow-spark ws6"/>
+                    <!-- Defs -->
+                    <defs>
+                        <radialGradient id="wowGlow">
+                            <stop offset="0%" stop-color="#4db8ff" stop-opacity="0.8"/>
+                            <stop offset="100%" stop-color="#0070dd" stop-opacity="0"/>
+                        </radialGradient>
+                    </defs>
+                </svg>
+            </div>
             <h1 class="title">The Magic Forge</h1>
             <p class="subtitle">Create your hero and forge their destiny</p>
         </header>
@@ -104,6 +143,11 @@
                     <span class="universe-tab-icon">🏔️</span>
                     <span class="universe-tab-label">Elder Scrolls</span>
                     <span class="universe-tab-sub">Tamriel</span>
+                </button>
+                <button class="universe-tab" data-universe="worldofwarcraft">
+                    <span class="universe-tab-icon">⚔️</span>
+                    <span class="universe-tab-label">World of Warcraft</span>
+                    <span class="universe-tab-sub">Azeroth</span>
                 </button>
             </div>
         </section>
@@ -428,7 +472,7 @@
         <!-- Footer -->
         <footer class="footer">
             <p>Powered by n8n & AI ⚡ | <span id="footerUniverse">D&D 5e 2024 Edition</span></p>
-            <p class="footer-small">Unofficial project — not affiliated with Wizards of the Coast or Bethesda</p>
+            <p class="footer-small">Unofficial project — not affiliated with Wizards of the Coast, Bethesda, or Blizzard Entertainment</p>
         </footer>
     </div>
 
