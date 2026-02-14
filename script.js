@@ -5,8 +5,138 @@ const CONFIG = {
     storageKey: 'n8n_webhook_url'
 };
 
+// ===== Universe Data =====
+const UNIVERSES = {
+    dnd: {
+        key: 'dnd',
+        label: 'D&D 5e',
+        headerIcon: '🐉',
+        footerText: 'D&D 5e 2024 Edition',
+        backstoryWebhook: 'https://n8n.simeontsvetanovn8nworkflows.site/webhook/dnd-backstory',
+        itemsWebhook: 'https://n8n.simeontsvetanovn8nworkflows.site/webhook/dnd-items',
+        classes: [
+            { value: '', label: '— Choose a class —' },
+            { value: 'Barbarian', label: 'Barbarian' },
+            { value: 'Bard', label: 'Bard' },
+            { value: 'Cleric', label: 'Cleric' },
+            { value: 'Druid', label: 'Druid' },
+            { value: 'Fighter', label: 'Fighter' },
+            { value: 'Monk', label: 'Monk' },
+            { value: 'Paladin', label: 'Paladin' },
+            { value: 'Ranger', label: 'Ranger' },
+            { value: 'Rogue', label: 'Rogue' },
+            { value: 'Sorcerer', label: 'Sorcerer' },
+            { value: 'Warlock', label: 'Warlock' },
+            { value: 'Wizard', label: 'Wizard' }
+        ],
+        races: [
+            { value: '', label: '— Choose a race —' },
+            { value: 'Human', label: 'Human' },
+            { value: 'Elf', label: 'Elf' },
+            { value: 'Dwarf', label: 'Dwarf' },
+            { value: 'Halfling', label: 'Halfling' },
+            { value: 'Gnome', label: 'Gnome' },
+            { value: 'Half-Orc', label: 'Half-Orc' },
+            { value: 'Tiefling', label: 'Tiefling' },
+            { value: 'Dragonborn', label: 'Dragonborn' },
+            { value: 'Goliath', label: 'Goliath' },
+            { value: 'Aasimar', label: 'Aasimar' },
+            { value: 'Orc', label: 'Orc' }
+        ],
+        flavorTexts: [
+            "The dwarves are heating the forge...",
+            "Goblins are sorting the inventory...",
+            "The wizard enchants the items...",
+            "The dragon approves the quality...",
+            "The merchant calculates prices...",
+            "Elves polish the weapons...",
+            "The innkeeper whispers rumors...",
+            "The mimic inspects the chests...",
+            "The adventurer's pack is filling up...",
+            "The artificer mixes ingredients..."
+        ],
+        backstoryFlavorTexts: [
+            "The bard tunes the lute...",
+            "The sage reads the stars...",
+            "Another prophecy unfolds...",
+            "Ancient scrolls are unfurling...",
+            "Fate weaves its threads...",
+            "The gods are watching...",
+            "The chronicler records...",
+            "The adventure begins..."
+        ]
+    },
+    elderscrolls: {
+        key: 'elderscrolls',
+        label: 'Elder Scrolls',
+        headerIcon: '🏔️',
+        footerText: 'The Elder Scrolls Universe',
+        backstoryWebhook: 'https://n8n.simeontsvetanovn8nworkflows.site/webhook/es-backstory',
+        itemsWebhook: 'https://n8n.simeontsvetanovn8nworkflows.site/webhook/es-items',
+        classes: [
+            { value: '', label: '— Choose a class —' },
+            { value: 'Dragonknight', label: 'Dragonknight' },
+            { value: 'Sorcerer', label: 'Sorcerer' },
+            { value: 'Nightblade', label: 'Nightblade' },
+            { value: 'Templar', label: 'Templar' },
+            { value: 'Warden', label: 'Warden' },
+            { value: 'Necromancer', label: 'Necromancer' },
+            { value: 'Arcanist', label: 'Arcanist' },
+            { value: 'Spellsword', label: 'Spellsword' },
+            { value: 'Battlemage', label: 'Battlemage' },
+            { value: 'Witchhunter', label: 'Witchhunter' },
+            { value: 'Scout', label: 'Scout' },
+            { value: 'Crusader', label: 'Crusader' },
+            { value: 'Agent', label: 'Agent' },
+            { value: 'Assassin', label: 'Assassin' },
+            { value: 'Healer', label: 'Healer' },
+            { value: 'Knight', label: 'Knight' },
+            { value: 'Monk', label: 'Monk' },
+            { value: 'Pilgrim', label: 'Pilgrim' },
+            { value: 'Thief', label: 'Thief' },
+            { value: 'Warrior', label: 'Warrior' }
+        ],
+        races: [
+            { value: '', label: '— Choose a race —' },
+            { value: 'Imperial', label: 'Imperial (Cyrodiil)' },
+            { value: 'Nord', label: 'Nord (Skyrim)' },
+            { value: 'Breton', label: 'Breton (High Rock)' },
+            { value: 'Redguard', label: 'Redguard (Hammerfell)' },
+            { value: 'Dunmer', label: 'Dunmer / Dark Elf (Morrowind)' },
+            { value: 'Altmer', label: 'Altmer / High Elf (Summerset)' },
+            { value: 'Bosmer', label: 'Bosmer / Wood Elf (Valenwood)' },
+            { value: 'Orsimer', label: 'Orsimer / Orc (Orsinium)' },
+            { value: 'Khajiit', label: 'Khajiit (Elsweyr)' },
+            { value: 'Argonian', label: 'Argonian (Black Marsh)' }
+        ],
+        flavorTexts: [
+            "The Khajiit inspects the wares...",
+            "A Dwemer automaton assembles parts...",
+            "The enchanter imbues the items...",
+            "A Daedric prince takes interest...",
+            "The merchant counts their septims...",
+            "The smith works the ebony...",
+            "Skooma fumes fill the workshop...",
+            "The guild master checks quality...",
+            "A Bosmer carves the wood...",
+            "The Telvanni wizard experiments..."
+        ],
+        backstoryFlavorTexts: [
+            "The Elder Scrolls reveal your fate...",
+            "An ancestor spirit speaks...",
+            "The Moth Priest reads the scrolls...",
+            "Azura's star shines brightly...",
+            "The Greybeards meditate...",
+            "The Hist tree remembers...",
+            "A Daedric vision appears...",
+            "Destiny calls from Nirn..."
+        ]
+    }
+};
+
 // ===== DOM Elements =====
 const DOM = {
+    headerIcon: document.getElementById('headerIcon'),
     charName: document.getElementById('charName'),
     charClass: document.getElementById('charClass'),
     charRace: document.getElementById('charRace'),
@@ -37,6 +167,8 @@ const DOM = {
     itemsToggle: document.getElementById('itemsToggle'),
     itemsToggleArrow: document.getElementById('itemsToggleArrow'),
     itemsCollapsible: document.getElementById('itemsCollapsible'),
+    footerUniverse: document.getElementById('footerUniverse'),
+    universeTabs: document.querySelectorAll('.universe-tab'),
     settingsBtn: document.getElementById('settingsBtn'),
     configModal: document.getElementById('configModal'),
     webhookUrl: document.getElementById('webhookUrl'),
@@ -51,45 +183,79 @@ let state = {
     itemCount: 5,
     isGenerating: false,
     isGeneratingBackstory: false,
-    itemsCollapsed: true
+    itemsCollapsed: true,
+    currentUniverse: 'dnd'
 };
 
+// ===== Universe Switching =====
+function getUniverse() {
+    return UNIVERSES[state.currentUniverse];
+}
+
+function switchUniverse(universeKey) {
+    if (state.currentUniverse === universeKey) return;
+    state.currentUniverse = universeKey;
+    
+    const universe = getUniverse();
+    
+    // Update active tab
+    DOM.universeTabs.forEach(tab => {
+        tab.classList.toggle('active', tab.dataset.universe === universeKey);
+    });
+    
+    // Update header icon
+    DOM.headerIcon.textContent = universe.headerIcon;
+    
+    // Update footer
+    DOM.footerUniverse.textContent = universe.footerText;
+    
+    // Update body class for theme
+    document.body.classList.remove('dnd', 'elder-scrolls');
+    if (universeKey === 'elderscrolls') {
+        document.body.classList.add('elder-scrolls');
+    }
+    
+    // Populate dropdowns
+    populateDropdown(DOM.charClass, universe.classes);
+    populateDropdown(DOM.charRace, universe.races);
+    
+    // Update webhook URLs
+    CONFIG.backstoryWebhookUrl = universe.backstoryWebhook;
+    CONFIG.webhookUrl = universe.itemsWebhook;
+    
+    // Clear previous results
+    DOM.backstoryResults.style.display = 'none';
+    DOM.backstoryCard.innerHTML = '';
+    DOM.results.style.display = 'none';
+    DOM.itemsGrid.innerHTML = '';
+    DOM.backstoryError.style.display = 'none';
+    DOM.errorMessage.style.display = 'none';
+    
+    // Save preference
+    localStorage.setItem('selected_universe', universeKey);
+}
+
+function populateDropdown(selectEl, options) {
+    selectEl.innerHTML = '';
+    options.forEach(opt => {
+        const option = document.createElement('option');
+        option.value = opt.value;
+        option.textContent = opt.label;
+        selectEl.appendChild(option);
+    });
+}
+
 // ===== Loading Flavor Texts =====
-const flavorTexts = [
-    "Джуджетата нагряват ковачницата...",
-    "Гоблините сортират инвентара...",
-    "Магът зачарова предметите...",
-    "Драконът одобрява качеството...",
-    "Търговецът пресмята цените...",
-    "Елфите полират оръжията...",
-    "Кръчмарят шепне слухове...",
-    "Мимикът проверява сандъците...",
-    "Багажът на приключенеца се пълни...",
-    "Артифайсърът смесва съставките..."
-];
-
-const backstoryFlavorTexts = [
-    "Бардът настройва лютнята...",
-    "Мъдрецът чете звездите...",
-    "Поредното пророчество се разкрива...",
-    "Древните свитъци се разгъват...",
-    "Съдбата се плете...",
-    "Боговете наблюдават...",
-    "Летописецът записва...",
-    "Приключението започва..."
-];
-
-// ===== Multi-Select Item Types =====
 const itemTypeLabels = {
-    weapons: '⚔️ Оръжия',
-    armor: '🛡️ Броня',
-    potions: '🧪 Отвари',
-    scrolls: '📜 Свитъци',
-    jewelry: '💍 Бижута',
-    trinkets: '🔮 Дреболии',
-    clothing: '👘 Дрехи',
-    tools: '🔧 Инструменти',
-    consumables: '🍖 Консумативи'
+    weapons: '⚔️ Weapons',
+    armor: '🛡️ Armor',
+    potions: '🧪 Potions',
+    scrolls: '📜 Scrolls',
+    jewelry: '💍 Jewelry',
+    trinkets: '🔮 Trinkets',
+    clothing: '👘 Clothing',
+    tools: '🔧 Tools',
+    consumables: '🍖 Consumables'
 };
 
 function getSelectedItemTypes() {
@@ -100,13 +266,13 @@ function getSelectedItemTypes() {
 function updateItemTypeText() {
     const selected = getSelectedItemTypes();
     if (selected.length === 0) {
-        DOM.itemTypeText.textContent = '🎲 Смесени (всички видове)';
+        DOM.itemTypeText.textContent = '🎲 Mixed (all types)';
     } else if (selected.length === 1) {
         DOM.itemTypeText.textContent = itemTypeLabels[selected[0]] || selected[0];
     } else if (selected.length <= 3) {
-        DOM.itemTypeText.textContent = selected.map(s => itemTypeLabels[s].split(' ')[0]).join('') + ' ' + selected.length + ' вида';
+        DOM.itemTypeText.textContent = selected.map(s => itemTypeLabels[s].split(' ')[0]).join('') + ' ' + selected.length + ' types';
     } else {
-        DOM.itemTypeText.textContent = '🎯 ' + selected.length + ' вида избрани';
+        DOM.itemTypeText.textContent = '🎯 ' + selected.length + ' types selected';
     }
 }
 
@@ -190,15 +356,16 @@ function saveSettings() {
 
 // ===== Show/Hide Helpers =====
 function showLoading() {
+    const universe = getUniverse();
     DOM.loading.style.display = 'block';
     DOM.results.style.display = 'none';
     DOM.errorMessage.style.display = 'none';
     DOM.generateBtn.disabled = true;
     
     // Rotating flavor text
-    DOM.loadingFlavor.textContent = flavorTexts[Math.floor(Math.random() * flavorTexts.length)];
+    DOM.loadingFlavor.textContent = universe.flavorTexts[Math.floor(Math.random() * universe.flavorTexts.length)];
     state.flavorInterval = setInterval(() => {
-        DOM.loadingFlavor.textContent = flavorTexts[Math.floor(Math.random() * flavorTexts.length)];
+        DOM.loadingFlavor.textContent = universe.flavorTexts[Math.floor(Math.random() * universe.flavorTexts.length)];
     }, 2500);
 }
 
@@ -232,40 +399,16 @@ function getItemEmoji(type) {
     if (!type) return '📦';
     const t = type.toLowerCase();
     const emojiMap = {
-        'weapon': '⚔️',
-        'sword': '🗡️',
-        'axe': '🪓',
-        'bow': '🏹',
-        'staff': '🪄',
-        'wand': '🪄',
-        'armor': '🛡️',
-        'shield': '🛡️',
-        'helmet': '⛑️',
-        'potion': '🧪',
-        'ring': '💍',
-        'amulet': '📿',
-        'necklace': '📿',
-        'scroll': '📜',
-        'book': '📖',
-        'tome': '📖',
-        'cloak': '🧥',
-        'boots': '👢',
-        'gloves': '🧤',
-        'trinket': '🔮',
-        'tool': '🔧',
-        'instrument': '🎵',
-        'bag': '👝',
-        'pack': '🎒',
-        'food': '🍖',
-        'drink': '🍺',
-        'gem': '💎',
-        'coin': '🪙',
-        'key': '🗝️',
-        'map': '🗺️',
-        'torch': '🔥',
-        'rope': '🪢',
-        'clothing': '👘',
-        'misc': '📦'
+        'weapon': '⚔️', 'sword': '🗡️', 'axe': '🪓', 'bow': '🏹',
+        'staff': '🪄', 'wand': '🪄', 'armor': '🛡️', 'shield': '🛡️',
+        'helmet': '⛑️', 'potion': '🧪', 'ring': '💍', 'amulet': '📿',
+        'necklace': '📿', 'scroll': '📜', 'book': '📖', 'tome': '📖',
+        'cloak': '🧥', 'boots': '👢', 'gloves': '🧤', 'trinket': '🔮',
+        'tool': '🔧', 'instrument': '🎵', 'bag': '👝', 'pack': '🎒',
+        'food': '🍖', 'drink': '🍺', 'gem': '💎', 'coin': '🪙',
+        'key': '🗝️', 'map': '🗺️', 'torch': '🔥', 'rope': '🪢',
+        'clothing': '👘', 'misc': '📦', 'soul gem': '💜', 'ingot': '🧱',
+        'dagger': '🗡️', 'mace': '🔨', 'greatsword': '⚔️'
     };
     
     for (const [key, emoji] of Object.entries(emojiMap)) {
@@ -330,7 +473,6 @@ function getCustomBackstoryValues() {
             if (input && input.value.trim()) {
                 const key = input.dataset.element;
                 if (key === 'strengths' || key === 'weaknesses') {
-                    // Split by newlines into array
                     customValues[key] = input.value.split('\n').map(s => s.trim()).filter(Boolean);
                 } else {
                     customValues[key] = input.value.trim();
@@ -342,11 +484,9 @@ function getCustomBackstoryValues() {
 }
 
 function getAllBackstoryElements() {
-    // Returns all element keys that have either a checkmark (AI) or custom value
     const aiElements = getSelectedBackstoryElements();
     const customValues = getCustomBackstoryValues();
     const customElements = Object.keys(customValues);
-    // Preserve order from the full list
     const allKeys = ['name', 'origin', 'strengths', 'weaknesses', 'personality', 'history', 'goal', 'aspiration'];
     return allKeys.filter(k => aiElements.includes(k) || customElements.includes(k));
 }
@@ -363,7 +503,6 @@ function setupBackstoryCheckboxToggles() {
             } else {
                 customInput.style.display = 'block';
                 wrapper.classList.add('custom-mode');
-                // Focus the input
                 const field = customInput.querySelector('input, textarea');
                 if (field) setTimeout(() => field.focus(), 50);
             }
@@ -372,25 +511,26 @@ function setupBackstoryCheckboxToggles() {
 }
 
 const backstoryElementLabels = {
-    name: { emoji: '🏷️', title: 'Име' },
-    origin: { emoji: '🌍', title: 'Родно място' },
-    strengths: { emoji: '💪', title: 'Силни черти' },
-    weaknesses: { emoji: '😰', title: 'Слаби черти' },
-    personality: { emoji: '🎭', title: 'Характер' },
-    history: { emoji: '📖', title: 'История и произход' },
-    goal: { emoji: '🎯', title: 'Цел в живота' },
-    aspiration: { emoji: '⭐', title: 'Към какво се стреми' }
+    name: { emoji: '🏷️', title: 'Name' },
+    origin: { emoji: '🌍', title: 'Place of Origin' },
+    strengths: { emoji: '💪', title: 'Strengths' },
+    weaknesses: { emoji: '😰', title: 'Weaknesses' },
+    personality: { emoji: '🎭', title: 'Personality' },
+    history: { emoji: '📖', title: 'History & Background' },
+    goal: { emoji: '🎯', title: 'Life Goal' },
+    aspiration: { emoji: '⭐', title: 'Aspiration' }
 };
 
 function showBackstoryLoading() {
+    const universe = getUniverse();
     DOM.backstoryLoading.style.display = 'block';
     DOM.backstoryResults.style.display = 'none';
     DOM.backstoryError.style.display = 'none';
     DOM.generateBackstoryBtn.disabled = true;
     
-    DOM.backstoryLoadingFlavor.textContent = backstoryFlavorTexts[Math.floor(Math.random() * backstoryFlavorTexts.length)];
+    DOM.backstoryLoadingFlavor.textContent = universe.backstoryFlavorTexts[Math.floor(Math.random() * universe.backstoryFlavorTexts.length)];
     state.backstoryFlavorInterval = setInterval(() => {
-        DOM.backstoryLoadingFlavor.textContent = backstoryFlavorTexts[Math.floor(Math.random() * backstoryFlavorTexts.length)];
+        DOM.backstoryLoadingFlavor.textContent = universe.backstoryFlavorTexts[Math.floor(Math.random() * universe.backstoryFlavorTexts.length)];
     }, 2500);
 }
 
@@ -445,12 +585,12 @@ async function generateBackstory() {
     const charRace = DOM.charRace.value;
     
     if (!charClass) {
-        showBackstoryError('Моля, избери клас за своя герой.');
+        showBackstoryError('Please choose a class for your character.');
         return;
     }
     
     if (!charRace) {
-        showBackstoryError('Моля, избери раса за своя герой.');
+        showBackstoryError('Please choose a race for your character.');
         return;
     }
     
@@ -459,7 +599,7 @@ async function generateBackstory() {
     const allElements = getAllBackstoryElements();
     
     if (allElements.length === 0) {
-        showBackstoryError('Моля, избери поне един елемент или въведи свои стойности.');
+        showBackstoryError('Please select at least one element or enter your own values.');
         return;
     }
 
@@ -476,7 +616,8 @@ async function generateBackstory() {
         characterClass: charClass,
         characterRace: charRace,
         characterLevel: parseInt(DOM.charLevel.value),
-        elements: aiElements
+        elements: aiElements,
+        universe: state.currentUniverse
     };
 
     try {
@@ -488,19 +629,19 @@ async function generateBackstory() {
 
         if (!response.ok) {
             const errorText = await response.text();
-            throw new Error(`Сървърът отговори с код ${response.status}: ${errorText || 'Няма допълнителна информация'}`);
+            throw new Error(`Server responded with code ${response.status}: ${errorText || 'No additional info'}`);
         }
 
         const responseText = await response.text();
         if (!responseText || responseText.trim() === '') {
-            throw new Error('Сървърът върна празен отговор. Провери дали n8n workflow-ът е активен.');
+            throw new Error('Server returned empty response. Check if the n8n workflow is active.');
         }
 
         let data;
         try {
             data = JSON.parse(responseText);
         } catch (parseErr) {
-            throw new Error(`Невалиден JSON отговор: ${responseText.substring(0, 200)}`);
+            throw new Error(`Invalid JSON response: ${responseText.substring(0, 200)}`);
         }
         
         // Handle different response formats
@@ -521,9 +662,9 @@ async function generateBackstory() {
     } catch (error) {
         console.error('Backstory generation error:', error);
         if (error.name === 'TypeError' && error.message.includes('fetch')) {
-            showBackstoryError('Няма връзка със сървъра. Провери дали n8n работи.');
+            showBackstoryError('Cannot connect to server. Check if n8n is running.');
         } else {
-            showBackstoryError(error.message || 'Възникна грешка при създаването на историята.');
+            showBackstoryError(error.message || 'An error occurred while creating the backstory.');
         }
     } finally {
         state.isGeneratingBackstory = false;
@@ -537,7 +678,7 @@ async function generateItems() {
     // Validation
     if (!CONFIG.webhookUrl) {
         openSettings();
-        showError('Моля, задай адреса на n8n сървъра в настройките (⚙️).');
+        showError('Please set the n8n server address in settings (⚙️).');
         return;
     }
     
@@ -545,12 +686,12 @@ async function generateItems() {
     const charRace = DOM.charRace.value;
     
     if (!charClass) {
-        showError('Моля, избери клас за своя герой.');
+        showError('Please choose a class for your character.');
         return;
     }
     
     if (!charRace) {
-        showError('Моля, избери раса за своя герой.');
+        showError('Please choose a race for your character.');
         return;
     }
 
@@ -564,7 +705,8 @@ async function generateItems() {
         characterLevel: parseInt(DOM.charLevel.value),
         spiciness: parseInt(DOM.spicySlider.value),
         itemCount: state.itemCount,
-        itemTypes: getSelectedItemTypes()
+        itemTypes: getSelectedItemTypes(),
+        universe: state.currentUniverse
     };
 
     try {
@@ -576,19 +718,19 @@ async function generateItems() {
 
         if (!response.ok) {
             const errorText = await response.text();
-            throw new Error(`Сървърът отговори с код ${response.status}: ${errorText || 'Няма допълнителна информация'}`);
+            throw new Error(`Server responded with code ${response.status}: ${errorText || 'No additional info'}`);
         }
 
         const responseText = await response.text();
         if (!responseText || responseText.trim() === '') {
-            throw new Error('Сървърът върна празен отговор. Провери дали n8n workflow-ът е активен и работи правилно.');
+            throw new Error('Server returned empty response. Check if the n8n workflow is active.');
         }
 
         let data;
         try {
             data = JSON.parse(responseText);
         } catch (parseErr) {
-            throw new Error(`Невалиден JSON отговор от сървъра: ${responseText.substring(0, 200)}`);
+            throw new Error(`Invalid JSON response from server: ${responseText.substring(0, 200)}`);
         }
         
         // Handle different response formats from n8n
@@ -598,7 +740,6 @@ async function generateItems() {
         } else if (data.items && Array.isArray(data.items)) {
             items = data.items;
         } else if (data.output) {
-            // If n8n returns a stringified JSON
             try {
                 const parsed = JSON.parse(data.output);
                 items = Array.isArray(parsed) ? parsed : parsed.items || [parsed];
@@ -615,9 +756,9 @@ async function generateItems() {
     } catch (error) {
         console.error('Generation error:', error);
         if (error.name === 'TypeError' && error.message.includes('fetch')) {
-            showError('Няма връзка със сървъра. Провери дали n8n работи и дали адресът е правилен.');
+            showError('Cannot connect to server. Check if n8n is running and the address is correct.');
         } else {
-            showError(error.message || 'Възникна грешка при създаването на предметите.');
+            showError(error.message || 'An error occurred while creating the items.');
         }
     } finally {
         state.isGenerating = false;
@@ -633,6 +774,13 @@ DOM.saveConfig.addEventListener('click', saveSettings);
 DOM.cancelConfig.addEventListener('click', closeSettings);
 DOM.configModal.addEventListener('click', (e) => {
     if (e.target === DOM.configModal) closeSettings();
+});
+
+// Universe tab switching
+DOM.universeTabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+        switchUniverse(tab.dataset.universe);
+    });
 });
 
 // Collapsible items section
@@ -654,6 +802,23 @@ function init() {
     setupCountButtons();
     setupItemTypeMultiSelect();
     setupBackstoryCheckboxToggles();
+    
+    // Restore saved universe or default to dnd
+    const savedUniverse = localStorage.getItem('selected_universe') || 'dnd';
+    state.currentUniverse = savedUniverse;
+    
+    // Initialize the universe (populates dropdowns, sets theme)
+    const universe = getUniverse();
+    DOM.universeTabs.forEach(tab => {
+        tab.classList.toggle('active', tab.dataset.universe === savedUniverse);
+    });
+    DOM.headerIcon.textContent = universe.headerIcon;
+    DOM.footerUniverse.textContent = universe.footerText;
+    if (savedUniverse === 'elderscrolls') {
+        document.body.classList.add('elder-scrolls');
+    }
+    populateDropdown(DOM.charClass, universe.classes);
+    populateDropdown(DOM.charRace, universe.races);
     
     // Prompt for webhook if not set
     if (!CONFIG.webhookUrl) {

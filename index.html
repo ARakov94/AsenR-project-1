@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="bg">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>D&D 5e 2024 — Генератор на герои и предмети</title>
+    <title>The Magic Forge — Character & Item Generator</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚔️</text></svg>">
@@ -17,61 +17,55 @@
     <div class="container">
         <!-- Header -->
         <header class="header">
-            <div class="dragon-icon">🐉</div>
-            <h1 class="title">D&D 5e Ковачница</h1>
-            <p class="subtitle">Създай своя герой и неговата история — Издание 2024</p>
+            <div class="dragon-icon" id="headerIcon">🐉</div>
+            <h1 class="title">The Magic Forge</h1>
+            <p class="subtitle">Create your hero and forge their destiny</p>
         </header>
+
+        <!-- Universe Selector -->
+        <section class="card universe-selector">
+            <h2 class="card-title">🌌 Choose Your Universe</h2>
+            <div class="universe-tabs">
+                <button class="universe-tab active" data-universe="dnd">
+                    <span class="universe-tab-icon">🐉</span>
+                    <span class="universe-tab-label">D&D 5e</span>
+                    <span class="universe-tab-sub">Forgotten Realms</span>
+                </button>
+                <button class="universe-tab" data-universe="elderscrolls">
+                    <span class="universe-tab-icon">🏔️</span>
+                    <span class="universe-tab-label">Elder Scrolls</span>
+                    <span class="universe-tab-sub">Tamriel</span>
+                </button>
+            </div>
+        </section>
 
         <!-- Character Setup -->
         <section class="card character-setup">
-            <h2 class="card-title">⚔️ Основни настройки</h2>
+            <h2 class="card-title">⚔️ Basic Settings</h2>
             
             <div class="form-grid">
                 <div class="form-group">
-                    <label for="charClass">Клас</label>
+                    <label for="charClass">Class</label>
                     <select id="charClass">
-                        <option value="">— Избери клас —</option>
-                        <option value="Barbarian">Barbarian (Варварин)</option>
-                        <option value="Bard">Bard (Бард)</option>
-                        <option value="Cleric">Cleric (Жрец)</option>
-                        <option value="Druid">Druid (Друид)</option>
-                        <option value="Fighter">Fighter (Боец)</option>
-                        <option value="Monk">Monk (Монах)</option>
-                        <option value="Paladin">Paladin (Паладин)</option>
-                        <option value="Ranger">Ranger (Рейнджър)</option>
-                        <option value="Rogue">Rogue (Мошеник)</option>
-                        <option value="Sorcerer">Sorcerer (Магьосник)</option>
-                        <option value="Warlock">Warlock (Чернокнижник)</option>
-                        <option value="Wizard">Wizard (Вълшебник)</option>
+                        <!-- Populated by JS based on universe -->
                     </select>
                 </div>
 
                 <div class="form-group">
-                    <label for="charRace">Раса</label>
+                    <label for="charRace">Race</label>
                     <select id="charRace">
-                        <option value="">— Избери раса —</option>
-                        <option value="Human">Human (Човек)</option>
-                        <option value="Elf">Elf (Елф)</option>
-                        <option value="Dwarf">Dwarf (Джудже)</option>
-                        <option value="Halfling">Halfling (Хафлинг)</option>
-                        <option value="Gnome">Gnome (Гном)</option>
-                        <option value="Half-Orc">Half-Orc (Полуорк)</option>
-                        <option value="Tiefling">Tiefling (Тийфлинг)</option>
-                        <option value="Dragonborn">Dragonborn (Драконороден)</option>
-                        <option value="Goliath">Goliath (Голиат)</option>
-                        <option value="Aasimar">Aasimar (Аасимар)</option>
-                        <option value="Orc">Orc (Орк)</option>
+                        <!-- Populated by JS based on universe -->
                     </select>
                 </div>
 
                 <div class="form-group">
-                    <label for="charLevel">Ниво</label>
+                    <label for="charLevel">Level</label>
                     <select id="charLevel">
-                        <option value="1" selected>Ниво 1</option>
-                        <option value="2">Ниво 2</option>
-                        <option value="3">Ниво 3</option>
-                        <option value="4">Ниво 4</option>
-                        <option value="5">Ниво 5</option>
+                        <option value="1" selected>Level 1</option>
+                        <option value="2">Level 2</option>
+                        <option value="3">Level 3</option>
+                        <option value="4">Level 4</option>
+                        <option value="5">Level 5</option>
                     </select>
                 </div>
             </div>
@@ -79,71 +73,71 @@
 
         <!-- Backstory Elements Selection -->
         <section class="card backstory-setup">
-            <h2 class="card-title">📜 Елементи на героя</h2>
-            <p class="backstory-desc">Отметнати = генерирани от AI. Премахни отметка = въведи своя стойност.</p>
+            <h2 class="card-title">📜 Character Elements</h2>
+            <p class="backstory-desc">Checked = AI generated. Unchecked = enter your own value.</p>
             <div class="backstory-checkboxes">
                 <div class="backstory-option-wrapper">
                     <label class="backstory-option">
-                        <input type="checkbox" value="name" checked> <span>🏷️ Име на героя</span>
+                        <input type="checkbox" value="name" checked> <span>🏷️ Character Name</span>
                     </label>
                     <div class="backstory-custom-input" style="display: none;">
-                        <input type="text" data-element="name" placeholder="Въведи име на героя...">
+                        <input type="text" data-element="name" placeholder="Enter character name...">
                     </div>
                 </div>
                 <div class="backstory-option-wrapper">
                     <label class="backstory-option">
-                        <input type="checkbox" value="origin" checked> <span>🌍 От къде е (родно място)</span>
+                        <input type="checkbox" value="origin" checked> <span>🌍 Place of Origin</span>
                     </label>
                     <div class="backstory-custom-input" style="display: none;">
-                        <input type="text" data-element="origin" placeholder="Напр. Waterdeep, малко село в планините...">
+                        <input type="text" data-element="origin" placeholder="e.g. Waterdeep, a small mountain village...">
                     </div>
                 </div>
                 <div class="backstory-option-wrapper">
                     <label class="backstory-option">
-                        <input type="checkbox" value="strengths" checked> <span>💪 Силни черти</span>
+                        <input type="checkbox" value="strengths" checked> <span>💪 Strengths</span>
                     </label>
                     <div class="backstory-custom-input" style="display: none;">
-                        <textarea data-element="strengths" placeholder="Въведи силни черти (по една на ред)..." rows="3"></textarea>
+                        <textarea data-element="strengths" placeholder="Enter strengths (one per line)..." rows="3"></textarea>
                     </div>
                 </div>
                 <div class="backstory-option-wrapper">
                     <label class="backstory-option">
-                        <input type="checkbox" value="weaknesses" checked> <span>😰 Слаби черти</span>
+                        <input type="checkbox" value="weaknesses" checked> <span>😰 Weaknesses</span>
                     </label>
                     <div class="backstory-custom-input" style="display: none;">
-                        <textarea data-element="weaknesses" placeholder="Въведи слаби черти (по една на ред)..." rows="3"></textarea>
+                        <textarea data-element="weaknesses" placeholder="Enter weaknesses (one per line)..." rows="3"></textarea>
                     </div>
                 </div>
                 <div class="backstory-option-wrapper">
                     <label class="backstory-option">
-                        <input type="checkbox" value="personality" checked> <span>🎭 Характер</span>
+                        <input type="checkbox" value="personality" checked> <span>🎭 Personality</span>
                     </label>
                     <div class="backstory-custom-input" style="display: none;">
-                        <textarea data-element="personality" placeholder="Опиши характера на героя..." rows="2"></textarea>
+                        <textarea data-element="personality" placeholder="Describe the character's personality..." rows="2"></textarea>
                     </div>
                 </div>
                 <div class="backstory-option-wrapper">
                     <label class="backstory-option">
-                        <input type="checkbox" value="history" checked> <span>📖 История и произход</span>
+                        <input type="checkbox" value="history" checked> <span>📖 History & Background</span>
                     </label>
                     <div class="backstory-custom-input" style="display: none;">
-                        <textarea data-element="history" placeholder="Разкажи историята на героя..." rows="3"></textarea>
+                        <textarea data-element="history" placeholder="Tell the character's backstory..." rows="3"></textarea>
                     </div>
                 </div>
                 <div class="backstory-option-wrapper">
                     <label class="backstory-option">
-                        <input type="checkbox" value="goal" checked> <span>🎯 Цел в живота</span>
+                        <input type="checkbox" value="goal" checked> <span>🎯 Life Goal</span>
                     </label>
                     <div class="backstory-custom-input" style="display: none;">
-                        <textarea data-element="goal" placeholder="Каква е целта на героя..." rows="2"></textarea>
+                        <textarea data-element="goal" placeholder="What is the character's goal..." rows="2"></textarea>
                     </div>
                 </div>
                 <div class="backstory-option-wrapper">
                     <label class="backstory-option">
-                        <input type="checkbox" value="aspiration" checked> <span>⭐ Към какво се стреми</span>
+                        <input type="checkbox" value="aspiration" checked> <span>⭐ Aspiration</span>
                     </label>
                     <div class="backstory-custom-input" style="display: none;">
-                        <textarea data-element="aspiration" placeholder="Към какво се стреми героят..." rows="2"></textarea>
+                        <textarea data-element="aspiration" placeholder="What does the character aspire to..." rows="2"></textarea>
                     </div>
                 </div>
             </div>
@@ -153,14 +147,14 @@
         <div class="generate-section">
             <button id="generateBackstoryBtn" class="generate-btn backstory-btn">
                 <span class="btn-icon">📜</span>
-                <span class="btn-text">Генерирай герой!</span>
+                <span class="btn-text">Generate Character!</span>
             </button>
         </div>
 
         <!-- Backstory Loading -->
         <div class="loading" id="backstoryLoading" style="display: none;">
             <div class="loading-spinner"></div>
-            <p class="loading-text">Бардът разказва историята... 📜</p>
+            <p class="loading-text">The bard tells the tale... 📜</p>
             <p class="loading-flavor" id="backstoryLoadingFlavor"></p>
         </div>
 
@@ -171,7 +165,7 @@
 
         <!-- Backstory Results -->
         <section class="backstory-results" id="backstoryResults" style="display: none;">
-            <h2 class="results-title">🧙 Твоят герой</h2>
+            <h2 class="results-title">🧙 Your Character</h2>
             <div class="backstory-card" id="backstoryCard"></div>
         </section>
 
@@ -185,7 +179,7 @@
         <!-- Items Section (Secondary) -->
         <section class="card items-section-header" id="itemsSectionHeader">
             <button class="collapsible-toggle" id="itemsToggle">
-                <h2 class="card-title" style="margin-bottom:0; border-bottom:none; padding-bottom:0; cursor:pointer;">🎒 Генератор на предмети <span class="toggle-arrow" id="itemsToggleArrow">▾</span></h2>
+                <h2 class="card-title" style="margin-bottom:0; border-bottom:none; padding-bottom:0; cursor:pointer;">🎒 Item Generator <span class="toggle-arrow" id="itemsToggleArrow">▾</span></h2>
             </button>
         </section>
 
@@ -195,43 +189,43 @@
         <section class="card">
             <div class="form-grid">
                 <div class="form-group">
-                    <label for="charName">Име на героя <span class="optional-label">(по избор)</span></label>
-                    <input type="text" id="charName" placeholder="напр. Тордек Огнебрадия">
+                    <label for="charName">Character Name <span class="optional-label">(optional)</span></label>
+                    <input type="text" id="charName" placeholder="e.g. Tordek Firebeard">
                 </div>
                 <div class="form-group">
-                    <label>Вид предмети</label>
+                    <label>Item Types</label>
                     <div class="multi-select" id="itemTypeSelect">
                         <button type="button" class="multi-select-toggle" id="itemTypeToggle">
-                            <span class="multi-select-text">🎲 Смесени (всички видове)</span>
+                            <span class="multi-select-text">🎲 Mixed (all types)</span>
                             <span class="multi-select-arrow">▾</span>
                         </button>
                         <div class="multi-select-dropdown" id="itemTypeDropdown">
                             <label class="multi-select-option">
-                                <input type="checkbox" value="weapons"> <span>⚔️ Оръжия</span>
+                                <input type="checkbox" value="weapons"> <span>⚔️ Weapons</span>
                             </label>
                             <label class="multi-select-option">
-                                <input type="checkbox" value="armor"> <span>🛡️ Броня и щитове</span>
+                                <input type="checkbox" value="armor"> <span>🛡️ Armor & Shields</span>
                             </label>
                             <label class="multi-select-option">
-                                <input type="checkbox" value="potions"> <span>🧪 Отвари</span>
+                                <input type="checkbox" value="potions"> <span>🧪 Potions</span>
                             </label>
                             <label class="multi-select-option">
-                                <input type="checkbox" value="scrolls"> <span>📜 Свитъци и книги</span>
+                                <input type="checkbox" value="scrolls"> <span>📜 Scrolls & Books</span>
                             </label>
                             <label class="multi-select-option">
-                                <input type="checkbox" value="jewelry"> <span>💍 Бижута (пръстени, амулети)</span>
+                                <input type="checkbox" value="jewelry"> <span>💍 Jewelry (rings, amulets)</span>
                             </label>
                             <label class="multi-select-option">
-                                <input type="checkbox" value="trinkets"> <span>🔮 Дреболии и талисмани</span>
+                                <input type="checkbox" value="trinkets"> <span>🔮 Trinkets & Talismans</span>
                             </label>
                             <label class="multi-select-option">
-                                <input type="checkbox" value="clothing"> <span>👘 Дрехи и обувки</span>
+                                <input type="checkbox" value="clothing"> <span>👘 Clothing & Footwear</span>
                             </label>
                             <label class="multi-select-option">
-                                <input type="checkbox" value="tools"> <span>🔧 Инструменти</span>
+                                <input type="checkbox" value="tools"> <span>🔧 Tools</span>
                             </label>
                             <label class="multi-select-option">
-                                <input type="checkbox" value="consumables"> <span>🍖 Консумативи (храна, напитки)</span>
+                                <input type="checkbox" value="consumables"> <span>🍖 Consumables (food, drinks)</span>
                             </label>
                         </div>
                     </div>
@@ -241,15 +235,15 @@
 
         <!-- Spiciness Slider -->
         <section class="card spiciness-section">
-            <h2 class="card-title">🌶️ Ниво на пикантност</h2>
-            <p class="spiciness-desc">Колко... <em>дръзки</em> да бъдат предметите?</p>
+            <h2 class="card-title">🌶️ Spiciness Level</h2>
+            <p class="spiciness-desc">How... <em>daring</em> should the items be?</p>
             
             <div class="slider-container">
                 <div class="slider-labels">
-                    <span class="label-safe">🛡️ Безопасно</span>
-                    <span class="label-mild">😏 Леко</span>
-                    <span class="label-spicy">🔥 Пикантно</span>
-                    <span class="label-hot">😈 Дяволско</span>
+                    <span class="label-safe">🛡️ Safe</span>
+                    <span class="label-mild">😏 Mild</span>
+                    <span class="label-spicy">🔥 Spicy</span>
+                    <span class="label-hot">😈 Devilish</span>
                 </div>
                 <input type="range" id="spicySlider" min="0" max="100" value="0" class="spicy-slider">
                 <div class="slider-value-display">
@@ -257,14 +251,14 @@
                     <span id="spicyEmoji">🛡️</span>
                 </div>
                 <p class="age-warning" id="ageWarning" style="display: none;">
-                    ⚠️ Внимание: Съдържанието може да е неподходящо за лица под 18 години
+                    ⚠️ Warning: Content may be unsuitable for persons under 18
                 </p>
             </div>
         </section>
 
         <!-- Item Count -->
         <section class="card">
-            <h2 class="card-title">📦 Брой предмети</h2>
+            <h2 class="card-title">📦 Item Count</h2>
             <div class="item-count-selector">
                 <button class="count-btn" data-count="3">3</button>
                 <button class="count-btn active" data-count="5">5</button>
@@ -277,14 +271,14 @@
         <div class="generate-section">
             <button id="generateBtn" class="generate-btn items-btn">
                 <span class="btn-icon">⚒️</span>
-                <span class="btn-text">Генерирай предмети!</span>
+                <span class="btn-text">Generate Items!</span>
             </button>
         </div>
 
         <!-- Loading -->
         <div class="loading" id="loading" style="display: none;">
             <div class="loading-spinner"></div>
-            <p class="loading-text">Ковачницата работи... ⚒️</p>
+            <p class="loading-text">The forge is working... ⚒️</p>
             <p class="loading-flavor" id="loadingFlavor"></p>
         </div>
 
@@ -295,7 +289,7 @@
 
         <!-- Item Results -->
         <section class="results" id="results" style="display: none;">
-            <h2 class="results-title">🎒 Твоите предмети</h2>
+            <h2 class="results-title">🎒 Your Items</h2>
             <div class="items-grid" id="itemsGrid"></div>
         </section>
 
@@ -303,28 +297,28 @@
 
         <!-- Footer -->
         <footer class="footer">
-            <p>Powered by n8n & AI ⚡ | D&D 5e 2024 Edition</p>
-            <p class="footer-small">Неофициален проект — няма връзка с Wizards of the Coast</p>
+            <p>Powered by n8n & AI ⚡ | <span id="footerUniverse">D&D 5e 2024 Edition</span></p>
+            <p class="footer-small">Unofficial project — not affiliated with Wizards of the Coast or Bethesda</p>
         </footer>
     </div>
 
     <!-- n8n Config Modal -->
     <div class="modal-overlay" id="configModal" style="display: none;">
         <div class="modal">
-            <h3>⚙️ Настройки на връзката</h3>
+            <h3>⚙️ Connection Settings</h3>
             <div class="form-group">
                 <label for="webhookUrl">n8n Webhook URL</label>
                 <input type="url" id="webhookUrl" placeholder="https://your-n8n.example.com/webhook/dnd-items">
             </div>
             <div class="modal-buttons">
-                <button id="saveConfig" class="btn-save">Запази</button>
-                <button id="cancelConfig" class="btn-cancel">Отказ</button>
+                <button id="saveConfig" class="btn-save">Save</button>
+                <button id="cancelConfig" class="btn-cancel">Cancel</button>
             </div>
         </div>
     </div>
 
     <!-- Settings gear -->
-    <button class="settings-btn" id="settingsBtn" title="n8n настройки">⚙️</button>
+    <button class="settings-btn" id="settingsBtn" title="n8n settings">⚙️</button>
 
     <script src="script.js"></script>
 </body>

@@ -1,17 +1,15 @@
 {
-  "name": "DnD 5e Hero & Item Generator",
+  "name": "The Magic Forge — Hero & Item Generator",
   "nodes": [
     {
       "parameters": {
         "httpMethod": "POST",
         "path": "dnd-items",
         "responseMode": "responseNode",
-        "options": {
-          "allowedOrigins": "*"
-        }
+        "options": { "allowedOrigins": "*" }
       },
       "id": "d1a2b3c4-0001-4000-a000-000000000001",
-      "name": "Webhook",
+      "name": "Webhook - DnD Items",
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2,
       "position": [250, 300],
@@ -19,10 +17,10 @@
     },
     {
       "parameters": {
-        "jsCode": "// Extract input from the webhook body\nconst input = $input.first().json.body;\n\nconst characterName = input.characterName || '';\nconst characterClass = input.characterClass || 'Fighter';\nconst characterRace = input.characterRace || 'Human';\nconst characterLevel = input.characterLevel || 1;\nconst spiciness = input.spiciness || 0;\nconst itemCount = input.itemCount || 5;\nconst itemTypes = input.itemTypes || [];\n\n// Determine spiciness instruction\nlet spicyInstruction = '';\nif (spiciness < 25) {\n  spicyInstruction = 'Keep all items completely family-friendly and suitable for all ages. Standard D&D fantasy items.';\n} else if (spiciness < 50) {\n  spicyInstruction = 'Items can have mildly suggestive or cheeky names and descriptions. Think tavern humor - innuendos and playful double meanings, but nothing explicit.';\n} else if (spiciness < 75) {\n  spicyInstruction = 'Items should have clearly suggestive, flirty, or risqué themes. Adult humor is encouraged - think burlesque D&D. Names and descriptions can be provocative but not vulgar.';\n} else {\n  spicyInstruction = 'Items should be boldly adult-themed with explicit humor, provocative descriptions, and unapologetically 18+ content. Be creative and daring with innuendo and adult themes, but maintain a sense of humor and D&D fantasy flavor.';\n}\n\n// Item type filter instruction\nconst typeMap = {\n  weapons: 'weapons (swords, axes, bows, daggers, staves, etc.)',\n  armor: 'armor and shields (plate, chain, leather, shields, helmets, etc.)',\n  potions: 'potions and elixirs',\n  scrolls: 'scrolls, spellbooks, and magical tomes',\n  jewelry: 'jewelry (rings, amulets, necklaces, bracelets, etc.)',\n  trinkets: 'trinkets, curiosities, and talismans',\n  clothing: 'clothing, cloaks, boots, and wearable items',\n  tools: 'tools and utility items',\n  consumables: 'consumable items (food, drinks, throwables, etc.)'\n};\n\nlet itemTypeInstruction = '';\nif (itemTypes.length === 1) {\n  itemTypeInstruction = `\\nIMPORTANT: ALL ${itemCount} items MUST be ${typeMap[itemTypes[0]] || itemTypes[0]}. Do not include other item types.`;\n} else if (itemTypes.length > 1) {\n  const typeNames = itemTypes.map(t => typeMap[t] || t).join(', ');\n  itemTypeInstruction = `\\nIMPORTANT: Items MUST be from these categories ONLY: ${typeNames}. Distribute items roughly evenly across the selected types. Do not include items from other categories.`;\n}\n\nconst nameLine = characterName ? `- Character Name: ${characterName}\\n` : '';\n\nconst userPrompt = `Generate exactly ${itemCount} unique starting items for a new character:\\n\\n${nameLine}- Class: ${characterClass}\\n- Race: ${characterRace}\\n- Level: ${characterLevel}\\n${itemTypeInstruction}\\n\\nSpiciness Level: ${spiciness}/100\\n${spicyInstruction}\\n\\nFor each item provide these JSON fields:\\n- \\\"name\\\": A creative item name\\n- \\\"type\\\": Item category (weapon, armor, potion, trinket, tool, clothing, misc, scroll, ring, amulet, etc.)\\n- \\\"rarity\\\": One of: common, uncommon, rare, very-rare, legendary\\n- \\\"description\\\": A flavorful 1-3 sentence description\\n- \\\"properties\\\": Array of 1-3 mechanical properties or fun effects\\n\\nRules:\\n- Mix item types appropriate for the class (unless a specific type filter is set)\\n- For level 1 characters, most items should be common/uncommon\\n- At least one trinket or personal item with backstory flavor\\n- Items should feel thematic to the class and race\\n\\nRespond with a JSON array of ${itemCount} item objects. No markdown, no code fences.`;\n\nreturn [{\n  json: {\n    userPrompt,\n    characterName,\n    characterClass,\n    spiciness\n  }\n}];"
+        "jsCode": "const input = $input.first().json.body;\nconst characterName = input.characterName || '';\nconst characterClass = input.characterClass || 'Fighter';\nconst characterRace = input.characterRace || 'Human';\nconst characterLevel = input.characterLevel || 1;\nconst spiciness = input.spiciness || 0;\nconst itemCount = input.itemCount || 5;\nconst itemTypes = input.itemTypes || [];\n\nlet spicyInstruction = '';\nif (spiciness < 25) spicyInstruction = 'Keep all items completely family-friendly and suitable for all ages. Standard D&D fantasy items.';\nelse if (spiciness < 50) spicyInstruction = 'Items can have mildly suggestive or cheeky names and descriptions. Think tavern humor - innuendos and playful double meanings, but nothing explicit.';\nelse if (spiciness < 75) spicyInstruction = 'Items should have clearly suggestive, flirty, or risqué themes. Adult humor is encouraged.';\nelse spicyInstruction = 'Items should be boldly adult-themed with explicit humor, provocative descriptions, and unapologetically 18+ content. Be creative and daring with innuendo and adult themes, but maintain D&D fantasy flavor.';\n\nconst typeMap = { weapons: 'weapons (swords, axes, bows, daggers, staves, etc.)', armor: 'armor and shields', potions: 'potions and elixirs', scrolls: 'scrolls, spellbooks, and magical tomes', jewelry: 'jewelry (rings, amulets, necklaces)', trinkets: 'trinkets, curiosities, and talismans', clothing: 'clothing, cloaks, boots, and wearable items', tools: 'tools and utility items', consumables: 'consumable items (food, drinks, throwables)' };\n\nlet itemTypeInstruction = '';\nif (itemTypes.length === 1) itemTypeInstruction = `\\nIMPORTANT: ALL ${itemCount} items MUST be ${typeMap[itemTypes[0]] || itemTypes[0]}.`;\nelse if (itemTypes.length > 1) itemTypeInstruction = `\\nIMPORTANT: Items MUST be from these categories ONLY: ${itemTypes.map(t => typeMap[t] || t).join(', ')}.`;\n\nconst nameLine = characterName ? `- Character Name: ${characterName}\\n` : '';\nconst userPrompt = `Generate exactly ${itemCount} unique starting items for a D&D 5e (2024 edition) character:\\n\\n${nameLine}- Class: ${characterClass}\\n- Race: ${characterRace}\\n- Level: ${characterLevel}\\n${itemTypeInstruction}\\n\\nSpiciness Level: ${spiciness}/100\\n${spicyInstruction}\\n\\nFor each item provide: \"name\", \"type\", \"rarity\" (common/uncommon/rare/very-rare/legendary), \"description\" (1-3 sentences), \"properties\" (array of 1-3 effects).\\n\\nRules: Mix item types for the class. Level 1 = mostly common/uncommon. Include at least one trinket with backstory flavor. Use Forgotten Realms lore.\\n\\nRespond with a JSON array. No markdown, no code fences.`;\n\nreturn [{ json: { userPrompt, characterName, characterClass, spiciness } }];"
       },
       "id": "d1a2b3c4-0001-4000-a000-000000000002",
-      "name": "Build Prompt",
+      "name": "Build DnD Items Prompt",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [480, 300]
@@ -31,12 +29,12 @@
       "parameters": {
         "text": "={{ $json.userPrompt }}",
         "options": {
-          "systemMessage": "You are a creative D&D 5e (2024 rules) item designer. You always respond ONLY with valid JSON arrays. No markdown, no code fences, no explanation text.",
+          "systemMessage": "You are a creative D&D 5e (2024 rules) item designer with deep knowledge of the Forgotten Realms. You always respond ONLY with valid JSON arrays. No markdown, no code fences, no explanation text.",
           "maxIterations": 1
         }
       },
       "id": "d1a2b3c4-0001-4000-a000-000000000003",
-      "name": "AI Agent - Items",
+      "name": "AI Agent - DnD Items",
       "type": "@n8n/n8n-nodes-langchain.agent",
       "typeVersion": 1.7,
       "position": [710, 300]
@@ -44,29 +42,21 @@
     {
       "parameters": {
         "model": "x-ai/grok-3-mini",
-        "options": {
-          "temperature": 0.9,
-          "maxTokens": 4000
-        }
+        "options": { "temperature": 0.9, "maxTokens": 4000 }
       },
       "id": "d1a2b3c4-0001-4000-a000-000000000004",
-      "name": "OpenRouter Model - Items",
+      "name": "OpenRouter - DnD Items",
       "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
       "typeVersion": 1,
       "position": [710, 500],
-      "credentials": {
-        "openRouterApi": {
-          "id": "YOUR_OPENROUTER_CREDENTIAL_ID",
-          "name": "OpenRouter API"
-        }
-      }
+      "credentials": { "openRouterApi": { "id": "YOUR_OPENROUTER_CREDENTIAL_ID", "name": "OpenRouter API" } }
     },
     {
       "parameters": {
-        "jsCode": "// Parse the AI Agent response into items array\nconst aiResponse = $input.first().json.output;\n\nif (!aiResponse) {\n  throw new Error('No response from Items AI Agent');\n}\n\ntry {\n  let cleaned = aiResponse.trim();\n  if (cleaned.startsWith('```json')) cleaned = cleaned.slice(7);\n  if (cleaned.startsWith('```')) cleaned = cleaned.slice(3);\n  if (cleaned.endsWith('```')) cleaned = cleaned.slice(0, -3);\n  cleaned = cleaned.trim();\n\n  const items = JSON.parse(cleaned);\n  const itemsArray = Array.isArray(items) ? items : [items];\n\n  return [{ json: { items: itemsArray } }];\n\n} catch (error) {\n  const match = aiResponse.match(/\\[\\s*\\{[\\s\\S]*\\}\\s*\\]/);\n  if (match) {\n    try {\n      const items = JSON.parse(match[0]);\n      return [{ json: { items } }];\n    } catch (e) {}\n  }\n\n  return [{ json: { items: [{\n    name: 'Mysterious Error Scroll',\n    type: 'scroll',\n    rarity: 'common',\n    description: 'Something went wrong in the magical forge.',\n    properties: ['Try generating again']\n  }] } }];\n}"
+        "jsCode": "const aiResponse = $input.first().json.output;\nif (!aiResponse) throw new Error('No response from AI Agent');\ntry {\n  let cleaned = aiResponse.trim();\n  if (cleaned.startsWith('```json')) cleaned = cleaned.slice(7);\n  if (cleaned.startsWith('```')) cleaned = cleaned.slice(3);\n  if (cleaned.endsWith('```')) cleaned = cleaned.slice(0, -3);\n  cleaned = cleaned.trim();\n  const items = JSON.parse(cleaned);\n  return [{ json: { items: Array.isArray(items) ? items : [items] } }];\n} catch (error) {\n  const match = aiResponse.match(/\\[\\s*\\{[\\s\\S]*\\}\\s*\\]/);\n  if (match) { try { return [{ json: { items: JSON.parse(match[0]) } }]; } catch(e) {} }\n  return [{ json: { items: [{ name: 'Mysterious Error Scroll', type: 'scroll', rarity: 'common', description: 'Something went wrong in the magical forge.', properties: ['Try generating again'] }] } }];\n}"
       },
       "id": "d1a2b3c4-0001-4000-a000-000000000005",
-      "name": "Parse Items",
+      "name": "Parse DnD Items",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [940, 300]
@@ -75,24 +65,10 @@
       "parameters": {
         "respondWith": "json",
         "responseBody": "={{ JSON.stringify($json.items) }}",
-        "options": {
-          "responseCode": 200,
-          "responseHeaders": {
-            "entries": [
-              {
-                "name": "Access-Control-Allow-Origin",
-                "value": "*"
-              },
-              {
-                "name": "Access-Control-Allow-Headers",
-                "value": "Content-Type"
-              }
-            ]
-          }
-        }
+        "options": { "responseCode": 200, "responseHeaders": { "entries": [{ "name": "Access-Control-Allow-Origin", "value": "*" }, { "name": "Access-Control-Allow-Headers", "value": "Content-Type" }] } }
       },
       "id": "d1a2b3c4-0001-4000-a000-000000000006",
-      "name": "Respond to Webhook",
+      "name": "Respond DnD Items",
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.1,
       "position": [1170, 300]
@@ -102,12 +78,10 @@
         "httpMethod": "POST",
         "path": "dnd-backstory",
         "responseMode": "responseNode",
-        "options": {
-          "allowedOrigins": "*"
-        }
+        "options": { "allowedOrigins": "*" }
       },
       "id": "b2c3d4e5-0001-4000-b000-000000000001",
-      "name": "Backstory Webhook",
+      "name": "Webhook - DnD Backstory",
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2,
       "position": [250, 700],
@@ -115,10 +89,10 @@
     },
     {
       "parameters": {
-        "jsCode": "// Extract input from the webhook body\nconst input = $input.first().json.body;\n\nconst characterClass = input.characterClass || 'Fighter';\nconst characterRace = input.characterRace || 'Human';\nconst characterLevel = input.characterLevel || 1;\nconst elements = input.elements || ['name', 'origin', 'strengths', 'weaknesses', 'personality', 'history', 'goal', 'aspiration'];\n\n// Map elements to detailed descriptions for the prompt\nconst elementDescriptions = {\n  name: 'A lore-appropriate character name fitting the race and class. Use naming conventions from official D&D sourcebooks (e.g., Elvish names for Elves, Nordic-style for Goliaths, Infernal-touched for Tieflings). Provide first name and optional surname or epithet.',\n  origin: 'Where the character comes from — a specific region, city, village, or realm from the Forgotten Realms or D&D multiverse. Describe the place briefly and how it shaped the character. Examples: Waterdeep, Baldur\\'s Gate, Menzoberranzan, a nomadic tribe, a remote monastery.',\n  strengths: 'Exactly 3 strong character traits or abilities that define what the character excels at. These should be personality-driven strengths (e.g., unwavering courage, natural leadership, sharp wit) tied to their class/race background.',\n  weaknesses: 'Exactly 3 character flaws or vulnerabilities that create interesting roleplay opportunities. These should feel real and tied to who the character is (e.g., arrogance, fear of the dark, inability to trust others, reckless impulsiveness).',\n  personality: 'A vivid 2-3 sentence description of the character\\'s personality, demeanor, and how they interact with others. Include quirks, habits, or mannerisms that make them memorable.',\n  history: 'A compelling 3-5 sentence backstory explaining the character\\'s past — key events, turning points, family, mentors, or traumas that led them to become an adventurer. Reference appropriate D&D lore for the race and class.',\n  goal: 'The character\\'s primary life goal or driving motivation — what they are trying to achieve in the grand scheme. This should be specific and tied to their backstory (e.g., avenge a fallen mentor, reclaim an ancestral homeland, break a curse).',\n  aspiration: 'What the character aspires to become or achieve on a personal/spiritual level — their ideal future self or dream. This is more abstract than their goal (e.g., become worthy of a god\\'s blessing, find inner peace, be remembered as a legend).'\n};\n\n// Build the list of requested elements\nconst requestedParts = elements.map(el => {\n  const desc = elementDescriptions[el];\n  if (!desc) return null;\n  return `- \"${el}\": ${desc}`;\n}).filter(Boolean).join('\\n');\n\n// Build format instructions for each element\nconst formatInstructions = elements.map(el => {\n  if (el === 'strengths' || el === 'weaknesses') {\n    return `  \"${el}\": [\"trait1\", \"trait2\", \"trait3\"]`;\n  }\n  return `  \"${el}\": \"string value\"`;\n}).join(',\\n');\n\nconst userPrompt = `Generate a complete character backstory for a D&D 5e (2024 edition) character with the following details:\n\n- Class: ${characterClass}\n- Race: ${characterRace}\n- Level: ${characterLevel}\n\nGenerate ONLY the following elements:\n${requestedParts}\n\nIMPORTANT RULES:\n1. Use official D&D 5e lore from the Forgotten Realms setting. Reference real locations, deities, factions, and cultural details appropriate for the race.\n2. Everything must be internally consistent — the name, origin, history, personality, and goals should all connect logically.\n3. The backstory should reflect the character's class training and racial heritage.\n4. For level ${characterLevel}, the character should feel appropriately experienced (level 1 = novice adventurer, level 5 = seasoned).\n5. Be creative and evocative — make this character feel alive and interesting to roleplay.\n6. \"strengths\" and \"weaknesses\" MUST be JSON arrays of exactly 3 strings each.\n7. All other fields must be strings.\n\nRespond with a JSON object in this exact format (no markdown, no code fences, no extra text):\n{\n${formatInstructions}\n}`;\n\nreturn [{\n  json: {\n    userPrompt,\n    characterClass,\n    characterRace,\n    characterLevel,\n    elements\n  }\n}];"
+        "jsCode": "const input = $input.first().json.body;\nconst characterClass = input.characterClass || 'Fighter';\nconst characterRace = input.characterRace || 'Human';\nconst characterLevel = input.characterLevel || 1;\nconst elements = input.elements || ['name', 'origin', 'strengths', 'weaknesses', 'personality', 'history', 'goal', 'aspiration'];\n\nconst elementDescriptions = {\n  name: 'A lore-appropriate character name fitting the race and class. Use D&D naming conventions (e.g., Elvish names for Elves, Nordic-style for Goliaths, Infernal-touched for Tieflings).',\n  origin: 'Where the character comes from — a specific region, city, or realm from the Forgotten Realms. Describe the place and how it shaped the character.',\n  strengths: 'Exactly 3 strong character traits tied to their class/race background.',\n  weaknesses: 'Exactly 3 character flaws that create interesting roleplay opportunities.',\n  personality: 'A vivid 2-3 sentence description of personality, demeanor, quirks and mannerisms.',\n  history: 'A compelling 3-5 sentence backstory with key events that led them to become an adventurer. Use D&D lore.',\n  goal: 'Primary life goal tied to their backstory (e.g., avenge a mentor, reclaim homeland).',\n  aspiration: 'What the character aspires to become on a personal/spiritual level.'\n};\n\nconst requestedParts = elements.map(el => elementDescriptions[el] ? `- \"${el}\": ${elementDescriptions[el]}` : null).filter(Boolean).join('\\n');\nconst formatInstructions = elements.map(el => (el === 'strengths' || el === 'weaknesses') ? `  \"${el}\": [\"trait1\", \"trait2\", \"trait3\"]` : `  \"${el}\": \"string value\"`).join(',\\n');\n\nconst userPrompt = `Generate a character backstory for a D&D 5e (2024 edition) character:\\n\\n- Class: ${characterClass}\\n- Race: ${characterRace}\\n- Level: ${characterLevel}\\n\\nGenerate ONLY these elements:\\n${requestedParts}\\n\\nRules: Use official D&D 5e Forgotten Realms lore. Everything must be internally consistent. Be creative and evocative. \"strengths\" and \"weaknesses\" MUST be arrays of exactly 3 strings.\\n\\nRespond with JSON object (no markdown, no code fences):\\n{\\n${formatInstructions}\\n}`;\n\nreturn [{ json: { userPrompt, characterClass, characterRace, characterLevel, elements } }];"
       },
       "id": "b2c3d4e5-0001-4000-b000-000000000002",
-      "name": "Build Backstory Prompt",
+      "name": "Build DnD Backstory Prompt",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [480, 700]
@@ -127,12 +101,12 @@
       "parameters": {
         "text": "={{ $json.userPrompt }}",
         "options": {
-          "systemMessage": "You are an expert D&D 5e lore master and character creator with deep knowledge of the Forgotten Realms, Greyhawk, and the D&D multiverse. You specialize in creating rich, immersive character backstories that are consistent with official D&D lore. You always respond ONLY with valid JSON objects. No markdown, no code fences, no explanation text. Your characters feel alive, with interconnected traits, histories, and motivations.",
+          "systemMessage": "You are an expert D&D 5e lore master with deep knowledge of the Forgotten Realms and D&D multiverse. You create rich, immersive character backstories consistent with official lore. Respond ONLY with valid JSON objects. No markdown, no code fences.",
           "maxIterations": 1
         }
       },
       "id": "b2c3d4e5-0001-4000-b000-000000000003",
-      "name": "AI Agent - Backstory",
+      "name": "AI Agent - DnD Backstory",
       "type": "@n8n/n8n-nodes-langchain.agent",
       "typeVersion": 1.7,
       "position": [710, 700]
@@ -140,29 +114,21 @@
     {
       "parameters": {
         "model": "x-ai/grok-3-mini",
-        "options": {
-          "temperature": 0.85,
-          "maxTokens": 4000
-        }
+        "options": { "temperature": 0.85, "maxTokens": 4000 }
       },
       "id": "b2c3d4e5-0001-4000-b000-000000000004",
-      "name": "OpenRouter Model - Backstory",
+      "name": "OpenRouter - DnD Backstory",
       "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
       "typeVersion": 1,
       "position": [710, 900],
-      "credentials": {
-        "openRouterApi": {
-          "id": "YOUR_OPENROUTER_CREDENTIAL_ID",
-          "name": "OpenRouter API"
-        }
-      }
+      "credentials": { "openRouterApi": { "id": "YOUR_OPENROUTER_CREDENTIAL_ID", "name": "OpenRouter API" } }
     },
     {
       "parameters": {
-        "jsCode": "// Parse the AI Agent response into backstory object\nconst aiResponse = $input.first().json.output;\n\nif (!aiResponse) {\n  throw new Error('No response from Backstory AI Agent');\n}\n\ntry {\n  let cleaned = aiResponse.trim();\n  // Remove markdown code fences if present\n  if (cleaned.startsWith('```json')) cleaned = cleaned.slice(7);\n  if (cleaned.startsWith('```')) cleaned = cleaned.slice(3);\n  if (cleaned.endsWith('```')) cleaned = cleaned.slice(0, -3);\n  cleaned = cleaned.trim();\n\n  const backstory = JSON.parse(cleaned);\n  return [{ json: backstory }];\n\n} catch (error) {\n  // Try to find a JSON object in the response\n  const match = aiResponse.match(/\\{[\\s\\S]*\\}/);\n  if (match) {\n    try {\n      const backstory = JSON.parse(match[0]);\n      return [{ json: backstory }];\n    } catch (e) {}\n  }\n\n  // Fallback error response\n  return [{ json: {\n    name: 'Unknown Hero',\n    origin: 'The mists of an unknown realm...',\n    strengths: ['Determination', 'Adaptability', 'Courage'],\n    weaknesses: ['Mysterious past', 'Unknown enemies', 'Self-doubt'],\n    personality: 'A mysterious figure whose story is yet to be written.',\n    history: 'The magical scribe encountered an error while recording this tale. Please try again.',\n    goal: 'To discover their true destiny.',\n    aspiration: 'To become a legend worth remembering.'\n  } }];\n}"
+        "jsCode": "const aiResponse = $input.first().json.output;\nif (!aiResponse) throw new Error('No response from AI Agent');\ntry {\n  let cleaned = aiResponse.trim();\n  if (cleaned.startsWith('```json')) cleaned = cleaned.slice(7);\n  if (cleaned.startsWith('```')) cleaned = cleaned.slice(3);\n  if (cleaned.endsWith('```')) cleaned = cleaned.slice(0, -3);\n  cleaned = cleaned.trim();\n  return [{ json: JSON.parse(cleaned) }];\n} catch (error) {\n  const match = aiResponse.match(/\\{[\\s\\S]*\\}/);\n  if (match) { try { return [{ json: JSON.parse(match[0]) }]; } catch(e) {} }\n  return [{ json: { name: 'Unknown Hero', origin: 'The mists of an unknown realm...', strengths: ['Determination', 'Adaptability', 'Courage'], weaknesses: ['Mysterious past', 'Unknown enemies', 'Self-doubt'], personality: 'A mysterious figure whose story is yet to be written.', history: 'The magical scribe encountered an error. Please try again.', goal: 'To discover their true destiny.', aspiration: 'To become a legend worth remembering.' } }];\n}"
       },
       "id": "b2c3d4e5-0001-4000-b000-000000000005",
-      "name": "Parse Backstory",
+      "name": "Parse DnD Backstory",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [940, 700]
@@ -171,88 +137,227 @@
       "parameters": {
         "respondWith": "json",
         "responseBody": "={{ JSON.stringify($json) }}",
-        "options": {
-          "responseCode": 200,
-          "responseHeaders": {
-            "entries": [
-              {
-                "name": "Access-Control-Allow-Origin",
-                "value": "*"
-              },
-              {
-                "name": "Access-Control-Allow-Headers",
-                "value": "Content-Type"
-              }
-            ]
-          }
-        }
+        "options": { "responseCode": 200, "responseHeaders": { "entries": [{ "name": "Access-Control-Allow-Origin", "value": "*" }, { "name": "Access-Control-Allow-Headers", "value": "Content-Type" }] } }
       },
       "id": "b2c3d4e5-0001-4000-b000-000000000006",
-      "name": "Respond Backstory",
+      "name": "Respond DnD Backstory",
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.1,
       "position": [1170, 700]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "es-items",
+        "responseMode": "responseNode",
+        "options": { "allowedOrigins": "*" }
+      },
+      "id": "e3f4a5b6-0001-4000-c000-000000000001",
+      "name": "Webhook - ES Items",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [250, 1200],
+      "webhookId": "es-items"
+    },
+    {
+      "parameters": {
+        "jsCode": "const input = $input.first().json.body;\nconst characterName = input.characterName || '';\nconst characterClass = input.characterClass || 'Warrior';\nconst characterRace = input.characterRace || 'Nord';\nconst characterLevel = input.characterLevel || 1;\nconst spiciness = input.spiciness || 0;\nconst itemCount = input.itemCount || 5;\nconst itemTypes = input.itemTypes || [];\n\nlet spicyInstruction = '';\nif (spiciness < 25) spicyInstruction = 'Keep all items family-friendly. Standard Elder Scrolls fantasy items.';\nelse if (spiciness < 50) spicyInstruction = 'Items can have mildly suggestive or cheeky names. Think Skooma-den humor.';\nelse if (spiciness < 75) spicyInstruction = 'Items should have clearly suggestive, provocative themes. Lusty Argonian Maid level humor.';\nelse spicyInstruction = 'Items should be boldly adult-themed with explicit humor. Be creative with Tamriel-themed adult content.';\n\nconst typeMap = { weapons: 'weapons (swords, axes, bows, daggers, staves, maces)', armor: 'armor and shields (ebony, glass, daedric, leather)', potions: 'potions, poisons, and alchemical concoctions', scrolls: 'scrolls, spell tomes, and Black Books', jewelry: 'jewelry (rings, amulets, necklaces, circlets)', trinkets: 'Dwemer artifacts, Daedric curiosities, and soul gems', clothing: 'clothing, robes, boots, and wearable items', tools: 'tools, lockpicks, and utility items', consumables: 'consumable items (food, mead, skooma, moon sugar)' };\n\nlet itemTypeInstruction = '';\nif (itemTypes.length === 1) itemTypeInstruction = `\\nIMPORTANT: ALL ${itemCount} items MUST be ${typeMap[itemTypes[0]] || itemTypes[0]}.`;\nelse if (itemTypes.length > 1) itemTypeInstruction = `\\nIMPORTANT: Items MUST be from: ${itemTypes.map(t => typeMap[t] || t).join(', ')}.`;\n\nconst nameLine = characterName ? `- Character Name: ${characterName}\\n` : '';\nconst userPrompt = `Generate exactly ${itemCount} unique items for an Elder Scrolls character:\\n\\n${nameLine}- Class: ${characterClass}\\n- Race: ${characterRace}\\n- Level: ${characterLevel}\\n${itemTypeInstruction}\\n\\nSpiciness Level: ${spiciness}/100\\n${spicyInstruction}\\n\\nFor each item provide: \"name\", \"type\", \"rarity\" (common/uncommon/rare/very-rare/legendary), \"description\" (1-3 sentences), \"properties\" (array of 1-3 effects).\\n\\nRules: Use Elder Scrolls / Tamriel lore. Reference materials like ebony, glass, daedric, dwemer. Include guilds (Thieves Guild, Dark Brotherhood, Mages Guild, Companions) where fitting. For level 1 characters, mostly common/uncommon. Include at least one unique personal item.\\n\\nRespond with a JSON array. No markdown, no code fences.`;\n\nreturn [{ json: { userPrompt, characterName, characterClass, spiciness } }];"
+      },
+      "id": "e3f4a5b6-0001-4000-c000-000000000002",
+      "name": "Build ES Items Prompt",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [480, 1200]
+    },
+    {
+      "parameters": {
+        "text": "={{ $json.userPrompt }}",
+        "options": {
+          "systemMessage": "You are a creative Elder Scrolls item designer with deep knowledge of Tamriel, the Daedric Princes, the Nine Divines, and all Elder Scrolls lore from Arena through Starfield. You know about Dwemer artifacts, Daedric weapons, enchanting, alchemy, and the various guilds. Respond ONLY with valid JSON arrays. No markdown, no code fences.",
+          "maxIterations": 1
+        }
+      },
+      "id": "e3f4a5b6-0001-4000-c000-000000000003",
+      "name": "AI Agent - ES Items",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [710, 1200]
+    },
+    {
+      "parameters": {
+        "model": "x-ai/grok-3-mini",
+        "options": { "temperature": 0.9, "maxTokens": 4000 }
+      },
+      "id": "e3f4a5b6-0001-4000-c000-000000000004",
+      "name": "OpenRouter - ES Items",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [710, 1400],
+      "credentials": { "openRouterApi": { "id": "YOUR_OPENROUTER_CREDENTIAL_ID", "name": "OpenRouter API" } }
+    },
+    {
+      "parameters": {
+        "jsCode": "const aiResponse = $input.first().json.output;\nif (!aiResponse) throw new Error('No response from AI Agent');\ntry {\n  let cleaned = aiResponse.trim();\n  if (cleaned.startsWith('```json')) cleaned = cleaned.slice(7);\n  if (cleaned.startsWith('```')) cleaned = cleaned.slice(3);\n  if (cleaned.endsWith('```')) cleaned = cleaned.slice(0, -3);\n  cleaned = cleaned.trim();\n  const items = JSON.parse(cleaned);\n  return [{ json: { items: Array.isArray(items) ? items : [items] } }];\n} catch (error) {\n  const match = aiResponse.match(/\\[\\s*\\{[\\s\\S]*\\}\\s*\\]/);\n  if (match) { try { return [{ json: { items: JSON.parse(match[0]) } }]; } catch(e) {} }\n  return [{ json: { items: [{ name: 'Mysterious Dwemer Cog', type: 'trinket', rarity: 'common', description: 'Something went wrong at the enchanting table.', properties: ['Try generating again'] }] } }];\n}"
+      },
+      "id": "e3f4a5b6-0001-4000-c000-000000000005",
+      "name": "Parse ES Items",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [940, 1200]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify($json.items) }}",
+        "options": { "responseCode": 200, "responseHeaders": { "entries": [{ "name": "Access-Control-Allow-Origin", "value": "*" }, { "name": "Access-Control-Allow-Headers", "value": "Content-Type" }] } }
+      },
+      "id": "e3f4a5b6-0001-4000-c000-000000000006",
+      "name": "Respond ES Items",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [1170, 1200]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "es-backstory",
+        "responseMode": "responseNode",
+        "options": { "allowedOrigins": "*" }
+      },
+      "id": "f4a5b6c7-0001-4000-d000-000000000001",
+      "name": "Webhook - ES Backstory",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [250, 1600],
+      "webhookId": "es-backstory"
+    },
+    {
+      "parameters": {
+        "jsCode": "const input = $input.first().json.body;\nconst characterClass = input.characterClass || 'Warrior';\nconst characterRace = input.characterRace || 'Nord';\nconst characterLevel = input.characterLevel || 1;\nconst elements = input.elements || ['name', 'origin', 'strengths', 'weaknesses', 'personality', 'history', 'goal', 'aspiration'];\n\nconst raceOrigins = {\n  'Imperial': 'Cyrodiil — the cosmopolitan heart of Tamriel, home of the Empire',\n  'Nord': 'Skyrim — the frozen northern province of warriors and ancient Nordic traditions',\n  'Breton': 'High Rock — land of feudal kingdoms, politics, and innate magical talent',\n  'Redguard': 'Hammerfell — desert homeland of proud, independent warrior-swordsmen',\n  'Dunmer': 'Morrowind — the ashen volcanic land of the Dark Elves, Great Houses, and the Tribunal',\n  'Altmer': 'Summerset Isles — the golden islands of the High Elves, seat of the Aldmeri Dominion',\n  'Bosmer': 'Valenwood — the dense forest province of the Wood Elves, followers of the Green Pact',\n  'Orsimer': 'Orsinium (or strongholds across Tamriel) — the Orcs, followers of Malacath',\n  'Khajiit': 'Elsweyr — the warm sands homeland of the cat-folk, shaped by the moons',\n  'Argonian': 'Black Marsh — the mysterious swampland of the lizard-folk, connected to the Hist trees'\n};\n\nconst elementDescriptions = {\n  name: `A lore-appropriate Elder Scrolls name for a ${characterRace}. Use Tamriel naming conventions (e.g., J\\'zargo-style for Khajiit, Nordic names for Nords, Dunmer House names like Hlaalu/Telvanni for Dark Elves, etc.).`,\n  origin: `Where in Tamriel the character comes from. Consider: ${raceOrigins[characterRace] || 'a region of Tamriel'}. Name a specific city, settlement, or region and describe how it shaped them.`,\n  strengths: 'Exactly 3 strong character traits tied to their race and class in Elder Scrolls lore.',\n  weaknesses: 'Exactly 3 character flaws that create interesting roleplay opportunities in Tamriel.',\n  personality: 'A vivid 2-3 sentence description of personality, demeanor, and mannerisms befitting the Elder Scrolls world.',\n  history: 'A compelling 3-5 sentence backstory referencing Elder Scrolls events, factions (Thieves Guild, Dark Brotherhood, Companions, College of Winterhold, Mages Guild, Fighters Guild), Daedric Princes, the Empire, Stormcloaks, Great Houses, or other TES lore.',\n  goal: 'Primary life goal tied to Elder Scrolls lore (e.g., join a guild, recover a Daedric artifact, avenge a fallen comrade, escape Sithis).',\n  aspiration: 'What the character aspires to become — their ideal future self in the world of Tamriel.'\n};\n\nconst requestedParts = elements.map(el => elementDescriptions[el] ? `- \"${el}\": ${elementDescriptions[el]}` : null).filter(Boolean).join('\\n');\nconst formatInstructions = elements.map(el => (el === 'strengths' || el === 'weaknesses') ? `  \"${el}\": [\"trait1\", \"trait2\", \"trait3\"]` : `  \"${el}\": \"string value\"`).join(',\\n');\n\nconst userPrompt = `Generate a character backstory for an Elder Scrolls character:\\n\\n- Class: ${characterClass}\\n- Race: ${characterRace}\\n- Level: ${characterLevel}\\n\\nGenerate ONLY these elements:\\n${requestedParts}\\n\\nRules:\\n1. Use official Elder Scrolls lore from across all games (Arena, Daggerfall, Morrowind, Oblivion, Skyrim, ESO).\\n2. Reference real TES locations, deities (Divines, Daedric Princes), factions, and cultural details.\\n3. Everything must be internally consistent.\\n4. \"strengths\" and \"weaknesses\" MUST be JSON arrays of exactly 3 strings each.\\n\\nRespond with JSON object (no markdown, no code fences):\\n{\\n${formatInstructions}\\n}`;\n\nreturn [{ json: { userPrompt, characterClass, characterRace, characterLevel, elements } }];"
+      },
+      "id": "f4a5b6c7-0001-4000-d000-000000000002",
+      "name": "Build ES Backstory Prompt",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [480, 1600]
+    },
+    {
+      "parameters": {
+        "text": "={{ $json.userPrompt }}",
+        "options": {
+          "systemMessage": "You are an expert Elder Scrolls lore master with encyclopedic knowledge of Tamriel, Nirn, Oblivion, and the Aurbis. You know the history of every province, every Daedric Prince, the Dwemer disappearance, the Dragon Crisis, the Oblivion Crisis, the Planemeld, the Great Houses of Morrowind, the Aldmeri Dominion, and every faction across all Elder Scrolls games. You create rich character backstories deeply rooted in TES lore. Respond ONLY with valid JSON objects. No markdown, no code fences.",
+          "maxIterations": 1
+        }
+      },
+      "id": "f4a5b6c7-0001-4000-d000-000000000003",
+      "name": "AI Agent - ES Backstory",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [710, 1600]
+    },
+    {
+      "parameters": {
+        "model": "x-ai/grok-3-mini",
+        "options": { "temperature": 0.85, "maxTokens": 4000 }
+      },
+      "id": "f4a5b6c7-0001-4000-d000-000000000004",
+      "name": "OpenRouter - ES Backstory",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [710, 1800],
+      "credentials": { "openRouterApi": { "id": "YOUR_OPENROUTER_CREDENTIAL_ID", "name": "OpenRouter API" } }
+    },
+    {
+      "parameters": {
+        "jsCode": "const aiResponse = $input.first().json.output;\nif (!aiResponse) throw new Error('No response from AI Agent');\ntry {\n  let cleaned = aiResponse.trim();\n  if (cleaned.startsWith('```json')) cleaned = cleaned.slice(7);\n  if (cleaned.startsWith('```')) cleaned = cleaned.slice(3);\n  if (cleaned.endsWith('```')) cleaned = cleaned.slice(0, -3);\n  cleaned = cleaned.trim();\n  return [{ json: JSON.parse(cleaned) }];\n} catch (error) {\n  const match = aiResponse.match(/\\{[\\s\\S]*\\}/);\n  if (match) { try { return [{ json: JSON.parse(match[0]) }]; } catch(e) {} }\n  return [{ json: { name: 'Unknown Wanderer', origin: 'Somewhere in the mists of Tamriel...', strengths: ['Determination', 'Adaptability', 'Courage'], weaknesses: ['Unknown past', 'Hunted by shadows', 'Self-doubt'], personality: 'A mysterious traveler whose story is yet to unfold across Tamriel.', history: 'The Elder Scrolls could not reveal this tale. Please try again.', goal: 'To carve a name in the annals of Tamriel.', aspiration: 'To become a legend whispered across every tavern in Nirn.' } }];\n}"
+      },
+      "id": "f4a5b6c7-0001-4000-d000-000000000005",
+      "name": "Parse ES Backstory",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [940, 1600]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify($json) }}",
+        "options": { "responseCode": 200, "responseHeaders": { "entries": [{ "name": "Access-Control-Allow-Origin", "value": "*" }, { "name": "Access-Control-Allow-Headers", "value": "Content-Type" }] } }
+      },
+      "id": "f4a5b6c7-0001-4000-d000-000000000006",
+      "name": "Respond ES Backstory",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [1170, 1600]
     }
   ],
   "connections": {
-    "Webhook": {
-      "main": [
-        [{ "node": "Build Prompt", "type": "main", "index": 0 }]
-      ]
+    "Webhook - DnD Items": {
+      "main": [[{ "node": "Build DnD Items Prompt", "type": "main", "index": 0 }]]
     },
-    "Build Prompt": {
-      "main": [
-        [{ "node": "AI Agent - Items", "type": "main", "index": 0 }]
-      ]
+    "Build DnD Items Prompt": {
+      "main": [[{ "node": "AI Agent - DnD Items", "type": "main", "index": 0 }]]
     },
-    "OpenRouter Model - Items": {
-      "ai_languageModel": [
-        [{ "node": "AI Agent - Items", "type": "ai_languageModel", "index": 0 }]
-      ]
+    "OpenRouter - DnD Items": {
+      "ai_languageModel": [[{ "node": "AI Agent - DnD Items", "type": "ai_languageModel", "index": 0 }]]
     },
-    "AI Agent - Items": {
-      "main": [
-        [{ "node": "Parse Items", "type": "main", "index": 0 }]
-      ]
+    "AI Agent - DnD Items": {
+      "main": [[{ "node": "Parse DnD Items", "type": "main", "index": 0 }]]
     },
-    "Parse Items": {
-      "main": [
-        [{ "node": "Respond to Webhook", "type": "main", "index": 0 }]
-      ]
+    "Parse DnD Items": {
+      "main": [[{ "node": "Respond DnD Items", "type": "main", "index": 0 }]]
     },
-    "Backstory Webhook": {
-      "main": [
-        [{ "node": "Build Backstory Prompt", "type": "main", "index": 0 }]
-      ]
+    "Webhook - DnD Backstory": {
+      "main": [[{ "node": "Build DnD Backstory Prompt", "type": "main", "index": 0 }]]
     },
-    "Build Backstory Prompt": {
-      "main": [
-        [{ "node": "AI Agent - Backstory", "type": "main", "index": 0 }]
-      ]
+    "Build DnD Backstory Prompt": {
+      "main": [[{ "node": "AI Agent - DnD Backstory", "type": "main", "index": 0 }]]
     },
-    "OpenRouter Model - Backstory": {
-      "ai_languageModel": [
-        [{ "node": "AI Agent - Backstory", "type": "ai_languageModel", "index": 0 }]
-      ]
+    "OpenRouter - DnD Backstory": {
+      "ai_languageModel": [[{ "node": "AI Agent - DnD Backstory", "type": "ai_languageModel", "index": 0 }]]
     },
-    "AI Agent - Backstory": {
-      "main": [
-        [{ "node": "Parse Backstory", "type": "main", "index": 0 }]
-      ]
+    "AI Agent - DnD Backstory": {
+      "main": [[{ "node": "Parse DnD Backstory", "type": "main", "index": 0 }]]
     },
-    "Parse Backstory": {
-      "main": [
-        [{ "node": "Respond Backstory", "type": "main", "index": 0 }]
-      ]
+    "Parse DnD Backstory": {
+      "main": [[{ "node": "Respond DnD Backstory", "type": "main", "index": 0 }]]
+    },
+    "Webhook - ES Items": {
+      "main": [[{ "node": "Build ES Items Prompt", "type": "main", "index": 0 }]]
+    },
+    "Build ES Items Prompt": {
+      "main": [[{ "node": "AI Agent - ES Items", "type": "main", "index": 0 }]]
+    },
+    "OpenRouter - ES Items": {
+      "ai_languageModel": [[{ "node": "AI Agent - ES Items", "type": "ai_languageModel", "index": 0 }]]
+    },
+    "AI Agent - ES Items": {
+      "main": [[{ "node": "Parse ES Items", "type": "main", "index": 0 }]]
+    },
+    "Parse ES Items": {
+      "main": [[{ "node": "Respond ES Items", "type": "main", "index": 0 }]]
+    },
+    "Webhook - ES Backstory": {
+      "main": [[{ "node": "Build ES Backstory Prompt", "type": "main", "index": 0 }]]
+    },
+    "Build ES Backstory Prompt": {
+      "main": [[{ "node": "AI Agent - ES Backstory", "type": "main", "index": 0 }]]
+    },
+    "OpenRouter - ES Backstory": {
+      "ai_languageModel": [[{ "node": "AI Agent - ES Backstory", "type": "ai_languageModel", "index": 0 }]]
+    },
+    "AI Agent - ES Backstory": {
+      "main": [[{ "node": "Parse ES Backstory", "type": "main", "index": 0 }]]
+    },
+    "Parse ES Backstory": {
+      "main": [[{ "node": "Respond ES Backstory", "type": "main", "index": 0 }]]
     }
   },
-  "settings": {
-    "executionOrder": "v1"
-  },
+  "settings": { "executionOrder": "v1" },
   "staticData": null,
   "tags": [
     { "name": "DnD", "id": "1" },
     { "name": "AI", "id": "2" },
-    { "name": "Backstory", "id": "3" }
+    { "name": "Elder Scrolls", "id": "3" },
+    { "name": "The Magic Forge", "id": "4" }
   ]
 }
