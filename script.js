@@ -169,6 +169,7 @@ const DOM = {
     itemsCollapsible: document.getElementById('itemsCollapsible'),
     footerUniverse: document.getElementById('footerUniverse'),
     universeTabs: document.querySelectorAll('.universe-tab'),
+    bgImage: document.getElementById('bgImage'),
     settingsBtn: document.getElementById('settingsBtn'),
     configModal: document.getElementById('configModal'),
     webhookUrl: document.getElementById('webhookUrl'),
@@ -203,8 +204,9 @@ function switchUniverse(universeKey) {
         tab.classList.toggle('active', tab.dataset.universe === universeKey);
     });
     
-    // Update header icon
-    DOM.headerIcon.textContent = universe.headerIcon;
+    // Update background image
+    DOM.bgImage.classList.remove('dnd-bg', 'es-bg');
+    DOM.bgImage.classList.add(universeKey === 'elderscrolls' ? 'es-bg' : 'dnd-bg');
     
     // Update footer
     DOM.footerUniverse.textContent = universe.footerText;
@@ -812,7 +814,7 @@ function init() {
     DOM.universeTabs.forEach(tab => {
         tab.classList.toggle('active', tab.dataset.universe === savedUniverse);
     });
-    DOM.headerIcon.textContent = universe.headerIcon;
+    DOM.bgImage.classList.add(savedUniverse === 'elderscrolls' ? 'es-bg' : 'dnd-bg');
     DOM.footerUniverse.textContent = universe.footerText;
     if (savedUniverse === 'elderscrolls') {
         document.body.classList.add('elder-scrolls');
