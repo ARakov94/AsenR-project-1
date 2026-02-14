@@ -212,7 +212,8 @@ let state = {
     itemsCollapsed: true,
     currentUniverse: 'dnd',
     lastCharSheetData: null,
-    lastGeneratedItems: null
+    lastGeneratedItems: null,
+    lastBackstoryData: null
 };
 
 // ===== Universe Switching =====
@@ -270,6 +271,7 @@ function switchUniverse(universeKey) {
     DOM.charSheetError.style.display = 'none';
     state.lastCharSheetData = null;
     state.lastGeneratedItems = null;
+    state.lastBackstoryData = null;
     
     // Save preference
     localStorage.setItem('selected_universe', universeKey);
@@ -691,6 +693,7 @@ async function generateBackstory() {
 
     // If there are no AI elements, skip the API call and render custom only
     if (aiElements.length === 0) {
+        state.lastBackstoryData = customValues;
         renderBackstory(customValues, allElements);
         return;
     }
@@ -743,6 +746,7 @@ async function generateBackstory() {
         const mergedData = { ...data, ...customValues };
 
         hideBackstoryLoading();
+        state.lastBackstoryData = mergedData;
         renderBackstory(mergedData, allElements);
 
     } catch (error) {
@@ -1142,6 +1146,11 @@ async function generateCharSheet(skipItemCheck) {
         universe: state.currentUniverse
     };
 
+    // Pass backstory character name so the charsheet matches the generated character
+    if (state.lastBackstoryData && state.lastBackstoryData.name) {
+        payload.characterName = state.lastBackstoryData.name;
+    }
+
     try {
         const response = await fetch(universe.charsheetWebhook, {
             method: 'POST',
@@ -1172,6 +1181,11 @@ async function generateCharSheet(skipItemCheck) {
             } catch {
                 // keep data as-is
             }
+        }
+
+        // Ensure character sheet uses the same name as the generated backstory
+        if (state.lastBackstoryData && state.lastBackstoryData.name) {
+            data.characterName = state.lastBackstoryData.name;
         }
 
         hideCharSheetLoading();
