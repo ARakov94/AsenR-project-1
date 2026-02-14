@@ -80,32 +80,72 @@
         <!-- Backstory Elements Selection -->
         <section class="card backstory-setup">
             <h2 class="card-title">📜 Елементи на героя</h2>
-            <p class="backstory-desc">Избери кои елементи да бъдат генерирани за твоя герой:</p>
+            <p class="backstory-desc">Отметнати = генерирани от AI. Премахни отметка = въведи своя стойност.</p>
             <div class="backstory-checkboxes">
-                <label class="backstory-option">
-                    <input type="checkbox" value="name" checked> <span>🏷️ Име на героя</span>
-                </label>
-                <label class="backstory-option">
-                    <input type="checkbox" value="origin" checked> <span>🌍 От къде е (родно място)</span>
-                </label>
-                <label class="backstory-option">
-                    <input type="checkbox" value="strengths" checked> <span>💪 Силни черти</span>
-                </label>
-                <label class="backstory-option">
-                    <input type="checkbox" value="weaknesses" checked> <span>😰 Слаби черти</span>
-                </label>
-                <label class="backstory-option">
-                    <input type="checkbox" value="personality" checked> <span>🎭 Характер</span>
-                </label>
-                <label class="backstory-option">
-                    <input type="checkbox" value="history" checked> <span>📖 История и произход</span>
-                </label>
-                <label class="backstory-option">
-                    <input type="checkbox" value="goal" checked> <span>🎯 Цел в живота</span>
-                </label>
-                <label class="backstory-option">
-                    <input type="checkbox" value="aspiration" checked> <span>⭐ Към какво се стреми</span>
-                </label>
+                <div class="backstory-option-wrapper">
+                    <label class="backstory-option">
+                        <input type="checkbox" value="name" checked> <span>🏷️ Име на героя</span>
+                    </label>
+                    <div class="backstory-custom-input" style="display: none;">
+                        <input type="text" data-element="name" placeholder="Въведи име на героя...">
+                    </div>
+                </div>
+                <div class="backstory-option-wrapper">
+                    <label class="backstory-option">
+                        <input type="checkbox" value="origin" checked> <span>🌍 От къде е (родно място)</span>
+                    </label>
+                    <div class="backstory-custom-input" style="display: none;">
+                        <input type="text" data-element="origin" placeholder="Напр. Waterdeep, малко село в планините...">
+                    </div>
+                </div>
+                <div class="backstory-option-wrapper">
+                    <label class="backstory-option">
+                        <input type="checkbox" value="strengths" checked> <span>💪 Силни черти</span>
+                    </label>
+                    <div class="backstory-custom-input" style="display: none;">
+                        <textarea data-element="strengths" placeholder="Въведи силни черти (по една на ред)..." rows="3"></textarea>
+                    </div>
+                </div>
+                <div class="backstory-option-wrapper">
+                    <label class="backstory-option">
+                        <input type="checkbox" value="weaknesses" checked> <span>😰 Слаби черти</span>
+                    </label>
+                    <div class="backstory-custom-input" style="display: none;">
+                        <textarea data-element="weaknesses" placeholder="Въведи слаби черти (по една на ред)..." rows="3"></textarea>
+                    </div>
+                </div>
+                <div class="backstory-option-wrapper">
+                    <label class="backstory-option">
+                        <input type="checkbox" value="personality" checked> <span>🎭 Характер</span>
+                    </label>
+                    <div class="backstory-custom-input" style="display: none;">
+                        <textarea data-element="personality" placeholder="Опиши характера на героя..." rows="2"></textarea>
+                    </div>
+                </div>
+                <div class="backstory-option-wrapper">
+                    <label class="backstory-option">
+                        <input type="checkbox" value="history" checked> <span>📖 История и произход</span>
+                    </label>
+                    <div class="backstory-custom-input" style="display: none;">
+                        <textarea data-element="history" placeholder="Разкажи историята на героя..." rows="3"></textarea>
+                    </div>
+                </div>
+                <div class="backstory-option-wrapper">
+                    <label class="backstory-option">
+                        <input type="checkbox" value="goal" checked> <span>🎯 Цел в живота</span>
+                    </label>
+                    <div class="backstory-custom-input" style="display: none;">
+                        <textarea data-element="goal" placeholder="Каква е целта на героя..." rows="2"></textarea>
+                    </div>
+                </div>
+                <div class="backstory-option-wrapper">
+                    <label class="backstory-option">
+                        <input type="checkbox" value="aspiration" checked> <span>⭐ Към какво се стреми</span>
+                    </label>
+                    <div class="backstory-custom-input" style="display: none;">
+                        <textarea data-element="aspiration" placeholder="Към какво се стреми героят..." rows="2"></textarea>
+                    </div>
+                </div>
             </div>
         </section>
 

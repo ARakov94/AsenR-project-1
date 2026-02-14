@@ -320,6 +320,57 @@ function getSelectedBackstoryElements() {
     return Array.from(checkboxes).map(cb => cb.value);
 }
 
+function getCustomBackstoryValues() {
+    const customValues = {};
+    const allCheckboxes = document.querySelectorAll('.backstory-checkboxes input[type="checkbox"]');
+    allCheckboxes.forEach(cb => {
+        if (!cb.checked) {
+            const wrapper = cb.closest('.backstory-option-wrapper');
+            const input = wrapper.querySelector('[data-element]');
+            if (input && input.value.trim()) {
+                const key = input.dataset.element;
+                if (key === 'strengths' || key === 'weaknesses') {
+                    // Split by newlines into array
+                    customValues[key] = input.value.split('\n').map(s => s.trim()).filter(Boolean);
+                } else {
+                    customValues[key] = input.value.trim();
+                }
+            }
+        }
+    });
+    return customValues;
+}
+
+function getAllBackstoryElements() {
+    // Returns all element keys that have either a checkmark (AI) or custom value
+    const aiElements = getSelectedBackstoryElements();
+    const customValues = getCustomBackstoryValues();
+    const customElements = Object.keys(customValues);
+    // Preserve order from the full list
+    const allKeys = ['name', 'origin', 'strengths', 'weaknesses', 'personality', 'history', 'goal', 'aspiration'];
+    return allKeys.filter(k => aiElements.includes(k) || customElements.includes(k));
+}
+
+function setupBackstoryCheckboxToggles() {
+    const checkboxes = document.querySelectorAll('.backstory-checkboxes input[type="checkbox"]');
+    checkboxes.forEach(cb => {
+        cb.addEventListener('change', () => {
+            const wrapper = cb.closest('.backstory-option-wrapper');
+            const customInput = wrapper.querySelector('.backstory-custom-input');
+            if (cb.checked) {
+                customInput.style.display = 'none';
+                wrapper.classList.remove('custom-mode');
+            } else {
+                customInput.style.display = 'block';
+                wrapper.classList.add('custom-mode');
+                // Focus the input
+                const field = customInput.querySelector('input, textarea');
+                if (field) setTimeout(() => field.focus(), 50);
+            }
+        });
+    });
+}
+
 const backstoryElementLabels = {
     name: { emoji: '🏷️', title: 'Име' },
     origin: { emoji: '🌍', title: 'Родно място' },
@@ -403,9 +454,18 @@ async function generateBackstory() {
         return;
     }
     
-    const selectedElements = getSelectedBackstoryElements();
-    if (selectedElements.length === 0) {
-        showBackstoryError('Моля, избери поне един елемент за генериране.');
+    const aiElements = getSelectedBackstoryElements();
+    const customValues = getCustomBackstoryValues();
+    const allElements = getAllBackstoryElements();
+    
+    if (allElements.length === 0) {
+        showBackstoryError('Моля, избери поне един елемент или въведи свои стойности.');
+        return;
+    }
+
+    // If there are no AI elements, skip the API call and render custom only
+    if (aiElements.length === 0) {
+        renderBackstory(customValues, allElements);
         return;
     }
 
@@ -416,7 +476,7 @@ async function generateBackstory() {
         characterClass: charClass,
         characterRace: charRace,
         characterLevel: parseInt(DOM.charLevel.value),
-        elements: selectedElements
+        elements: aiElements
     };
 
     try {
@@ -452,8 +512,11 @@ async function generateBackstory() {
             }
         }
 
+        // Merge custom values with AI-generated data
+        const mergedData = { ...data, ...customValues };
+
         hideBackstoryLoading();
-        renderBackstory(data, selectedElements);
+        renderBackstory(mergedData, allElements);
 
     } catch (error) {
         console.error('Backstory generation error:', error);
@@ -590,6 +653,7 @@ function init() {
     updateSpiciness();
     setupCountButtons();
     setupItemTypeMultiSelect();
+    setupBackstoryCheckboxToggles();
     
     // Prompt for webhook if not set
     if (!CONFIG.webhookUrl) {

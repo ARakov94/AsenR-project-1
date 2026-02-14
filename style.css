@@ -870,8 +870,13 @@ body {
 
 .backstory-checkboxes {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-    gap: 0.5rem;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 0.6rem;
+}
+
+.backstory-option-wrapper {
+    display: flex;
+    flex-direction: column;
 }
 
 .backstory-option {
@@ -920,6 +925,58 @@ body {
     color: var(--bg-dark);
     font-size: 13px;
     font-weight: bold;
+}
+
+/* Unchecked state - highlight as custom input mode */
+.backstory-option-wrapper.custom-mode .backstory-option {
+    border-color: rgba(155, 89, 182, 0.4);
+    background: rgba(155, 89, 182, 0.06);
+}
+
+.backstory-option-wrapper.custom-mode .backstory-option span {
+    color: #c49bde;
+}
+
+/* Custom input field */
+.backstory-custom-input {
+    padding: 0 0.9rem 0.7rem;
+    animation: slideDown 0.2s ease;
+}
+
+@keyframes slideDown {
+    from { opacity: 0; max-height: 0; transform: translateY(-5px); }
+    to { opacity: 1; max-height: 200px; transform: translateY(0); }
+}
+
+.backstory-custom-input input,
+.backstory-custom-input textarea {
+    width: 100%;
+    padding: 0.5rem 0.7rem;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(155, 89, 182, 0.4);
+    border-radius: 6px;
+    color: var(--text-primary);
+    font-family: 'Crimson Text', serif;
+    font-size: 0.9rem;
+    resize: vertical;
+    transition: border-color 0.2s ease;
+}
+
+.backstory-custom-input input::placeholder,
+.backstory-custom-input textarea::placeholder {
+    color: rgba(255, 255, 255, 0.3);
+    font-style: italic;
+}
+
+.backstory-custom-input input:focus,
+.backstory-custom-input textarea:focus {
+    outline: none;
+    border-color: rgba(155, 89, 182, 0.8);
+    box-shadow: 0 0 8px rgba(155, 89, 182, 0.2);
+}
+
+.backstory-custom-input textarea {
+    min-height: 2.5rem;
 }
 
 /* ===== Backstory Results ===== */
@@ -1060,6 +1117,11 @@ body {
 @media (max-width: 600px) {
     .backstory-checkboxes {
         grid-template-columns: 1fr;
+    }
+    
+    .backstory-custom-input input,
+    .backstory-custom-input textarea {
+        font-size: 0.85rem;
     }
     
     .backstory-card {
