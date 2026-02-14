@@ -220,7 +220,6 @@ const UNIVERSES = {
 // ===== DOM Elements =====
 const DOM = {
     headerIcon: document.getElementById('headerIcon'),
-    wowLogo: document.getElementById('wowLogo'),
     itemQuality: document.getElementById('itemQuality'),
     charClass: document.getElementById('charClass'),
     charRace: document.getElementById('charRace'),
@@ -364,10 +363,6 @@ function switchUniverse(universeKey) {
     DOM.bgImage.classList.remove('dnd-bg', 'es-bg', 'wow-bg');
     const bgMap = { dnd: 'dnd-bg', elderscrolls: 'es-bg', worldofwarcraft: 'wow-bg' };
     DOM.bgImage.classList.add(bgMap[universeKey] || 'dnd-bg');
-    
-    // Toggle logos
-    DOM.headerIcon.style.display = universeKey === 'worldofwarcraft' ? 'none' : '';
-    DOM.wowLogo.style.display = universeKey === 'worldofwarcraft' ? '' : 'none';
     
     // Show/hide D&D-only sections
     const dndOnlySections = document.querySelectorAll('.dnd-only-section');
@@ -1524,9 +1519,6 @@ function init() {
     } else if (savedUniverse === 'worldofwarcraft') {
         document.body.classList.add('world-of-warcraft');
     }
-    // Toggle logos for saved universe
-    DOM.headerIcon.style.display = savedUniverse === 'worldofwarcraft' ? 'none' : '';
-    DOM.wowLogo.style.display = savedUniverse === 'worldofwarcraft' ? '' : 'none';
     // Show/hide D&D-only sections
     const dndOnlySections = document.querySelectorAll('.dnd-only-section');
     dndOnlySections.forEach(el => {

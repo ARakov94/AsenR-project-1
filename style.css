@@ -358,46 +358,9 @@ body.world-of-warcraft .particle {
     background: #0070dd;
 }
 
-/* WoW Logo Styles */
-.wow-logo {
-    filter: drop-shadow(0 0 30px rgba(0, 112, 221, 0.7)) drop-shadow(0 0 60px rgba(163, 53, 238, 0.3)) !important;
-}
-
-.wow-swords-swing {
-    transform-origin: 100px 85px;
-    animation: wowSwordsGlow 3s ease-in-out infinite;
-}
-
-@keyframes wowSwordsGlow {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.8; filter: brightness(1.2); }
-}
-
-.wow-emblem-pulse {
-    animation: wowEmblemPulse 2.5s ease-in-out infinite;
-}
-
-@keyframes wowEmblemPulse {
-    0%, 100% { r: 22; opacity: 0.4; }
-    50% { r: 25; opacity: 0.8; }
-}
-
-.wow-spark {
-    animation: wowSparkFloat 3s ease-in-out infinite;
-}
-
-.ws1 { animation-delay: 0s; }
-.ws2 { animation-delay: 0.5s; }
-.ws3 { animation-delay: 0.2s; }
-.ws4 { animation-delay: 0.7s; }
-.ws5 { animation-delay: 0.4s; }
-.ws6 { animation-delay: 0.9s; }
-
-@keyframes wowSparkFloat {
-    0% { opacity: 0; transform: translateY(0) scale(1); }
-    30% { opacity: 1; }
-    50% { opacity: 1; transform: translateY(-10px) scale(1.2); }
-    100% { opacity: 0; transform: translateY(-25px) scale(0); }
+/* WoW Logo Styles - apply blue/purple glow to forge logo when WoW is active */
+body.world-of-warcraft .forge-logo {
+    filter: drop-shadow(0 0 30px rgba(0, 112, 221, 0.7)) drop-shadow(0 0 60px rgba(163, 53, 238, 0.3));
 }
 
 body.world-of-warcraft .title {
