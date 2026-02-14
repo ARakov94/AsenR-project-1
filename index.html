@@ -237,14 +237,49 @@
             <div class="backstory-card" id="backstoryCard"></div>
         </section>
 
+        <!-- Character Sheet Section (D&D only) -->
+        <div id="charSheetSection" class="dnd-only-section">
+            <div class="section-separator">
+                <span class="separator-line"></span>
+                <span class="separator-icon">📋</span>
+                <span class="separator-line"></span>
+            </div>
+
+            <div class="generate-section">
+                <button id="generateCharSheetBtn" class="generate-btn charsheet-btn">
+                    <span class="btn-icon">📋</span>
+                    <span class="btn-text">Generate Character Sheet!</span>
+                </button>
+            </div>
+
+            <!-- Character Sheet Loading -->
+            <div class="loading" id="charSheetLoading" style="display: none;">
+                <div class="loading-spinner"></div>
+                <p class="loading-text">Rolling the dice... 🎲</p>
+                <p class="loading-flavor" id="charSheetLoadingFlavor"></p>
+            </div>
+
+            <!-- Character Sheet Error -->
+            <div class="error-message" id="charSheetError" style="display: none;">
+                <p>⚠️ <span id="charSheetErrorText"></span></p>
+            </div>
+
+            <!-- Character Sheet Results -->
+            <section class="charsheet-results" id="charSheetResults" style="display: none;">
+                <h2 class="results-title">📋 Character Sheet</h2>
+                <div class="charsheet-card" id="charSheetCard"></div>
+            </section>
+        </div>
+
         <!-- Separator -->
-        <div class="section-separator">
+        <div class="section-separator dnd-only-section" id="itemsSeparator">
             <span class="separator-line"></span>
             <span class="separator-icon">⚔️</span>
             <span class="separator-line"></span>
         </div>
 
-        <!-- Items Section (Secondary) -->
+        <!-- Items Section (D&D only) -->
+        <div class="dnd-only-section" id="itemsWrapper">
         <section class="card items-section-header" id="itemsSectionHeader">
             <button class="collapsible-toggle" id="itemsToggle">
                 <h2 class="card-title" style="margin-bottom:0; border-bottom:none; padding-bottom:0; cursor:pointer;">🎒 Item Generator <span class="toggle-arrow" id="itemsToggleArrow">▾</span></h2>
@@ -362,6 +397,7 @@
         </section>
 
         </div><!-- end collapsible-content -->
+        </div><!-- end dnd-only items wrapper -->
 
         <!-- Footer -->
         <footer class="footer">

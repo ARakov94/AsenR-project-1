@@ -148,74 +148,74 @@
     {
       "parameters": {
         "httpMethod": "POST",
-        "path": "es-items",
+        "path": "dnd-charsheet",
         "responseMode": "responseNode",
         "options": { "allowedOrigins": "*" }
       },
-      "id": "e3f4a5b6-0001-4000-c000-000000000001",
-      "name": "Webhook - ES Items",
+      "id": "a1b2c3d4-0001-4000-e000-000000000001",
+      "name": "Webhook - DnD CharSheet",
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2,
-      "position": [250, 1200],
-      "webhookId": "es-items"
+      "position": [250, 1100],
+      "webhookId": "dnd-charsheet"
     },
     {
       "parameters": {
-        "jsCode": "const input = $input.first().json.body;\nconst characterName = input.characterName || '';\nconst characterClass = input.characterClass || 'Warrior';\nconst characterRace = input.characterRace || 'Nord';\nconst characterLevel = input.characterLevel || 1;\nconst spiciness = input.spiciness || 0;\nconst itemCount = input.itemCount || 5;\nconst itemTypes = input.itemTypes || [];\n\nlet spicyInstruction = '';\nif (spiciness < 25) spicyInstruction = 'Keep all items family-friendly. Standard Elder Scrolls fantasy items.';\nelse if (spiciness < 50) spicyInstruction = 'Items can have mildly suggestive or cheeky names. Think Skooma-den humor.';\nelse if (spiciness < 75) spicyInstruction = 'Items should have clearly suggestive, provocative themes. Lusty Argonian Maid level humor.';\nelse spicyInstruction = 'Items should be boldly adult-themed with explicit humor. Be creative with Tamriel-themed adult content.';\n\nconst typeMap = { weapons: 'weapons (swords, axes, bows, daggers, staves, maces)', armor: 'armor and shields (ebony, glass, daedric, leather)', potions: 'potions, poisons, and alchemical concoctions', scrolls: 'scrolls, spell tomes, and Black Books', jewelry: 'jewelry (rings, amulets, necklaces, circlets)', trinkets: 'Dwemer artifacts, Daedric curiosities, and soul gems', clothing: 'clothing, robes, boots, and wearable items', tools: 'tools, lockpicks, and utility items', consumables: 'consumable items (food, mead, skooma, moon sugar)' };\n\nlet itemTypeInstruction = '';\nif (itemTypes.length === 1) itemTypeInstruction = `\\nIMPORTANT: ALL ${itemCount} items MUST be ${typeMap[itemTypes[0]] || itemTypes[0]}.`;\nelse if (itemTypes.length > 1) itemTypeInstruction = `\\nIMPORTANT: Items MUST be from: ${itemTypes.map(t => typeMap[t] || t).join(', ')}.`;\n\nconst nameLine = characterName ? `- Character Name: ${characterName}\\n` : '';\nconst userPrompt = `Generate exactly ${itemCount} unique items for an Elder Scrolls character:\\n\\n${nameLine}- Class: ${characterClass}\\n- Race: ${characterRace}\\n- Level: ${characterLevel}\\n${itemTypeInstruction}\\n\\nSpiciness Level: ${spiciness}/100\\n${spicyInstruction}\\n\\nFor each item provide: \"name\", \"type\", \"rarity\" (common/uncommon/rare/very-rare/legendary), \"description\" (1-3 sentences), \"properties\" (array of 1-3 effects).\\n\\nRules: Use Elder Scrolls / Tamriel lore. Reference materials like ebony, glass, daedric, dwemer. Include guilds (Thieves Guild, Dark Brotherhood, Mages Guild, Companions) where fitting. For level 1 characters, mostly common/uncommon. Include at least one unique personal item.\\n\\nRespond with a JSON array. No markdown, no code fences.`;\n\nreturn [{ json: { userPrompt, characterName, characterClass, spiciness } }];"
+        "jsCode": "const input = $input.first().json.body;\nconst characterClass = input.characterClass || 'Fighter';\nconst characterRace = input.characterRace || 'Human';\nconst characterLevel = input.characterLevel || 1;\n\nconst userPrompt = `Generate a complete D&D 5e (2024 edition) character sheet for:\\n\\n- Class: ${characterClass}\\n- Race: ${characterRace}\\n- Level: ${characterLevel}\\n\\nGenerate the following in a single JSON object:\\n\\n1. \"characterName\": A fitting lore-appropriate name for this race\\n2. \"class\": \"${characterClass}\"\\n3. \"race\": \"${characterRace}\"\\n4. \"level\": ${characterLevel}\\n5. \"abilityScores\": { \"STR\": number, \"DEX\": number, \"CON\": number, \"INT\": number, \"WIS\": number, \"CHA\": number } — use standard array (15,14,13,12,10,8) distributed appropriately for the class\\n6. \"hitPoints\": number — calculated from class hit dice + CON modifier at level ${characterLevel}\\n7. \"armorClass\": number — based on starting armor for the class\\n8. \"speed\": number — base speed for the race in feet\\n9. \"initiative\": number — DEX modifier\\n10. \"proficiencyBonus\": number — based on level\\n11. \"savingThrows\": array of ability abbreviations the class is proficient in (e.g. [\"STR\", \"CON\"])\\n12. \"skills\": array of ALL 18 D&D skills, each as { \"name\": string, \"modifier\": number, \"proficient\": boolean, \"ability\": string (3-letter abbreviation) }. Mark appropriate skills as proficient based on class and background. Calculate modifiers correctly (ability mod + prof bonus if proficient).\\n13. \"equipment\": array of strings listing starting equipment for the class\\n14. \"features\": array of { \"name\": string, \"description\": string } for racial traits and class features at this level\\n15. \"spells\": { \"cantrips\": [spell names], \"level1\": [spell names], \"slots\": number } — ONLY include this if the class is a spellcaster. Choose thematic spells.\\n\\nRules:\\n- Use official D&D 5e 2024 rules\\n- All numbers must be correctly calculated\\n- All 18 skills must be listed: Acrobatics, Animal Handling, Arcana, Athletics, Deception, History, Insight, Intimidation, Investigation, Medicine, Nature, Perception, Performance, Persuasion, Religion, Sleight of Hand, Stealth, Survival\\n- Use Forgotten Realms lore for the character name\\n\\nRespond with a JSON object. No markdown, no code fences.`;\n\nreturn [{ json: { userPrompt, characterClass, characterRace, characterLevel } }];"
       },
-      "id": "e3f4a5b6-0001-4000-c000-000000000002",
-      "name": "Build ES Items Prompt",
+      "id": "a1b2c3d4-0001-4000-e000-000000000002",
+      "name": "Build DnD CharSheet Prompt",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [480, 1200]
+      "position": [480, 1100]
     },
     {
       "parameters": {
         "text": "={{ $json.userPrompt }}",
         "options": {
-          "systemMessage": "You are a creative Elder Scrolls item designer with deep knowledge of Tamriel, the Daedric Princes, the Nine Divines, and all Elder Scrolls lore from Arena through Starfield. You know about Dwemer artifacts, Daedric weapons, enchanting, alchemy, and the various guilds. Respond ONLY with valid JSON arrays. No markdown, no code fences.",
+          "systemMessage": "You are an expert D&D 5e character builder with perfect knowledge of the 2024 Player's Handbook rules. You calculate ability modifiers, skill bonuses, hit points, and armor class with mathematical precision. You know all class features, racial traits, starting equipment, and spell lists. You always respond ONLY with valid JSON objects. No markdown, no code fences, no explanation text.",
           "maxIterations": 1
         }
       },
-      "id": "e3f4a5b6-0001-4000-c000-000000000003",
-      "name": "AI Agent - ES Items",
+      "id": "a1b2c3d4-0001-4000-e000-000000000003",
+      "name": "AI Agent - DnD CharSheet",
       "type": "@n8n/n8n-nodes-langchain.agent",
       "typeVersion": 1.7,
-      "position": [710, 1200]
+      "position": [710, 1100]
     },
     {
       "parameters": {
         "model": "x-ai/grok-3-mini",
-        "options": { "temperature": 0.9, "maxTokens": 4000 }
+        "options": { "temperature": 0.7, "maxTokens": 6000 }
       },
-      "id": "e3f4a5b6-0001-4000-c000-000000000004",
-      "name": "OpenRouter - ES Items",
+      "id": "a1b2c3d4-0001-4000-e000-000000000004",
+      "name": "OpenRouter - DnD CharSheet",
       "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
       "typeVersion": 1,
-      "position": [710, 1400],
+      "position": [710, 1300],
       "credentials": { "openRouterApi": { "id": "YOUR_OPENROUTER_CREDENTIAL_ID", "name": "OpenRouter API" } }
     },
     {
       "parameters": {
-        "jsCode": "const aiResponse = $input.first().json.output;\nif (!aiResponse) throw new Error('No response from AI Agent');\ntry {\n  let cleaned = aiResponse.trim();\n  if (cleaned.startsWith('```json')) cleaned = cleaned.slice(7);\n  if (cleaned.startsWith('```')) cleaned = cleaned.slice(3);\n  if (cleaned.endsWith('```')) cleaned = cleaned.slice(0, -3);\n  cleaned = cleaned.trim();\n  const items = JSON.parse(cleaned);\n  return [{ json: { items: Array.isArray(items) ? items : [items] } }];\n} catch (error) {\n  const match = aiResponse.match(/\\[\\s*\\{[\\s\\S]*\\}\\s*\\]/);\n  if (match) { try { return [{ json: { items: JSON.parse(match[0]) } }]; } catch(e) {} }\n  return [{ json: { items: [{ name: 'Mysterious Dwemer Cog', type: 'trinket', rarity: 'common', description: 'Something went wrong at the enchanting table.', properties: ['Try generating again'] }] } }];\n}"
+        "jsCode": "const aiResponse = $input.first().json.output;\nif (!aiResponse) throw new Error('No response from AI Agent');\ntry {\n  let cleaned = aiResponse.trim();\n  if (cleaned.startsWith('```json')) cleaned = cleaned.slice(7);\n  if (cleaned.startsWith('```')) cleaned = cleaned.slice(3);\n  if (cleaned.endsWith('```')) cleaned = cleaned.slice(0, -3);\n  cleaned = cleaned.trim();\n  return [{ json: JSON.parse(cleaned) }];\n} catch (error) {\n  const match = aiResponse.match(/\\{[\\s\\S]*\\}/);\n  if (match) { try { return [{ json: JSON.parse(match[0]) }]; } catch(e) {} }\n  return [{ json: { characterName: 'Unknown Hero', class: 'Fighter', race: 'Human', level: 1, abilityScores: { STR: 15, DEX: 13, CON: 14, INT: 10, WIS: 12, CHA: 8 }, hitPoints: 12, armorClass: 16, speed: 30, initiative: 1, proficiencyBonus: 2, savingThrows: ['STR', 'CON'], skills: [], equipment: ['Chain mail', 'Shield', 'Longsword'], features: [{ name: 'Error', description: 'Could not generate character sheet. Please try again.' }] } }];\n}"
       },
-      "id": "e3f4a5b6-0001-4000-c000-000000000005",
-      "name": "Parse ES Items",
+      "id": "a1b2c3d4-0001-4000-e000-000000000005",
+      "name": "Parse DnD CharSheet",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [940, 1200]
+      "position": [940, 1100]
     },
     {
       "parameters": {
         "respondWith": "json",
-        "responseBody": "={{ JSON.stringify($json.items) }}",
+        "responseBody": "={{ JSON.stringify($json) }}",
         "options": { "responseCode": 200, "responseHeaders": { "entries": [{ "name": "Access-Control-Allow-Origin", "value": "*" }, { "name": "Access-Control-Allow-Headers", "value": "Content-Type" }] } }
       },
-      "id": "e3f4a5b6-0001-4000-c000-000000000006",
-      "name": "Respond ES Items",
+      "id": "a1b2c3d4-0001-4000-e000-000000000006",
+      "name": "Respond DnD CharSheet",
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.1,
-      "position": [1170, 1200]
+      "position": [1170, 1100]
     },
     {
       "parameters": {
@@ -321,20 +321,20 @@
     "Parse DnD Backstory": {
       "main": [[{ "node": "Respond DnD Backstory", "type": "main", "index": 0 }]]
     },
-    "Webhook - ES Items": {
-      "main": [[{ "node": "Build ES Items Prompt", "type": "main", "index": 0 }]]
+    "Webhook - DnD CharSheet": {
+      "main": [[{ "node": "Build DnD CharSheet Prompt", "type": "main", "index": 0 }]]
     },
-    "Build ES Items Prompt": {
-      "main": [[{ "node": "AI Agent - ES Items", "type": "main", "index": 0 }]]
+    "Build DnD CharSheet Prompt": {
+      "main": [[{ "node": "AI Agent - DnD CharSheet", "type": "main", "index": 0 }]]
     },
-    "OpenRouter - ES Items": {
-      "ai_languageModel": [[{ "node": "AI Agent - ES Items", "type": "ai_languageModel", "index": 0 }]]
+    "OpenRouter - DnD CharSheet": {
+      "ai_languageModel": [[{ "node": "AI Agent - DnD CharSheet", "type": "ai_languageModel", "index": 0 }]]
     },
-    "AI Agent - ES Items": {
-      "main": [[{ "node": "Parse ES Items", "type": "main", "index": 0 }]]
+    "AI Agent - DnD CharSheet": {
+      "main": [[{ "node": "Parse DnD CharSheet", "type": "main", "index": 0 }]]
     },
-    "Parse ES Items": {
-      "main": [[{ "node": "Respond ES Items", "type": "main", "index": 0 }]]
+    "Parse DnD CharSheet": {
+      "main": [[{ "node": "Respond DnD CharSheet", "type": "main", "index": 0 }]]
     },
     "Webhook - ES Backstory": {
       "main": [[{ "node": "Build ES Backstory Prompt", "type": "main", "index": 0 }]]

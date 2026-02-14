@@ -1192,6 +1192,301 @@ body.elder-scrolls .background-overlay {
     color: var(--gold-dim);
 }
 
+/* ===== Character Sheet ===== */
+.charsheet-btn {
+    background: linear-gradient(135deg, #2980b9, #1a5276);
+    box-shadow: 0 4px 20px rgba(41, 128, 185, 0.3);
+}
+
+.charsheet-btn:hover {
+    box-shadow: 0 8px 30px rgba(41, 128, 185, 0.4);
+}
+
+.charsheet-results {
+    margin-top: 2rem;
+}
+
+.charsheet-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-gold);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-top: 1rem;
+}
+
+.cs-header {
+    text-align: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid var(--border-gold);
+}
+
+.cs-name {
+    font-family: 'Cinzel', serif;
+    font-size: 1.6rem;
+    color: var(--gold);
+    margin: 0 0 0.3rem;
+}
+
+.cs-info {
+    font-family: 'Crimson Text', serif;
+    color: var(--text-muted);
+    font-size: 1rem;
+    margin: 0;
+}
+
+.cs-top-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.cs-abilities-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.6rem;
+}
+
+.cs-ability {
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--border-gold);
+    border-radius: 8px;
+    padding: 0.6rem 0.4rem;
+    text-align: center;
+}
+
+.cs-ability-name {
+    font-family: 'Cinzel', serif;
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+
+.cs-ability-mod {
+    font-family: 'Cinzel', serif;
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--gold);
+    line-height: 1.2;
+}
+
+.cs-ability-score {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-top: 0.1rem;
+}
+
+.cs-combat-stats {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+}
+
+.cs-combat-stat {
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--border-gold);
+    border-radius: 8px;
+    padding: 0.8rem;
+    text-align: center;
+}
+
+.cs-stat-label {
+    font-family: 'Cinzel', serif;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.cs-stat-value {
+    font-family: 'Cinzel', serif;
+    font-size: 1.8rem;
+    font-weight: 900;
+    color: var(--gold);
+}
+
+.cs-hp .cs-stat-value { color: #e74c3c; }
+.cs-ac .cs-stat-value { color: #3498db; }
+
+.cs-combat-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.5rem;
+}
+
+.cs-combat-mini {
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--border-gold);
+    border-radius: 8px;
+    padding: 0.5rem;
+    text-align: center;
+}
+
+.cs-mini-label {
+    font-family: 'Cinzel', serif;
+    font-size: 0.6rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+.cs-mini-value {
+    font-family: 'Cinzel', serif;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text-light);
+}
+
+.cs-two-columns {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.cs-section {
+    margin-bottom: 1.2rem;
+}
+
+.cs-section-title {
+    font-family: 'Cinzel', serif;
+    font-size: 1rem;
+    color: var(--gold);
+    margin: 0 0 0.6rem;
+    padding-bottom: 0.4rem;
+    border-bottom: 1px solid rgba(212, 160, 23, 0.3);
+}
+
+.cs-saves-list, .cs-skills-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+}
+
+.cs-save, .cs-skill {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-family: 'Crimson Text', serif;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    padding: 0.15rem 0;
+}
+
+.cs-save.proficient, .cs-skill.proficient {
+    color: var(--text-light);
+}
+
+.cs-save-dot, .cs-skill-dot {
+    font-size: 0.6rem;
+    min-width: 0.8rem;
+}
+
+.cs-save.proficient .cs-save-dot,
+.cs-skill.proficient .cs-skill-dot {
+    color: var(--gold);
+}
+
+.cs-save-mod, .cs-skill-mod {
+    min-width: 1.8rem;
+    font-weight: 600;
+    font-family: 'Cinzel', serif;
+    font-size: 0.8rem;
+}
+
+.cs-skill-ability {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    opacity: 0.6;
+    margin-left: auto;
+}
+
+.cs-equipment-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.3rem;
+}
+
+.cs-equipment-list li {
+    font-family: 'Crimson Text', serif;
+    font-size: 0.9rem;
+    color: var(--text-light);
+    padding: 0.2rem 0;
+}
+
+.cs-equipment-list li::before {
+    content: '◆ ';
+    color: var(--gold-dim);
+}
+
+.cs-feature {
+    margin-bottom: 0.6rem;
+    padding: 0.5rem;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 6px;
+    border-left: 3px solid var(--gold-dim);
+}
+
+.cs-feature strong {
+    font-family: 'Cinzel', serif;
+    font-size: 0.9rem;
+    color: var(--gold-light);
+}
+
+.cs-feature p {
+    font-family: 'Crimson Text', serif;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin: 0.2rem 0 0;
+    line-height: 1.4;
+}
+
+.cs-spell-group {
+    margin-bottom: 0.5rem;
+}
+
+.cs-spell-level {
+    font-family: 'Cinzel', serif;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-right: 0.4rem;
+}
+
+.cs-spell-tag {
+    display: inline-block;
+    background: rgba(155, 89, 182, 0.2);
+    border: 1px solid rgba(155, 89, 182, 0.4);
+    border-radius: 12px;
+    padding: 0.15rem 0.6rem;
+    font-family: 'Crimson Text', serif;
+    font-size: 0.8rem;
+    color: #bb8fce;
+    margin: 0.15rem 0.2rem;
+}
+
+@media (max-width: 600px) {
+    .cs-top-row {
+        grid-template-columns: 1fr;
+    }
+    .cs-two-columns {
+        grid-template-columns: 1fr;
+    }
+    .cs-abilities-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+    .cs-equipment-list {
+        grid-template-columns: 1fr;
+    }
+    .cs-combat-row {
+        grid-template-columns: 1fr 1fr 1fr;
+    }
+}
+
 /* ===== Section Separator ===== */
 .section-separator {
     display: flex;

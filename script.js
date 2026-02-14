@@ -14,6 +14,7 @@ const UNIVERSES = {
         footerText: 'D&D 5e 2024 Edition',
         backstoryWebhook: 'https://n8n.simeontsvetanovn8nworkflows.site/webhook/dnd-backstory',
         itemsWebhook: 'https://n8n.simeontsvetanovn8nworkflows.site/webhook/dnd-items',
+        charsheetWebhook: 'https://n8n.simeontsvetanovn8nworkflows.site/webhook/dnd-charsheet',
         classes: [
             { value: '', label: '— Choose a class —' },
             { value: 'Barbarian', label: 'Barbarian' },
@@ -64,6 +65,16 @@ const UNIVERSES = {
             "The gods are watching...",
             "The chronicler records...",
             "The adventure begins..."
+        ],
+        charsheetFlavorTexts: [
+            "Rolling ability scores...",
+            "The scribe prepares the parchment...",
+            "Calculating modifiers...",
+            "Consulting the Player's Handbook...",
+            "The DM reviews the sheet...",
+            "Assigning proficiencies...",
+            "Selecting starting equipment...",
+            "The dice have spoken..."
         ]
     },
     elderscrolls: {
@@ -72,7 +83,6 @@ const UNIVERSES = {
         headerIcon: '🏔️',
         footerText: 'The Elder Scrolls Universe',
         backstoryWebhook: 'https://n8n.simeontsvetanovn8nworkflows.site/webhook/es-backstory',
-        itemsWebhook: 'https://n8n.simeontsvetanovn8nworkflows.site/webhook/es-items',
         classes: [
             { value: '', label: '— Choose a class —' },
             { value: 'Dragonknight', label: 'Dragonknight' },
@@ -164,6 +174,16 @@ const DOM = {
     backstoryResults: document.getElementById('backstoryResults'),
     backstoryCard: document.getElementById('backstoryCard'),
     backstoryCheckboxes: document.querySelectorAll('.backstory-checkboxes input[type="checkbox"]'),
+    charSheetSection: document.getElementById('charSheetSection'),
+    generateCharSheetBtn: document.getElementById('generateCharSheetBtn'),
+    charSheetLoading: document.getElementById('charSheetLoading'),
+    charSheetLoadingFlavor: document.getElementById('charSheetLoadingFlavor'),
+    charSheetError: document.getElementById('charSheetError'),
+    charSheetErrorText: document.getElementById('charSheetErrorText'),
+    charSheetResults: document.getElementById('charSheetResults'),
+    charSheetCard: document.getElementById('charSheetCard'),
+    itemsWrapper: document.getElementById('itemsWrapper'),
+    itemsSeparator: document.getElementById('itemsSeparator'),
     itemsToggle: document.getElementById('itemsToggle'),
     itemsToggleArrow: document.getElementById('itemsToggleArrow'),
     itemsCollapsible: document.getElementById('itemsCollapsible'),
@@ -184,6 +204,7 @@ let state = {
     itemCount: 5,
     isGenerating: false,
     isGeneratingBackstory: false,
+    isGeneratingCharSheet: false,
     itemsCollapsed: true,
     currentUniverse: 'dnd'
 };
@@ -208,6 +229,12 @@ function switchUniverse(universeKey) {
     DOM.bgImage.classList.remove('dnd-bg', 'es-bg');
     DOM.bgImage.classList.add(universeKey === 'elderscrolls' ? 'es-bg' : 'dnd-bg');
     
+    // Show/hide D&D-only sections
+    const dndOnlySections = document.querySelectorAll('.dnd-only-section');
+    dndOnlySections.forEach(el => {
+        el.style.display = universeKey === 'dnd' ? '' : 'none';
+    });
+    
     // Update footer
     DOM.footerUniverse.textContent = universe.footerText;
     
@@ -230,8 +257,11 @@ function switchUniverse(universeKey) {
     DOM.backstoryCard.innerHTML = '';
     DOM.results.style.display = 'none';
     DOM.itemsGrid.innerHTML = '';
+    DOM.charSheetResults.style.display = 'none';
+    DOM.charSheetCard.innerHTML = '';
     DOM.backstoryError.style.display = 'none';
     DOM.errorMessage.style.display = 'none';
+    DOM.charSheetError.style.display = 'none';
     
     // Save preference
     localStorage.setItem('selected_universe', universeKey);
@@ -674,6 +704,261 @@ async function generateBackstory() {
 }
 
 // ===== Generate Items =====
+
+// ===== Character Sheet Helpers =====
+function showCharSheetLoading() {
+    const universe = getUniverse();
+    DOM.charSheetLoading.style.display = 'block';
+    DOM.charSheetResults.style.display = 'none';
+    DOM.charSheetError.style.display = 'none';
+    DOM.generateCharSheetBtn.disabled = true;
+    
+    DOM.charSheetLoadingFlavor.textContent = universe.charsheetFlavorTexts[Math.floor(Math.random() * universe.charsheetFlavorTexts.length)];
+    state.charSheetFlavorInterval = setInterval(() => {
+        DOM.charSheetLoadingFlavor.textContent = universe.charsheetFlavorTexts[Math.floor(Math.random() * universe.charsheetFlavorTexts.length)];
+    }, 2500);
+}
+
+function hideCharSheetLoading() {
+    DOM.charSheetLoading.style.display = 'none';
+    DOM.generateCharSheetBtn.disabled = false;
+    if (state.charSheetFlavorInterval) clearInterval(state.charSheetFlavorInterval);
+}
+
+function showCharSheetError(message) {
+    hideCharSheetLoading();
+    DOM.charSheetErrorText.textContent = message;
+    DOM.charSheetError.style.display = 'block';
+}
+
+function getAbilityModifier(score) {
+    const mod = Math.floor((score - 10) / 2);
+    return mod >= 0 ? `+${mod}` : `${mod}`;
+}
+
+function renderCharSheet(data) {
+    DOM.charSheetCard.innerHTML = '';
+    
+    const abilities = data.abilityScores || {};
+    const abilityOrder = ['STR', 'DEX', 'CON', 'INT', 'WIS', 'CHA'];
+    const abilityNames = { STR: 'Strength', DEX: 'Dexterity', CON: 'Constitution', INT: 'Intelligence', WIS: 'Wisdom', CHA: 'Charisma' };
+    
+    // Character header
+    const headerName = data.characterName || '';
+    const headerInfo = `Level ${data.level || 1} ${data.race || ''} ${data.class || ''}`;
+    
+    // Ability scores grid
+    const abilityCards = abilityOrder.map(ab => {
+        const score = abilities[ab] || 10;
+        const mod = getAbilityModifier(score);
+        return `<div class="cs-ability">
+            <div class="cs-ability-name">${ab}</div>
+            <div class="cs-ability-mod">${mod}</div>
+            <div class="cs-ability-score">${score}</div>
+        </div>`;
+    }).join('');
+    
+    // Combat stats
+    const hp = data.hitPoints || 10;
+    const ac = data.armorClass || 10;
+    const speed = data.speed || 30;
+    const initiative = data.initiative != null ? (data.initiative >= 0 ? `+${data.initiative}` : data.initiative) : '+0';
+    const profBonus = data.proficiencyBonus || 2;
+    
+    // Saving throws
+    const savingThrows = data.savingThrows || [];
+    const savingThrowsHtml = abilityOrder.map(ab => {
+        const score = abilities[ab] || 10;
+        const baseMod = Math.floor((score - 10) / 2);
+        const prof = savingThrows.includes(ab);
+        const totalMod = prof ? baseMod + profBonus : baseMod;
+        const modStr = totalMod >= 0 ? `+${totalMod}` : `${totalMod}`;
+        return `<div class="cs-save ${prof ? 'proficient' : ''}">
+            <span class="cs-save-dot">${prof ? '●' : '○'}</span>
+            <span class="cs-save-mod">${modStr}</span>
+            <span class="cs-save-name">${abilityNames[ab]}</span>
+        </div>`;
+    }).join('');
+    
+    // Skills
+    const skills = data.skills || [];
+    const skillsHtml = skills.map(skill => {
+        const modStr = skill.modifier >= 0 ? `+${skill.modifier}` : `${skill.modifier}`;
+        return `<div class="cs-skill ${skill.proficient ? 'proficient' : ''}">
+            <span class="cs-skill-dot">${skill.proficient ? '●' : '○'}</span>
+            <span class="cs-skill-mod">${modStr}</span>
+            <span class="cs-skill-name">${escapeHtml(skill.name)}</span>
+            <span class="cs-skill-ability">(${skill.ability || ''})</span>
+        </div>`;
+    }).join('');
+    
+    // Equipment
+    const equipment = data.equipment || [];
+    const equipmentHtml = equipment.map(item => `<li>${escapeHtml(item)}</li>`).join('');
+    
+    // Features
+    const features = data.features || [];
+    const featuresHtml = features.map(feat => `
+        <div class="cs-feature">
+            <strong>${escapeHtml(feat.name)}</strong>
+            <p>${escapeHtml(feat.description)}</p>
+        </div>
+    `).join('');
+    
+    // Spells (optional)
+    let spellsHtml = '';
+    if (data.spells && (data.spells.cantrips?.length > 0 || data.spells.level1?.length > 0)) {
+        const cantrips = (data.spells.cantrips || []).map(s => `<span class="cs-spell-tag">${escapeHtml(s)}</span>`).join('');
+        const level1 = (data.spells.level1 || []).map(s => `<span class="cs-spell-tag">${escapeHtml(s)}</span>`).join('');
+        spellsHtml = `
+            <div class="cs-section">
+                <h3 class="cs-section-title">✨ Spells</h3>
+                ${cantrips ? `<div class="cs-spell-group"><span class="cs-spell-level">Cantrips:</span> ${cantrips}</div>` : ''}
+                ${level1 ? `<div class="cs-spell-group"><span class="cs-spell-level">Level 1 (${data.spells.slots || 2} slots):</span> ${level1}</div>` : ''}
+            </div>
+        `;
+    }
+
+    DOM.charSheetCard.innerHTML = `
+        <div class="cs-header">
+            ${headerName ? `<h2 class="cs-name">${escapeHtml(headerName)}</h2>` : ''}
+            <p class="cs-info">${escapeHtml(headerInfo)}</p>
+        </div>
+        
+        <div class="cs-top-row">
+            <div class="cs-abilities-grid">
+                ${abilityCards}
+            </div>
+            <div class="cs-combat-stats">
+                <div class="cs-combat-stat cs-hp">
+                    <div class="cs-stat-label">Hit Points</div>
+                    <div class="cs-stat-value">${hp}</div>
+                </div>
+                <div class="cs-combat-stat cs-ac">
+                    <div class="cs-stat-label">Armor Class</div>
+                    <div class="cs-stat-value">${ac}</div>
+                </div>
+                <div class="cs-combat-row">
+                    <div class="cs-combat-mini">
+                        <div class="cs-mini-label">Speed</div>
+                        <div class="cs-mini-value">${speed} ft</div>
+                    </div>
+                    <div class="cs-combat-mini">
+                        <div class="cs-mini-label">Initiative</div>
+                        <div class="cs-mini-value">${initiative}</div>
+                    </div>
+                    <div class="cs-combat-mini">
+                        <div class="cs-mini-label">Prof. Bonus</div>
+                        <div class="cs-mini-value">+${profBonus}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="cs-two-columns">
+            <div class="cs-section">
+                <h3 class="cs-section-title">🛡️ Saving Throws</h3>
+                <div class="cs-saves-list">${savingThrowsHtml}</div>
+            </div>
+            <div class="cs-section">
+                <h3 class="cs-section-title">📊 Skills</h3>
+                <div class="cs-skills-list">${skillsHtml}</div>
+            </div>
+        </div>
+        
+        <div class="cs-section">
+            <h3 class="cs-section-title">🎒 Equipment</h3>
+            <ul class="cs-equipment-list">${equipmentHtml}</ul>
+        </div>
+        
+        <div class="cs-section">
+            <h3 class="cs-section-title">⚡ Features & Traits</h3>
+            ${featuresHtml}
+        </div>
+        
+        ${spellsHtml}
+    `;
+    
+    DOM.charSheetResults.style.display = 'block';
+    DOM.charSheetResults.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// ===== Generate Character Sheet =====
+async function generateCharSheet() {
+    if (state.isGeneratingCharSheet) return;
+    
+    const charClass = DOM.charClass.value;
+    const charRace = DOM.charRace.value;
+    
+    if (!charClass) {
+        showCharSheetError('Please choose a class for your character.');
+        return;
+    }
+    
+    if (!charRace) {
+        showCharSheetError('Please choose a race for your character.');
+        return;
+    }
+    
+    state.isGeneratingCharSheet = true;
+    showCharSheetLoading();
+    
+    const universe = getUniverse();
+    const payload = {
+        characterClass: charClass,
+        characterRace: charRace,
+        characterLevel: parseInt(DOM.charLevel.value),
+        universe: state.currentUniverse
+    };
+
+    try {
+        const response = await fetch(universe.charsheetWebhook, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`Server responded with code ${response.status}: ${errorText || 'No additional info'}`);
+        }
+
+        const responseText = await response.text();
+        if (!responseText || responseText.trim() === '') {
+            throw new Error('Server returned empty response. Check if the n8n workflow is active.');
+        }
+
+        let data;
+        try {
+            data = JSON.parse(responseText);
+        } catch (parseErr) {
+            throw new Error(`Invalid JSON response: ${responseText.substring(0, 200)}`);
+        }
+        
+        if (data.output) {
+            try {
+                data = JSON.parse(data.output);
+            } catch {
+                // keep data as-is
+            }
+        }
+
+        hideCharSheetLoading();
+        renderCharSheet(data);
+
+    } catch (error) {
+        console.error('Character sheet generation error:', error);
+        if (error.name === 'TypeError' && error.message.includes('fetch')) {
+            showCharSheetError('Cannot connect to server. Check if n8n is running.');
+        } else {
+            showCharSheetError(error.message || 'An error occurred while generating the character sheet.');
+        }
+    } finally {
+        state.isGeneratingCharSheet = false;
+    }
+}
+
+// ===== Generate Items =====
 async function generateItems() {
     if (state.isGenerating) return;
     
@@ -771,6 +1056,7 @@ async function generateItems() {
 DOM.spicySlider.addEventListener('input', updateSpiciness);
 DOM.generateBtn.addEventListener('click', generateItems);
 DOM.generateBackstoryBtn.addEventListener('click', generateBackstory);
+DOM.generateCharSheetBtn.addEventListener('click', generateCharSheet);
 DOM.settingsBtn.addEventListener('click', openSettings);
 DOM.saveConfig.addEventListener('click', saveSettings);
 DOM.cancelConfig.addEventListener('click', closeSettings);
@@ -819,6 +1105,11 @@ function init() {
     if (savedUniverse === 'elderscrolls') {
         document.body.classList.add('elder-scrolls');
     }
+    // Show/hide D&D-only sections
+    const dndOnlySections = document.querySelectorAll('.dnd-only-section');
+    dndOnlySections.forEach(el => {
+        el.style.display = savedUniverse === 'dnd' ? '' : 'none';
+    });
     populateDropdown(DOM.charClass, universe.classes);
     populateDropdown(DOM.charRace, universe.races);
     
