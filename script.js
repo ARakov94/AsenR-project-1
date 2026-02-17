@@ -88,6 +88,7 @@ const UNIVERSES = {
             // ── Human ──
             { group: 'Human' },
             { value: 'Human', label: 'Human' },
+            { value: 'Half-Elf', label: 'Half-Elf' },
             // ── Orc ──
             { group: 'Orc' },
             { value: 'Orc', label: 'Orc' },
