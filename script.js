@@ -32,17 +32,98 @@ const UNIVERSES = {
         ],
         races: [
             { value: '', label: '— Choose a race —' },
-            { value: 'Human', label: 'Human' },
-            { value: 'Elf', label: 'Elf' },
-            { value: 'Dwarf', label: 'Dwarf' },
-            { value: 'Halfling', label: 'Halfling' },
-            { value: 'Gnome', label: 'Gnome' },
-            { value: 'Half-Orc', label: 'Half-Orc' },
-            { value: 'Tiefling', label: 'Tiefling' },
-            { value: 'Dragonborn', label: 'Dragonborn' },
-            { value: 'Goliath', label: 'Goliath' },
+            // ── Aasimar ──
+            { group: 'Aasimar' },
             { value: 'Aasimar', label: 'Aasimar' },
-            { value: 'Orc', label: 'Orc' }
+            // ── Dragonborn ──
+            { group: 'Dragonborn — Chromatic' },
+            { value: 'Black Dragonborn', label: 'Black Dragonborn' },
+            { value: 'Blue Dragonborn', label: 'Blue Dragonborn' },
+            { value: 'Green Dragonborn', label: 'Green Dragonborn' },
+            { value: 'Red Dragonborn', label: 'Red Dragonborn' },
+            { value: 'White Dragonborn', label: 'White Dragonborn' },
+            { group: 'Dragonborn — Metallic' },
+            { value: 'Brass Dragonborn', label: 'Brass Dragonborn' },
+            { value: 'Bronze Dragonborn', label: 'Bronze Dragonborn' },
+            { value: 'Copper Dragonborn', label: 'Copper Dragonborn' },
+            { value: 'Gold Dragonborn', label: 'Gold Dragonborn' },
+            { value: 'Silver Dragonborn', label: 'Silver Dragonborn' },
+            { group: 'Dragonborn — Gem' },
+            { value: 'Amethyst Dragonborn', label: 'Amethyst Dragonborn' },
+            { value: 'Crystal Dragonborn', label: 'Crystal Dragonborn' },
+            { value: 'Emerald Dragonborn', label: 'Emerald Dragonborn' },
+            { value: 'Sapphire Dragonborn', label: 'Sapphire Dragonborn' },
+            { value: 'Topaz Dragonborn', label: 'Topaz Dragonborn' },
+            // ── Dwarf ──
+            { group: 'Dwarf' },
+            { value: 'Hill Dwarf', label: 'Hill Dwarf' },
+            { value: 'Mountain Dwarf', label: 'Mountain Dwarf' },
+            { value: 'Duergar', label: 'Duergar (Gray Dwarf)' },
+            // ── Elf ──
+            { group: 'Elf' },
+            { value: 'High Elf', label: 'High Elf' },
+            { value: 'Wood Elf', label: 'Wood Elf' },
+            { value: 'Drow', label: 'Drow (Dark Elf)' },
+            { value: 'Eladrin', label: 'Eladrin (Fey Elf)' },
+            { value: 'Sea Elf', label: 'Sea Elf' },
+            { value: 'Shadar-kai', label: 'Shadar-kai (Shadow Elf)' },
+            // ── Gnome ──
+            { group: 'Gnome' },
+            { value: 'Forest Gnome', label: 'Forest Gnome' },
+            { value: 'Rock Gnome', label: 'Rock Gnome' },
+            { value: 'Deep Gnome', label: 'Deep Gnome (Svirfneblin)' },
+            // ── Goliath ──
+            { group: 'Goliath — Giant Ancestry' },
+            { value: 'Goliath (Cloud)', label: 'Cloud Giant Goliath' },
+            { value: 'Goliath (Fire)', label: 'Fire Giant Goliath' },
+            { value: 'Goliath (Frost)', label: 'Frost Giant Goliath' },
+            { value: 'Goliath (Hill)', label: 'Hill Giant Goliath' },
+            { value: 'Goliath (Stone)', label: 'Stone Giant Goliath' },
+            { value: 'Goliath (Storm)', label: 'Storm Giant Goliath' },
+            // ── Halfling ──
+            { group: 'Halfling' },
+            { value: 'Lightfoot Halfling', label: 'Lightfoot Halfling' },
+            { value: 'Stout Halfling', label: 'Stout Halfling' },
+            { value: 'Ghostwise Halfling', label: 'Ghostwise Halfling' },
+            // ── Human ──
+            { group: 'Human' },
+            { value: 'Human', label: 'Human' },
+            // ── Orc ──
+            { group: 'Orc' },
+            { value: 'Orc', label: 'Orc' },
+            { value: 'Half-Orc', label: 'Half-Orc' },
+            // ── Tiefling ──
+            { group: 'Tiefling — Fiendish Legacy' },
+            { value: 'Abyssal Tiefling', label: 'Abyssal Tiefling' },
+            { value: 'Chthonic Tiefling', label: 'Chthonic Tiefling' },
+            { value: 'Infernal Tiefling', label: 'Infernal Tiefling' },
+            // ── Other Races (Monsters of the Multiverse) ──
+            { group: 'Other Races' },
+            { value: 'Aarakocra', label: 'Aarakocra' },
+            { value: 'Bugbear', label: 'Bugbear' },
+            { value: 'Centaur', label: 'Centaur' },
+            { value: 'Changeling', label: 'Changeling' },
+            { value: 'Fairy', label: 'Fairy' },
+            { value: 'Firbolg', label: 'Firbolg' },
+            { value: 'Air Genasi', label: 'Air Genasi' },
+            { value: 'Earth Genasi', label: 'Earth Genasi' },
+            { value: 'Fire Genasi', label: 'Fire Genasi' },
+            { value: 'Water Genasi', label: 'Water Genasi' },
+            { value: 'Githyanki', label: 'Githyanki' },
+            { value: 'Githzerai', label: 'Githzerai' },
+            { value: 'Goblin', label: 'Goblin' },
+            { value: 'Harengon', label: 'Harengon' },
+            { value: 'Hobgoblin', label: 'Hobgoblin' },
+            { value: 'Kenku', label: 'Kenku' },
+            { value: 'Kobold', label: 'Kobold' },
+            { value: 'Lizardfolk', label: 'Lizardfolk' },
+            { value: 'Minotaur', label: 'Minotaur' },
+            { value: 'Satyr', label: 'Satyr' },
+            { value: 'Shifter', label: 'Shifter' },
+            { value: 'Tabaxi', label: 'Tabaxi' },
+            { value: 'Tortle', label: 'Tortle' },
+            { value: 'Triton', label: 'Triton' },
+            { value: 'Yuan-ti', label: 'Yuan-ti' }
         ],
         flavorTexts: [
             "The dwarves are heating the forge...",
@@ -414,11 +495,23 @@ function switchUniverse(universeKey) {
 
 function populateDropdown(selectEl, options) {
     selectEl.innerHTML = '';
+    let currentGroup = null;
     options.forEach(opt => {
+        if (opt.group) {
+            currentGroup = document.createElement('optgroup');
+            currentGroup.label = opt.group;
+            selectEl.appendChild(currentGroup);
+            return;
+        }
         const option = document.createElement('option');
         option.value = opt.value;
         option.textContent = opt.label;
-        selectEl.appendChild(option);
+        if (currentGroup && opt.value !== '') {
+            currentGroup.appendChild(option);
+        } else {
+            selectEl.appendChild(option);
+            if (opt.value === '') currentGroup = null;
+        }
     });
 }
 
